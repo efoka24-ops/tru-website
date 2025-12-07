@@ -1,0 +1,37 @@
+import axios from 'axios'
+
+const API_URL = 'http://localhost:5000/api'
+
+export const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+// Services API
+export const servicesAPI = {
+  getAll: () => api.get('/services'),
+  create: (data) => api.post('/services', data),
+  update: (id, data) => api.put(`/services/${id}`, data),
+  delete: (id) => api.delete(`/services/${id}`)
+}
+
+// Content API
+export const contentAPI = {
+  getAll: () => api.get('/content'),
+  create: (data) => api.post('/content', data),
+  update: (id, data) => api.put(`/content/${id}`, data),
+  delete: (id) => api.delete(`/content/${id}`)
+}
+
+// Team API
+export const teamAPI = {
+  getAll: () => api.get('/team'),
+  create: (data) => api.post('/team', data),
+  update: (id, data) => api.put(`/team/${id}`, data),
+  delete: (id) => api.delete(`/team/${id}`)
+}
+
+// Health Check
+export const healthCheck = () => api.get('/health')

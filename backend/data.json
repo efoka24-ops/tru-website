@@ -1,0 +1,99 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin User",
+      "email": "admin@sitetru.com",
+      "password": "hashed_password",
+      "role": "admin",
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "password": "hashed_password",
+      "role": "user",
+      "createdAt": "2025-01-05T00:00:00Z"
+    }
+  ],
+  "services": [
+    {
+      "id": 1,
+      "name": "Consulting",
+      "description": "Professional consulting services",
+      "price": 100,
+      "category": "business"
+    },
+    {
+      "id": 2,
+      "name": "Development",
+      "description": "Software development solutions",
+      "price": 150,
+      "category": "tech"
+    },
+    {
+      "id": 3,
+      "name": "Design",
+      "description": "UI/UX design services",
+      "price": 80,
+      "category": "design"
+    }
+  ],
+  "content": [
+    {
+      "id": 1,
+      "title": "Welcome to Site TRU",
+      "description": "Your trusted partner for digital solutions",
+      "page": "home",
+      "type": "hero"
+    },
+    {
+      "id": 2,
+      "title": "About Us",
+      "description": "We are a team of passionate professionals",
+      "page": "about",
+      "type": "section"
+    },
+    {
+      "id": 3,
+      "title": "Our Services",
+      "description": "Comprehensive solutions for your business needs",
+      "page": "services",
+      "type": "section"
+    }
+  ],
+  "contacts": [
+    {
+      "id": 1,
+      "name": "Alice Martin",
+      "email": "alice@sitetru.com",
+      "message": "Inquiry about consulting services",
+      "submittedAt": "2025-01-10T10:30:00Z",
+      "status": "pending"
+    }
+  ],
+  "team": [
+    {
+      "id": 1,
+      "name": "Jane Smith",
+      "position": "CEO & Founder",
+      "bio": "Visionary leader with 15+ years of experience",
+      "image": "/team/jane.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Bob Johnson",
+      "position": "Technical Director",
+      "bio": "Expert in software architecture and development",
+      "image": "/team/bob.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Carol White",
+      "position": "Design Lead",
+      "bio": "Creative designer focused on user experience",
+      "image": "/team/carol.jpg"
+    }
+  ]
+}
