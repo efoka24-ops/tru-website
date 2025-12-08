@@ -1,9 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Code, Users, Monitor, Database, GraduationCap, Globe } from 'lucide-react';
-import { team } from '../data/content';
+import { team as defaultTeam } from '../data/content';
+import { apiService } from '../api/apiService';
 
 export default function Team() {
+  const [teamData, setTeamData] = useState(defaultTeam);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch team data from API
+    apiService.getTeam().then(data => {
+      if (data && data.length > 0) {
+        setTeamData(data);
+        console.log('✅ Team data loaded from API:', data.length, 'members');
+      } else {
+        console.log('ℹ️ Using default team data from content.js');
+      }
+      setLoading(false);
+    });
+
+    // Set up polling to check for updates every 30 seconds
+    const pollInterval = setInterval(() => {
+      apiService.getTeam().then(data => {
+        if (data && data.length > 0) {
+          setTeamData(data);
+        }
+      });
+    }, 30000);
+
+    return () => clearInterval(pollInterval);
+  }, []);
+
   const expertise = [
     { icon: Code, title: "Ingénieurs", desc: "Développement & Architecture" },
     { icon: Users, title: "Consultants", desc: "Organisation & Stratégie" },
@@ -13,8 +41,8 @@ export default function Team() {
     { icon: Globe, title: "Experts terrain", desc: "Développement local" }
   ];
 
-  const founders = team.filter(m => m.is_founder);
-  const otherMembers = team.filter(m => !m.is_founder);
+  const founders = teamData.filter(m => m.is_founder);
+  const otherMembers = teamData.filter(m => !m.is_founder);
 
   return (
     <div className="min-h-screen bg-white">

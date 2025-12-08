@@ -3,6 +3,9 @@ const API_BASE_URL = process.env.NODE_ENV === 'development'
   ? 'http://localhost:5000/api' 
   : '/api';
 
+// Configuration for team sync with backoffice
+const BACKOFFICE_API_URL = 'http://localhost:3001/api';
+
 // Service pour les appels API
 export const apiService = {
   async getServices() {

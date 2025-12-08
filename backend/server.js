@@ -16,7 +16,8 @@ const dataPath = path.join(__dirname, 'data.json');
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Utility functions
 function readData() {
@@ -50,17 +51,28 @@ app.get('/api/services', (req, res) => {
   res.json(data.services);
 });
 
-app.post('/api/services', (req, res) => {
-  const data = readData();
-  const newService = {
-    id: Math.max(...data.services.map(s => s.id), 0) + 1,
-    ...req.body
-  };
-  data.services.push(newService);
-  if (writeData(data)) {
-    res.status(201).json(newService);
-  } else {
-    res.status(500).json({ error: 'Erreur d\'écriture' });
+app.post('/api/team', (req, res) => {
+  try {
+    const data = readData();
+    const newId = Math.max(...data.team.map(t => t.id || 0), 0) + 1;
+    
+    const newMember = {
+      id: newId,
+      ...req.body
+    };
+    
+    data.team.push(newMember);
+    
+    if (writeData(data)) {
+      console.log(`✅ Nouveau membre ${newId} créé`);
+      res.status(201).json(newMember);
+    } else {
+      console.error('❌ Erreur écriture');
+      res.status(500).json({ error: 'Erreur d\'écriture dans la base de données' });
+    }
+  } catch (error) {
+    console.error(`❌ Erreur serveur:`, error);
+    res.status(500).json({ error: 'Erreur serveur: ' + error.message });
   }
 });
 
@@ -169,34 +181,61 @@ app.post('/api/team', (req, res) => {
 });
 
 app.put('/api/team/:id', (req, res) => {
-  const data = readData();
-  const id = parseInt(req.params.id);
-  const index = data.team.findIndex(t => t.id === id);
-  if (index !== -1) {
-    data.team[index] = { ...data.team[index], ...req.body, id };
-    if (writeData(data)) {
-      res.json(data.team[index]);
+  try {
+    const data = readData();
+    const id = parseInt(req.params.id);
+    const index = data.team.findIndex(t => t.id === id);
+    
+    if (index !== -1) {
+      // Fusionner les données existantes avec les nouvelles
+      const updatedMember = {
+        ...data.team[index],
+        ...req.body,
+        id: id // S'assurer que l'ID ne change pas
+      };
+      
+      data.team[index] = updatedMember;
+      
+      if (writeData(data)) {
+        console.log(`✅ Membre ${id} modifié avec succès`);
+        res.json(updatedMember);
+      } else {
+        console.error(`❌ Erreur écriture pour membre ${id}`);
+        res.status(500).json({ error: 'Erreur d\'écriture dans la base de données' });
+      }
     } else {
-      res.status(500).json({ error: 'Erreur d\'écriture' });
+      console.warn(`⚠️ Membre ${id} non trouvé`);
+      res.status(404).json({ error: `Membre avec ID ${id} non trouvé` });
     }
-  } else {
-    res.status(404).json({ error: 'Membre non trouvé' });
+  } catch (error) {
+    console.error(`❌ Erreur serveur:`, error);
+    res.status(500).json({ error: 'Erreur serveur: ' + error.message });
   }
 });
 
 app.delete('/api/team/:id', (req, res) => {
-  const data = readData();
-  const id = parseInt(req.params.id);
-  const index = data.team.findIndex(t => t.id === id);
-  if (index !== -1) {
-    const deleted = data.team.splice(index, 1);
-    if (writeData(data)) {
-      res.json(deleted[0]);
+  try {
+    const data = readData();
+    const id = parseInt(req.params.id);
+    const index = data.team.findIndex(t => t.id === id);
+    
+    if (index !== -1) {
+      const deleted = data.team.splice(index, 1);
+      
+      if (writeData(data)) {
+        console.log(`✅ Membre ${id} supprimé`);
+        res.json(deleted[0]);
+      } else {
+        console.error(`❌ Erreur écriture pour suppression ${id}`);
+        res.status(500).json({ error: 'Erreur d\'écriture dans la base de données' });
+      }
     } else {
-      res.status(500).json({ error: 'Erreur d\'écriture' });
+      console.warn(`⚠️ Membre ${id} non trouvé pour suppression`);
+      res.status(404).json({ error: `Membre avec ID ${id} non trouvé` });
     }
-  } else {
-    res.status(404).json({ error: 'Membre non trouvé' });
+  } catch (error) {
+    console.error(`❌ Erreur serveur:`, error);
+    res.status(500).json({ error: 'Erreur serveur: ' + error.message });
   }
 });
 
