@@ -7,11 +7,7 @@ const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
   { path: '/equipe', label: 'Équipe', icon: Users },
   { path: '/sync', label: 'Synchronisation', icon: Eye },
-  { path: '/admin', label: 'Témoignages', icon: MessageSquare },
-  { path: '/services', label: 'Services', icon: Briefcase },
-  { path: '/solutions', label: 'Solutions', icon: Lightbulb },
-  { path: '/contents', label: 'Contenus', icon: FileText },
-  { path: '/admin', label: 'Paramètres', icon: Settings },
+  { path: '/admin', label: 'Admin', icon: MessageSquare },
 ];
 
 export default function AdminLayout({ children }) {
