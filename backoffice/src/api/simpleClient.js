@@ -3,7 +3,7 @@
  * Communication directe avec le backend
  */
 
-const BACKEND_URL = 'http://localhost:5000/api';
+const BACKEND_URL = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api`;
 
 export const apiClient = {
   // ÉQUIPE
