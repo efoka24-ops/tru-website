@@ -68,7 +68,8 @@ function getDefaultData() {
 export function readData() {
   try {
     // Check if running on Vercel (serverless environment)
-    const isServerless = process.env.VERCEL === '1' || !fs.existsSync(path.dirname(dataPath));
+    // Vercel sets VERCEL=1, or we can check if __dirname is writable
+    const isServerless = process.env.VERCEL === '1';
 
     if (isServerless) {
       // Use in-memory storage for Vercel
@@ -105,7 +106,7 @@ export function readData() {
  */
 export function writeData(data) {
   try {
-    const isServerless = process.env.VERCEL === '1' || !fs.existsSync(path.dirname(dataPath));
+    const isServerless = process.env.VERCEL === '1';
 
     if (isServerless) {
       // Store in memory for Vercel

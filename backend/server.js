@@ -21,9 +21,15 @@ const __dirname = path.dirname(__filename);
 const dataPath = path.join(__dirname, 'data.json');
 const uploadsDir = path.join(__dirname, 'uploads');
 
-// Créer le dossier uploads s'il n'existe pas
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// Créer le dossier uploads s'il n'existe pas (skip on Vercel)
+if (process.env.VERCEL !== '1') {
+  try {
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+  } catch (err) {
+    console.warn('⚠️ Could not create uploads directory:', err.message);
+  }
 }
 
 // Configuration multer - Use memory storage for Vercel compatibility
