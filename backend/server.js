@@ -49,7 +49,17 @@ const upload = multer({
 });
 
 // Middleware
-app.use(cors());
+// CORS Configuration - Allow all origins with proper headers
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false
+}));
+
+// Handle preflight OPTIONS requests explicitly
+app.options('*', cors());
+
 app.use(express.json());
 
 // Routes Health
