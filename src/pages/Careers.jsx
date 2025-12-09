@@ -85,12 +85,7 @@ export default function Careers() {
         formDataToSend.append('resume', formData.resume);
       }
 
-      const response = await fetch('http://localhost:5000/api/applications', {
-        method: 'POST',
-        body: formDataToSend
-      });
-
-      if (!response.ok) throw new Error('Erreur envoi candidature');
+      await apiService.sendApplication(formDataToSend);
 
       showNotification('✅ Candidature envoyée avec succès!', 'success');
       setApplyingJob(null);

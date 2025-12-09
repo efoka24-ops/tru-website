@@ -93,7 +93,7 @@ export default function Solutions() {
                             solution.image.startsWith('http')
                               ? solution.image
                               : solution.image.startsWith('/uploads')
-                                ? `http://localhost:5000${solution.image}`
+                                ? apiService.getImageUrl(solution.image)
                                 : solution.image
                           }
                           alt={solution.name}
@@ -194,7 +194,7 @@ export default function Solutions() {
                       selectedSolution.image.startsWith('http')
                         ? selectedSolution.image
                         : selectedSolution.image.startsWith('/uploads')
-                          ? `http://localhost:5000${selectedSolution.image}`
+                          ? apiService.getImageUrl(selectedSolution.image)
                           : selectedSolution.image
                     }
                     alt={selectedSolution.name}

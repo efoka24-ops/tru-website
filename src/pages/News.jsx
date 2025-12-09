@@ -105,7 +105,7 @@ export default function News() {
                   {item.image && (
                     <div className="relative h-48 overflow-hidden bg-slate-100">
                       <img
-                        src={`http://localhost:5000${item.image}`}
+                        src={apiService.getImageUrl(item.image)}
                         alt={item.title}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                       />
@@ -181,7 +181,7 @@ export default function News() {
               {selectedArticle.image && (
                 <div className="relative h-64 overflow-hidden bg-slate-100">
                   <img
-                    src={`http://localhost:5000${selectedArticle.image}`}
+                    src={apiService.getImageUrl(selectedArticle.image)}
                     alt={selectedArticle.title}
                     className="w-full h-full object-cover"
                   />

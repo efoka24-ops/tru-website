@@ -65,6 +65,79 @@ export const apiService = {
     }
   },
 
+  async getSolutions() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/solutions`);
+      if (!response.ok) throw new Error('Erreur réseau');
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur récupération solutions:', error);
+      return [];
+    }
+  },
+
+  async getNews() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/news`);
+      if (!response.ok) throw new Error('Erreur réseau');
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur récupération news:', error);
+      return [];
+    }
+  },
+
+  async getJobs() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/jobs`);
+      if (!response.ok) throw new Error('Erreur réseau');
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur récupération emplois:', error);
+      return [];
+    }
+  },
+
+  async getTestimonials() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/testimonials`);
+      if (!response.ok) throw new Error('Erreur réseau');
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur récupération témoignages:', error);
+      return [];
+    }
+  },
+
+  async sendContact(formData) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/contacts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (!response.ok) throw new Error('Erreur envoi contact');
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur envoi contact:', error);
+      throw error;
+    }
+  },
+
+  async sendApplication(formData) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/applications`, {
+        method: 'POST',
+        body: formData
+      });
+      if (!response.ok) throw new Error('Erreur envoi candidature');
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur envoi candidature:', error);
+      throw error;
+    }
+  },
+
   // Helper to get full image URL
   getImageUrl(imagePath) {
     if (!imagePath) return null;

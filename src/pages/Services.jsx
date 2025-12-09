@@ -93,7 +93,7 @@ export default function Services() {
                             service.image.startsWith('http')
                               ? service.image
                               : service.image.startsWith('/uploads')
-                                ? `http://localhost:5000${service.image}`
+                                ? apiService.getImageUrl(service.image)
                                 : service.image
                           }
                           alt={service.name}
@@ -183,7 +183,7 @@ export default function Services() {
                       selectedService.image.startsWith('http')
                         ? selectedService.image
                         : selectedService.image.startsWith('/uploads')
-                          ? `http://localhost:5000${selectedService.image}`
+                          ? apiService.getImageUrl(selectedService.image)
                           : selectedService.image
                     }
                     alt={selectedService.name}

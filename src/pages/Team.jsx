@@ -107,7 +107,7 @@ export default function Team() {
                               member.image.startsWith('http') 
                                 ? member.image 
                                 : member.image.startsWith('/uploads')
-                                  ? `http://localhost:5000${member.image}`
+                                  ? apiService.getImageUrl(member.image)
                                   : '/placeholder.svg'
                             }
                             alt={member.name}
@@ -177,7 +177,7 @@ export default function Team() {
                           member.image.startsWith('http') 
                             ? member.image 
                             : member.image.startsWith('/uploads')
-                              ? `http://localhost:5000${member.image}`
+                              ? apiService.getImageUrl(member.image)
                               : '/placeholder.svg'
                         }
                         alt={member.name}
