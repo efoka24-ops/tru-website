@@ -6,6 +6,7 @@ import {
   Rocket,
   CheckCircle2,
 } from 'lucide-react';
+import TestimonialsCarousel from '../components/TestimonialsCarousel';
 
 export default function About() {
   const values = [
@@ -148,7 +149,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* Team Section */}
+      {/* Testimonials Section */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
@@ -158,31 +159,14 @@ export default function About() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Leadership
+              Ce que nos clients disent
             </h2>
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Une vision portée par des entrepreneurs engagés
+              Découvrez les témoignages de nos partenaires et clients satisfaits
             </p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-2xl mx-auto"
-          >
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl p-12 text-center">
-              <div className="w-24 h-24 mx-auto mb-6 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-5xl">👨‍💼</span>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Emmanuel Foka Ziegoube</h3>
-              <p className="text-green-600 font-semibold mb-4">Fondateur & PDG</p>
-              <p className="text-slate-600 leading-relaxed">
-                Ingénieur en génie logiciel | Lauréat CASAM-INOV, PNUD, ECAM<br/>
-                Expert en transformation digitale et innovation sociale.
-              </p>
-            </div>
-          </motion.div>
+          <TestimonialsCarousel />
         </div>
       </section>
     </div>

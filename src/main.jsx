@@ -3,15 +3,27 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter as Router } from 'react-router-dom'
 import App from './App'
-import { setupFrontendAPI } from './api/frontendAPI'
+import ErrorBoundary from './components/ErrorBoundary'
 
-// Initialiser les endpoints API du Frontend
-setupFrontendAPI()
+try {
+  // Initialiser les endpoints API du Frontend
+  const { setupFrontendAPI } = await import('./api/frontendAPI');
+  setupFrontendAPI();
+} catch (error) {
+  console.warn('Frontend API setup warning:', error.message);
+}
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <Router>
-      <App />
-    </Router>
-  </React.StrictMode>,
-)
+const root = document.getElementById('root');
+if (!root) {
+  document.body.innerHTML = '<div style="padding: 20px; font-family: system-ui; color: red;">Erreur: Élément root non trouvé</div>';
+} else {
+  ReactDOM.createRoot(root).render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <Router>
+          <App />
+        </Router>
+      </ErrorBoundary>
+    </React.StrictMode>,
+  );
+}

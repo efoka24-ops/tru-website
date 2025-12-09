@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import multer from 'multer';
 
 dotenv.config();
 
@@ -13,29 +14,151 @@ const PORT = process.env.PORT || 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const dataPath = path.join(__dirname, 'data.json');
+const uploadsDir = path.join(__dirname, 'uploads');
+
+// Créer le dossier uploads s'il n'existe pas
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configuration multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    const name = path.basename(file.originalname, ext);
+    cb(null, name + '-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Format d\'image non autorisé'));
+    }
+  }
+});
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json());
+app.use('/uploads', express.static(uploadsDir));
 
 // Utility functions
 function readData() {
   try {
     const data = fs.readFileSync(dataPath, 'utf8');
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    
+    // Initialiser les sections manquantes
+    if (!parsed.team) parsed.team = [];
+    if (!parsed.services) parsed.services = [];
+    if (!parsed.solutions) parsed.solutions = [];
+    if (!parsed.contacts) parsed.contacts = [];
+    if (!parsed.testimonials) parsed.testimonials = [];
+    if (!parsed.settings) {
+      parsed.settings = {
+        id: 1,
+        siteTitle: 'Site TRU',
+        slogan: 'Transforming Reality Universally',
+        tagline: 'Innovation & Solutions',
+        email: 'contact@sitetru.com',
+        phone: '+33 (0)1 00 00 00 00',
+        address: '123 Rue de Paris, 75000 Paris',
+        socialMedia: { facebook: '', twitter: '', linkedin: '', instagram: '' },
+        businessHours: {
+          monday: '09:00 - 18:00',
+          tuesday: '09:00 - 18:00',
+          wednesday: '09:00 - 18:00',
+          thursday: '09:00 - 18:00',
+          friday: '09:00 - 18:00',
+          saturday: 'Fermé',
+          sunday: 'Fermé'
+        },
+        primaryColor: '#10b981'
+      };
+    }
+    
+    return parsed;
   } catch (err) {
     console.error('Erreur lecture data.json:', err);
-    return { users: [], services: [], content: [], contacts: [], team: [] };
+    return { 
+      users: [], 
+      services: [], 
+      solutions: [],
+      contacts: [],
+      testimonials: [],
+      content: [], 
+      team: [],
+      settings: {
+        id: 1,
+        siteTitle: 'Site TRU',
+        slogan: 'Transforming Reality Universally',
+        tagline: 'Innovation & Solutions',
+        email: 'contact@sitetru.com',
+        phone: '+33 (0)1 00 00 00 00',
+        address: '123 Rue de Paris, 75000 Paris',
+        socialMedia: { facebook: '', twitter: '', linkedin: '', instagram: '' },
+        businessHours: {
+          monday: '09:00 - 18:00',
+          tuesday: '09:00 - 18:00',
+          wednesday: '09:00 - 18:00',
+          thursday: '09:00 - 18:00',
+          friday: '09:00 - 18:00',
+          saturday: 'Fermé',
+          sunday: 'Fermé'
+        },
+        primaryColor: '#10b981'
+      }
+    };
   }
 }
 
 function writeData(data) {
   try {
+    // Assurer que les sections existent
+    if (!data.team) data.team = [];
+    if (!data.services) data.services = [];
+    if (!data.solutions) data.solutions = [];
+    if (!data.contacts) data.contacts = [];
+    if (!data.testimonials) data.testimonials = [];
+    if (!data.settings) {
+      data.settings = {
+        id: 1,
+        siteTitle: 'Site TRU',
+        slogan: 'Transforming Reality Universally',
+        tagline: 'Innovation & Solutions',
+        email: 'contact@sitetru.com',
+        phone: '+33 (0)1 00 00 00 00',
+        address: '123 Rue de Paris, 75000 Paris',
+        socialMedia: { facebook: '', twitter: '', linkedin: '', instagram: '' },
+        businessHours: {
+          monday: '09:00 - 18:00',
+          tuesday: '09:00 - 18:00',
+          wednesday: '09:00 - 18:00',
+          thursday: '09:00 - 18:00',
+          friday: '09:00 - 18:00',
+          saturday: 'Fermé',
+          sunday: 'Fermé'
+        },
+        primaryColor: '#10b981'
+      };
+    }
+    
+    console.log('📝 Écriture data.json avec:', { team: data.team.length, services: data.services.length, solutions: data.solutions.length, contacts: data.contacts.length, testimonials: data.testimonials.length });
     fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+    console.log('✅ Données écrites avec succès');
     return true;
   } catch (err) {
-    console.error('Erreur écriture data.json:', err);
+    console.error('❌ Erreur écriture data.json:', err);
     return false;
   }
 }
@@ -45,66 +168,103 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running' });
 });
 
+// Upload Image Route
+app.post('/api/upload', upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Aucun fichier fourni' });
+    }
+    
+    const imageUrl = `/uploads/${req.file.filename}`;
+    res.json({ 
+      success: true,
+      url: imageUrl,
+      filename: req.file.filename
+    });
+  } catch (error) {
+    console.error('Erreur upload:', error);
+    res.status(500).json({ error: error.message || 'Erreur upload' });
+  }
+});
+
 // Services Routes
 app.get('/api/services', (req, res) => {
   const data = readData();
   res.json(data.services);
 });
 
-app.post('/api/team', (req, res) => {
+app.post('/api/services', (req, res) => {
   try {
     const data = readData();
-    const newId = Math.max(...data.team.map(t => t.id || 0), 0) + 1;
+    if (!data.services) data.services = [];
     
-    const newMember = {
-      id: newId,
+    const ids = data.services.map(s => s.id || 0);
+    const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+    
+    const newService = {
+      id: maxId + 1,
       ...req.body
     };
-    
-    data.team.push(newMember);
+    data.services.push(newService);
     
     if (writeData(data)) {
-      console.log(`✅ Nouveau membre ${newId} créé`);
-      res.status(201).json(newMember);
+      res.status(201).json(newService);
     } else {
-      console.error('❌ Erreur écriture');
-      res.status(500).json({ error: 'Erreur d\'écriture dans la base de données' });
+      res.status(500).json({ error: 'Erreur écriture fichier' });
     }
   } catch (error) {
-    console.error(`❌ Erreur serveur:`, error);
-    res.status(500).json({ error: 'Erreur serveur: ' + error.message });
+    console.error('Erreur création service:', error);
+    res.status(500).json({ error: error.message || 'Erreur création service' });
   }
 });
 
 app.put('/api/services/:id', (req, res) => {
-  const data = readData();
-  const id = parseInt(req.params.id);
-  const index = data.services.findIndex(s => s.id === id);
-  if (index !== -1) {
-    data.services[index] = { ...data.services[index], ...req.body, id };
-    if (writeData(data)) {
-      res.json(data.services[index]);
+  try {
+    const data = readData();
+    if (!data.services) data.services = [];
+    
+    const id = parseInt(req.params.id);
+    const index = data.services.findIndex(s => s.id === id);
+    
+    if (index !== -1) {
+      data.services[index] = { ...data.services[index], ...req.body, id };
+      
+      if (writeData(data)) {
+        res.json(data.services[index]);
+      } else {
+        res.status(500).json({ error: 'Erreur écriture fichier' });
+      }
     } else {
-      res.status(500).json({ error: 'Erreur d\'écriture' });
+      res.status(404).json({ error: 'Service non trouvé' });
     }
-  } else {
-    res.status(404).json({ error: 'Service non trouvé' });
+  } catch (error) {
+    console.error('Erreur modification service:', error);
+    res.status(500).json({ error: error.message || 'Erreur modification service' });
   }
 });
 
 app.delete('/api/services/:id', (req, res) => {
-  const data = readData();
-  const id = parseInt(req.params.id);
-  const index = data.services.findIndex(s => s.id === id);
-  if (index !== -1) {
-    const deleted = data.services.splice(index, 1);
-    if (writeData(data)) {
-      res.json(deleted[0]);
+  try {
+    const data = readData();
+    if (!data.services) data.services = [];
+    
+    const id = parseInt(req.params.id);
+    const index = data.services.findIndex(s => s.id === id);
+    
+    if (index !== -1) {
+      const deleted = data.services.splice(index, 1);
+      
+      if (writeData(data)) {
+        res.json(deleted[0]);
+      } else {
+        res.status(500).json({ error: 'Erreur écriture fichier' });
+      }
     } else {
-      res.status(500).json({ error: 'Erreur d\'écriture' });
+      res.status(404).json({ error: 'Service non trouvé' });
     }
-  } else {
-    res.status(404).json({ error: 'Service non trouvé' });
+  } catch (error) {
+    console.error('Erreur suppression service:', error);
+    res.status(500).json({ error: error.message || 'Erreur suppression service' });
   }
 });
 
@@ -115,65 +275,77 @@ app.get('/api/content', (req, res) => {
 });
 
 app.post('/api/content', (req, res) => {
-  const data = readData();
-  const newContent = {
-    id: Math.max(...data.content.map(c => c.id), 0) + 1,
-    ...req.body
-  };
-  data.content.push(newContent);
-  if (writeData(data)) {
-    res.status(201).json(newContent);
-  } else {
-    res.status(500).json({ error: 'Erreur d\'écriture' });
+  try {
+    const data = readData();
+    if (!data.content) data.content = [];
+    
+    const ids = data.content.map(c => c.id || 0);
+    const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+    
+    const newContent = {
+      id: maxId + 1,
+      ...req.body
+    };
+    data.content.push(newContent);
+    
+    if (writeData(data)) {
+      res.status(201).json(newContent);
+    } else {
+      res.status(500).json({ error: 'Erreur écriture fichier' });
+    }
+  } catch (error) {
+    console.error('Erreur création contenu:', error);
+    res.status(500).json({ error: error.message || 'Erreur création contenu' });
   }
 });
 
 app.put('/api/content/:id', (req, res) => {
-  const data = readData();
-  const id = parseInt(req.params.id);
-  const index = data.content.findIndex(c => c.id === id);
-  if (index !== -1) {
-    data.content[index] = { ...data.content[index], ...req.body, id };
-    if (writeData(data)) {
-      res.json(data.content[index]);
+  try {
+    const data = readData();
+    if (!data.content) data.content = [];
+    
+    const id = parseInt(req.params.id);
+    const index = data.content.findIndex(c => c.id === id);
+    
+    if (index !== -1) {
+      data.content[index] = { ...data.content[index], ...req.body, id };
+      
+      if (writeData(data)) {
+        res.json(data.content[index]);
+      } else {
+        res.status(500).json({ error: 'Erreur écriture fichier' });
+      }
     } else {
-      res.status(500).json({ error: 'Erreur d\'écriture' });
+      res.status(404).json({ error: 'Contenu non trouvé' });
     }
-  } else {
-    res.status(404).json({ error: 'Contenu non trouvé' });
+  } catch (error) {
+    console.error('Erreur modification contenu:', error);
+    res.status(500).json({ error: error.message || 'Erreur modification contenu' });
   }
 });
 
 app.delete('/api/content/:id', (req, res) => {
-  const data = readData();
-  const id = parseInt(req.params.id);
-  const index = data.content.findIndex(c => c.id === id);
-  if (index !== -1) {
-    const deleted = data.content.splice(index, 1);
-    if (writeData(data)) {
-      res.json(deleted[0]);
-    } else {
-      res.status(500).json({ error: 'Erreur d\'écriture' });
-    }
-  } else {
-    res.status(404).json({ error: 'Contenu non trouvé' });
-  }
-});
-
-// POST Content
-app.post('/api/content', (req, res) => {
   try {
     const data = readData();
-    const newId = Math.max(...(data.content?.map(c => c.id) || [0]), 0) + 1;
-    const newContent = { id: newId, ...req.body };
-    data.content.push(newContent);
-    if (writeData(data)) {
-      res.status(201).json(newContent);
+    if (!data.content) data.content = [];
+    
+    const id = parseInt(req.params.id);
+    const index = data.content.findIndex(c => c.id === id);
+    
+    if (index !== -1) {
+      const deleted = data.content.splice(index, 1);
+      
+      if (writeData(data)) {
+        res.json(deleted[0]);
+      } else {
+        res.status(500).json({ error: 'Erreur écriture fichier' });
+      }
     } else {
-      res.status(500).json({ error: 'Erreur d\'écriture' });
+      res.status(404).json({ error: 'Contenu non trouvé' });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Erreur suppression contenu:', error);
+    res.status(500).json({ error: error.message || 'Erreur suppression contenu' });
   }
 });
 
@@ -184,55 +356,61 @@ app.get('/api/team', (req, res) => {
 });
 
 app.post('/api/team', (req, res) => {
-  const data = readData();
-  const newMember = {
-    id: Math.max(...data.team.map(t => t.id), 0) + 1,
-    ...req.body
-  };
-  data.team.push(newMember);
-  if (writeData(data)) {
-    res.status(201).json(newMember);
-  } else {
-    res.status(500).json({ error: 'Erreur d\'écriture' });
+  try {
+    const data = readData();
+    if (!data.team) data.team = [];
+    
+    const ids = data.team.map(t => t.id || 0);
+    const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+    
+    const newMember = {
+      id: maxId + 1,
+      ...req.body
+    };
+    
+    data.team.push(newMember);
+    
+    if (writeData(data)) {
+      res.status(201).json(newMember);
+    } else {
+      res.status(500).json({ error: 'Erreur écriture fichier' });
+    }
+  } catch (error) {
+    console.error('Erreur création membre:', error);
+    res.status(500).json({ error: error.message || 'Erreur création membre' });
   }
 });
 
 app.put('/api/team/:id', (req, res) => {
   try {
     const data = readData();
+    if (!data.team) data.team = [];
+    
     const id = parseInt(req.params.id);
     const index = data.team.findIndex(t => t.id === id);
     
     if (index !== -1) {
-      // Fusionner les données existantes avec les nouvelles
-      const updatedMember = {
-        ...data.team[index],
-        ...req.body,
-        id: id // S'assurer que l'ID ne change pas
-      };
-      
-      data.team[index] = updatedMember;
+      data.team[index] = { ...data.team[index], ...req.body, id };
       
       if (writeData(data)) {
-        console.log(`✅ Membre ${id} modifié avec succès`);
-        res.json(updatedMember);
+        res.json(data.team[index]);
       } else {
-        console.error(`❌ Erreur écriture pour membre ${id}`);
-        res.status(500).json({ error: 'Erreur d\'écriture dans la base de données' });
+        res.status(500).json({ error: 'Erreur écriture fichier' });
       }
     } else {
-      console.warn(`⚠️ Membre ${id} non trouvé`);
-      res.status(404).json({ error: `Membre avec ID ${id} non trouvé` });
+      res.status(404).json({ error: 'Membre non trouvé' });
     }
   } catch (error) {
-    console.error(`❌ Erreur serveur:`, error);
-    res.status(500).json({ error: 'Erreur serveur: ' + error.message });
+    console.error('Erreur modification membre:', error);
+    res.status(500).json({ error: error.message || 'Erreur modification membre' });
   }
 });
 
 app.delete('/api/team/:id', (req, res) => {
   try {
     const data = readData();
+    if (!data.team) data.team = [];
+    
     const id = parseInt(req.params.id);
     const index = data.team.findIndex(t => t.id === id);
     
@@ -240,26 +418,29 @@ app.delete('/api/team/:id', (req, res) => {
       const deleted = data.team.splice(index, 1);
       
       if (writeData(data)) {
-        console.log(`✅ Membre ${id} supprimé`);
         res.json(deleted[0]);
       } else {
-        console.error(`❌ Erreur écriture pour suppression ${id}`);
-        res.status(500).json({ error: 'Erreur d\'écriture dans la base de données' });
+        res.status(500).json({ error: 'Erreur écriture fichier' });
       }
     } else {
-      console.warn(`⚠️ Membre ${id} non trouvé pour suppression`);
-      res.status(404).json({ error: `Membre avec ID ${id} non trouvé` });
+      res.status(404).json({ error: 'Membre non trouvé' });
     }
   } catch (error) {
-    console.error(`❌ Erreur serveur:`, error);
-    res.status(500).json({ error: 'Erreur serveur: ' + error.message });
+    console.error('Erreur suppression membre:', error);
+    res.status(500).json({ error: error.message || 'Erreur suppression membre' });
   }
 });
 
-// Solutions Routes
+// SOLUTIONS ROUTES
 app.get('/api/solutions', (req, res) => {
-  const data = readData();
-  res.json(data.solutions || []);
+  try {
+    const data = readData();
+    if (!data.solutions) data.solutions = [];
+    res.json(data.solutions);
+  } catch (error) {
+    console.error('Erreur récupération solutions:', error);
+    res.status(500).json({ error: error.message || 'Erreur récupération solutions' });
+  }
 });
 
 app.post('/api/solutions', (req, res) => {
@@ -267,152 +448,344 @@ app.post('/api/solutions', (req, res) => {
     const data = readData();
     if (!data.solutions) data.solutions = [];
     
-    const newId = Math.max(...data.solutions.map(s => s.id || 0), 0) + 1;
-    const newSolution = { id: newId, ...req.body };
+    const ids = data.solutions.map(s => s.id || 0);
+    const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+    const newId = maxId + 1;
+    
+    const newSolution = {
+      id: newId,
+      ...req.body,
+      createdAt: new Date().toISOString()
+    };
     
     data.solutions.push(newSolution);
     
     if (writeData(data)) {
-      console.log(`✅ Solution ${newId} créée`);
       res.status(201).json(newSolution);
     } else {
-      res.status(500).json({ error: 'Erreur d\'écriture' });
+      res.status(500).json({ error: 'Erreur écriture fichier' });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Erreur création solution:', error);
+    res.status(500).json({ error: error.message || 'Erreur création solution' });
   }
 });
 
 app.put('/api/solutions/:id', (req, res) => {
   try {
     const data = readData();
+    if (!data.solutions) data.solutions = [];
+    
     const id = parseInt(req.params.id);
     const index = data.solutions.findIndex(s => s.id === id);
     
     if (index !== -1) {
       data.solutions[index] = { ...data.solutions[index], ...req.body, id };
+      
       if (writeData(data)) {
         res.json(data.solutions[index]);
       } else {
-        res.status(500).json({ error: 'Erreur d\'écriture' });
+        res.status(500).json({ error: 'Erreur écriture fichier' });
       }
     } else {
       res.status(404).json({ error: 'Solution non trouvée' });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Erreur modification solution:', error);
+    res.status(500).json({ error: error.message || 'Erreur modification solution' });
   }
 });
 
 app.delete('/api/solutions/:id', (req, res) => {
   try {
     const data = readData();
+    if (!data.solutions) data.solutions = [];
+    
     const id = parseInt(req.params.id);
     const index = data.solutions.findIndex(s => s.id === id);
     
     if (index !== -1) {
       const deleted = data.solutions.splice(index, 1);
+      
       if (writeData(data)) {
         res.json(deleted[0]);
       } else {
-        res.status(500).json({ error: 'Erreur d\'écriture' });
+        res.status(500).json({ error: 'Erreur écriture fichier' });
       }
     } else {
       res.status(404).json({ error: 'Solution non trouvée' });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Erreur suppression solution:', error);
+    res.status(500).json({ error: error.message || 'Erreur suppression solution' });
   }
 });
 
-// Testimonials Routes
-app.get('/api/testimonials', (req, res) => {
-  const data = readData();
-  res.json(data.testimonials || []);
+// SETTINGS ROUTES
+app.get('/api/settings', (req, res) => {
+  try {
+    const data = readData();
+    if (!data.settings) {
+      data.settings = {
+        id: 1,
+        siteTitle: 'Site TRU',
+        slogan: 'Transforming Reality Universally',
+        tagline: 'Innovation & Solutions',
+        email: 'contact@sitetru.com',
+        phone: '+33 (0)1 00 00 00 00',
+        address: '123 Rue de Paris, 75000 Paris',
+        socialMedia: { facebook: '', twitter: '', linkedin: '', instagram: '' },
+        businessHours: {
+          monday: '09:00 - 18:00',
+          tuesday: '09:00 - 18:00',
+          wednesday: '09:00 - 18:00',
+          thursday: '09:00 - 18:00',
+          friday: '09:00 - 18:00',
+          saturday: 'Fermé',
+          sunday: 'Fermé'
+        },
+        primaryColor: '#10b981'
+      };
+    }
+    res.json(data.settings);
+  } catch (error) {
+    console.error('Erreur récupération settings:', error);
+    res.status(500).json({ error: error.message || 'Erreur récupération settings' });
+  }
 });
 
-app.post('/api/testimonials', (req, res) => {
+app.post('/api/settings', (req, res) => {
+  try {
+    const data = readData();
+    data.settings = { id: 1, ...req.body };
+    
+    if (writeData(data)) {
+      res.json(data.settings);
+    } else {
+      res.status(500).json({ error: 'Erreur écriture fichier' });
+    }
+  } catch (error) {
+    console.error('Erreur sauvegarde settings:', error);
+    res.status(500).json({ error: error.message || 'Erreur sauvegarde settings' });
+  }
+});
+
+// CONTACTS ROUTES (pour formulaire contact et testimonials)
+app.get('/api/contacts', (req, res) => {
+  try {
+    const data = readData();
+    if (!data.contacts) data.contacts = [];
+    res.json(data.contacts);
+  } catch (error) {
+    console.error('Erreur récupération contacts:', error);
+    res.status(500).json({ error: error.message || 'Erreur récupération contacts' });
+  }
+});
+
+app.post('/api/contacts', (req, res) => {
+  try {
+    const data = readData();
+    if (!data.contacts) data.contacts = [];
+    
+    const ids = data.contacts.map(c => c.id || 0);
+    const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+    const newId = maxId + 1;
+    
+    const newContact = {
+      id: newId,
+      ...req.body,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+    
+    data.contacts.push(newContact);
+    
+    if (writeData(data)) {
+      res.status(201).json(newContact);
+    } else {
+      res.status(500).json({ error: 'Erreur écriture fichier' });
+    }
+  } catch (error) {
+    console.error('Erreur création contact:', error);
+    res.status(500).json({ error: error.message || 'Erreur création contact' });
+  }
+});
+
+app.put('/api/contacts/:id', (req, res) => {
+  try {
+    const data = readData();
+    if (!data.contacts) data.contacts = [];
+    
+    const id = parseInt(req.params.id);
+    const index = data.contacts.findIndex(c => c.id === id);
+    
+    if (index !== -1) {
+      data.contacts[index] = { ...data.contacts[index], ...req.body, id };
+      
+      if (writeData(data)) {
+        res.json(data.contacts[index]);
+      } else {
+        res.status(500).json({ error: 'Erreur écriture fichier' });
+      }
+    } else {
+      res.status(404).json({ error: 'Contact non trouvé' });
+    }
+  } catch (error) {
+    console.error('Erreur modification contact:', error);
+    res.status(500).json({ error: error.message || 'Erreur modification contact' });
+  }
+});
+
+app.delete('/api/contacts/:id', (req, res) => {
+  try {
+    const data = readData();
+    if (!data.contacts) data.contacts = [];
+    
+    const id = parseInt(req.params.id);
+    const index = data.contacts.findIndex(c => c.id === id);
+    
+    if (index !== -1) {
+      const deleted = data.contacts.splice(index, 1);
+      
+      if (writeData(data)) {
+        res.json(deleted[0]);
+      } else {
+        res.status(500).json({ error: 'Erreur écriture fichier' });
+      }
+    } else {
+      res.status(404).json({ error: 'Contact non trouvé' });
+    }
+  } catch (error) {
+    console.error('Erreur suppression contact:', error);
+    res.status(500).json({ error: error.message || 'Erreur suppression contact' });
+  }
+});
+
+// TESTIMONIALS ROUTES
+app.get('/api/testimonials', (req, res) => {
+  try {
+    const data = readData();
+    if (!data.testimonials) data.testimonials = [];
+    res.json(data.testimonials);
+  } catch (error) {
+    console.error('Erreur récupération testimonials:', error);
+    res.status(500).json({ error: error.message || 'Erreur récupération testimonials' });
+  }
+});
+
+app.post('/api/testimonials', upload.single('image'), (req, res) => {
   try {
     const data = readData();
     if (!data.testimonials) data.testimonials = [];
     
-    const newId = Math.max(...data.testimonials.map(t => t.id || 0), 0) + 1;
-    const newTestimonial = { id: newId, ...req.body };
+    const ids = data.testimonials.map(t => t.id || 0);
+    const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+    const newId = maxId + 1;
+    
+    // Accepter l'image soit du FormData (req.file) soit du JSON (req.body.image)
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = `/uploads/${req.file.filename}`;
+    } else if (req.body.image) {
+      imageUrl = req.body.image; // C'est déjà le chemin complet depuis l'upload précédent
+    }
+    
+    const newTestimonial = {
+      id: newId,
+      name: req.body.name,
+      title: req.body.title,
+      company: req.body.company,
+      testimonial: req.body.testimonial,
+      rating: parseInt(req.body.rating) || 5,
+      image: imageUrl,
+      createdAt: new Date().toISOString()
+    };
+    
+    console.log('📝 Création testimonial:', { id: newId, name: req.body.name, hasImage: !!imageUrl });
     
     data.testimonials.push(newTestimonial);
     
     if (writeData(data)) {
-      console.log(`✅ Témoignage ${newId} créé`);
       res.status(201).json(newTestimonial);
     } else {
-      res.status(500).json({ error: 'Erreur d\'écriture' });
+      res.status(500).json({ error: 'Erreur écriture fichier' });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Erreur création testimonial:', error);
+    res.status(500).json({ error: error.message || 'Erreur création testimonial' });
   }
 });
 
-app.put('/api/testimonials/:id', (req, res) => {
+app.put('/api/testimonials/:id', upload.single('image'), (req, res) => {
   try {
     const data = readData();
+    if (!data.testimonials) data.testimonials = [];
+    
     const id = parseInt(req.params.id);
     const index = data.testimonials.findIndex(t => t.id === id);
     
     if (index !== -1) {
-      data.testimonials[index] = { ...data.testimonials[index], ...req.body, id };
+      const oldTestimonial = data.testimonials[index];
+      
+      // Déterminer l'image: fichier nouvellement uploadé, chemin du JSON, ou ancienne image
+      let imageUrl = oldTestimonial.image;
+      if (req.file) {
+        imageUrl = `/uploads/${req.file.filename}`;
+      } else if (req.body.image && req.body.image !== oldTestimonial.image) {
+        imageUrl = req.body.image;
+      }
+      
+      const updatedTestimonial = {
+        ...oldTestimonial,
+        name: req.body.name || oldTestimonial.name,
+        title: req.body.title || oldTestimonial.title,
+        company: req.body.company || oldTestimonial.company,
+        testimonial: req.body.testimonial || oldTestimonial.testimonial,
+        rating: req.body.rating ? parseInt(req.body.rating) : oldTestimonial.rating,
+        image: imageUrl,
+        id
+      };
+      
+      console.log('📝 Modification testimonial:', { id, hasImage: !!imageUrl });
+      
+      data.testimonials[index] = updatedTestimonial;
+      
       if (writeData(data)) {
-        res.json(data.testimonials[index]);
+        res.json(updatedTestimonial);
       } else {
-        res.status(500).json({ error: 'Erreur d\'écriture' });
+        res.status(500).json({ error: 'Erreur écriture fichier' });
       }
     } else {
-      res.status(404).json({ error: 'Témoignage non trouvé' });
+      res.status(404).json({ error: 'Testimonial non trouvé' });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Erreur modification testimonial:', error);
+    res.status(500).json({ error: error.message || 'Erreur modification testimonial' });
   }
 });
 
 app.delete('/api/testimonials/:id', (req, res) => {
   try {
     const data = readData();
+    if (!data.testimonials) data.testimonials = [];
+    
     const id = parseInt(req.params.id);
     const index = data.testimonials.findIndex(t => t.id === id);
     
     if (index !== -1) {
       const deleted = data.testimonials.splice(index, 1);
+      
       if (writeData(data)) {
         res.json(deleted[0]);
       } else {
-        res.status(500).json({ error: 'Erreur d\'écriture' });
+        res.status(500).json({ error: 'Erreur écriture fichier' });
       }
     } else {
-      res.status(404).json({ error: 'Témoignage non trouvé' });
+      res.status(404).json({ error: 'Testimonial non trouvé' });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Settings Routes
-app.get('/api/settings', (req, res) => {
-  const data = readData();
-  res.json(data.settings || {});
-});
-
-app.put('/api/settings', (req, res) => {
-  try {
-    const data = readData();
-    data.settings = { ...data.settings, ...req.body };
-    
-    if (writeData(data)) {
-      console.log(`✅ Paramètres mis à jour`);
-      res.json(data.settings);
-    } else {
-      res.status(500).json({ error: 'Erreur d\'écriture' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Erreur suppression testimonial:', error);
+    res.status(500).json({ error: error.message || 'Erreur suppression testimonial' });
   }
 });
 
@@ -433,11 +806,11 @@ app.get('/api/sync/status', (req, res) => {
     status: 'online',
     lastSync: new Date().toISOString(),
     dataCount: {
-      services: data.services.length,
-      solutions: (data.solutions || []).length,
-      testimonials: (data.testimonials || []).length,
-      content: data.content.length,
-      team: data.team.length
+      services: data.services?.length || 0,
+      solutions: data.solutions?.length || 0,
+      contacts: data.contacts?.length || 0,
+      testimonials: data.testimonials?.length || 0,
+      team: data.team?.length || 0
     }
   });
 });

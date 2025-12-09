@@ -64,7 +64,7 @@ export default function SyncViewPage() {
     queryKey: ['team', 'backend'],
     queryFn: async () => {
       try {
-        const response = await fetch('https://tru-backend-five.vercel.app/api/team');
+        const response = await fetch('http://localhost:5000/api/team');
         if (response.ok) {
           const data = await response.json();
           console.log('✅ Backend Team (5000):', data?.length, 'membres');
@@ -105,11 +105,7 @@ export default function SyncViewPage() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">
             📊 Vue de Synchronisation
           </h1>
-          <p className="text-slate-600">
-            {selectedSource === 'content' 
-              ? 'Affichage de l\'équipe du Frontend (content.js)' 
-              : 'Affichage de l\'équipe du Backend (data.json)'}
-          </p>
+          <p className="text-slate-600">Affichage des données d'équipe de tous les services</p>
         </motion.div>
 
         {/* Source Selection & Refresh */}

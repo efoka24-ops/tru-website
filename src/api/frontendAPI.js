@@ -1,15 +1,73 @@
-// Ce fichier crée des endpoints API virtuel dans le Frontend
-// pour servir les données de l'équipe depuis content.js
+/**
+ * Frontend API Setup
+ * Configure les endpoints API locaux pour le frontend
+ */
 
-import { team, services, solutions } from '../data/content.js';
+export function setupFrontendAPI() {
+  // Endpoints pour la synchronisation d'équipe
+  const setupTeamEndpoints = () => {
+    // GET /api/team - Récupère l'équipe
+    if (!window.__teamEndpoints) {
+      window.__teamEndpoints = {
+        listeners: [],
+        data: []
+      };
+    }
 
-// NOTE: Ce fichier est un fallback pour le développement local
-// En production, le backoffice communique directement avec le backend sur le port 5000
-// Ces fonctions ne sont utilisées que si le backend n'est pas disponible
+    // Enregistrer les listeners pour la synchronisation
+    const registerTeamListener = (callback) => {
+      if (window.__teamEndpoints) {
+        window.__teamEndpoints.listeners.push(callback);
+      }
+    };
 
-export const setupFrontendAPI = () => {
-  // Cette fonction n'est plus nécessaire car le backoffice utilise le backend réel
-  console.log('Frontend API setup (fallback mode)');
-};
+    // Notifier les listeners d'un changement
+    const notifyTeamChange = (action, member) => {
+      if (window.__teamEndpoints) {
+        window.__teamEndpoints.listeners.forEach(listener => {
+          try {
+            listener({ action, member, timestamp: new Date().toISOString() });
+          } catch (error) {
+            console.error('Error in team listener:', error);
+          }
+        });
+      }
+    };
 
-export { team, services, solutions };
+    window.__teamAPI = {
+      registerListener: registerTeamListener,
+      notifyChange: notifyTeamChange
+    };
+
+    console.log('✅ Team API endpoints initialized');
+  };
+
+  // Initialiser les endpoints d'équipe
+  setupTeamEndpoints();
+
+  // Log confirmation
+  console.log('✅ Frontend API setup completed');
+  return true;
+}
+
+/**
+ * Hook pour utiliser l'API du frontend
+ */
+export function useTeamAPI() {
+  const registerListener = (callback) => {
+    if (window.__teamAPI) {
+      window.__teamAPI.registerListener(callback);
+    }
+  };
+
+  const notifyChange = (action, member) => {
+    if (window.__teamAPI) {
+      window.__teamAPI.notifyChange(action, member);
+    }
+  };
+
+  return {
+    registerListener,
+    notifyChange
+  };
+}

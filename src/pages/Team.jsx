@@ -100,12 +100,23 @@ export default function Team() {
                 >
                   <div className="grid md:grid-cols-2 gap-8 p-8 md:p-12">
                     <div className="flex items-center justify-center">
-                      <div className="w-full max-w-xs rounded-2xl overflow-hidden shadow-lg">
-                        <img 
-                          src={member.image} 
-                          alt={member.name}
-                          className="w-full h-full object-cover aspect-square"
-                        />
+                      <div className="w-full max-w-xs rounded-2xl overflow-hidden shadow-lg bg-slate-200">
+                        {member.image ? (
+                          <img 
+                            src={
+                              member.image.startsWith('http') 
+                                ? member.image 
+                                : member.image.startsWith('/uploads')
+                                  ? `http://localhost:5000${member.image}`
+                                  : '/placeholder.svg'
+                            }
+                            alt={member.name}
+                            className="w-full h-full object-cover aspect-square"
+                            onError={(e) => e.target.src = '/placeholder.svg'}
+                          />
+                        ) : (
+                          <div className="w-full h-full aspect-square flex items-center justify-center bg-slate-300 text-slate-500 text-4xl">?</div>
+                        )}
                       </div>
                     </div>
                     <div>
@@ -159,12 +170,23 @@ export default function Team() {
                   transition={{ delay: index * 0.1 }}
                   className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-500"
                 >
-                  <div className="w-full h-56 overflow-hidden">
-                    <img 
-                      src={member.image} 
-                      alt={member.name}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-full h-56 overflow-hidden bg-slate-200">
+                    {member.image ? (
+                      <img 
+                        src={
+                          member.image.startsWith('http') 
+                            ? member.image 
+                            : member.image.startsWith('/uploads')
+                              ? `http://localhost:5000${member.image}`
+                              : '/placeholder.svg'
+                        }
+                        alt={member.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => e.target.src = '/placeholder.svg'}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-slate-300 text-slate-500 text-3xl">?</div>
+                    )}
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-slate-900 mb-1">{member.name}</h3>

@@ -2,33 +2,41 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Briefcase, Lightbulb, FileText, Settings, BarChart3, TrendingUp, AlertCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/simpleClient';
 import SyncStatus from '@/components/SyncStatus';
 
 export default function Dashboard() {
-  const { data: stats = {} } = useQuery({
-    queryKey: ['stats'],
+  const { data: stats = {}, isLoading } = useQuery({
+    queryKey: ['dashboard-stats'],
     queryFn: async () => {
-      const [members, services, solutions, contents] = await Promise.all([
-        base44.entities.TeamMember.list(),
-        base44.entities.Service.list(),
-        base44.entities.Solution.list(),
-        base44.entities.PageContent.list(),
-      ]);
-      return {
-        members: members.length,
-        services: services.length,
-        solutions: solutions.length,
-        contents: contents.length,
-      };
+      try {
+        const [team, services, solutions, contacts, settings] = await Promise.all([
+          apiClient.getTeam(),
+          apiClient.getServices(),
+          apiClient.getSolutions(),
+          apiClient.getContacts(),
+          fetch('http://localhost:5000/api/settings').then(r => r.json()).catch(() => ({}))
+        ]);
+        return {
+          team: (team || []).length,
+          services: (services || []).length,
+          solutions: (solutions || []).length,
+          contacts: (contacts || []).length,
+          settings: settings || {}
+        };
+      } catch (error) {
+        console.error('❌ Erreur chargement stats:', error);
+        return { team: 0, services: 0, solutions: 0, contacts: 0 };
+      }
     },
+    staleTime: 30000,
   });
 
   const statCards = [
-    { label: 'Membres équipe', value: stats.members || 0, icon: Users, color: 'emerald', trend: '+2' },
-    { label: 'Services', value: stats.services || 0, icon: Briefcase, color: 'blue', trend: '+1' },
-    { label: 'Solutions', value: stats.solutions || 0, icon: Lightbulb, color: 'amber', trend: '+1' },
-    { label: 'Contenus', value: stats.contents || 0, icon: FileText, color: 'pink', trend: '+5' },
+    { label: 'Équipe', value: stats.team || 0, icon: Users, color: 'emerald', trend: '+' },
+    { label: 'Services', value: stats.services || 0, icon: Briefcase, color: 'blue', trend: '+' },
+    { label: 'Solutions', value: stats.solutions || 0, icon: Lightbulb, color: 'amber', trend: '+' },
+    { label: 'Contacts', value: stats.contacts || 0, icon: FileText, color: 'pink', trend: '+' },
   ];
 
   const colorClasses = {

@@ -6,8 +6,12 @@ import { Menu, X, Users, Briefcase, Lightbulb, FileText, Settings, BarChart3, Lo
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
   { path: '/equipe', label: 'Équipe', icon: Users },
+  { path: '/services', label: 'Services', icon: Briefcase },
+  { path: '/solutions', label: 'Solutions', icon: Lightbulb },
+  { path: '/testimonials', label: 'Témoignages', icon: MessageSquare },
+  { path: '/contacts', label: 'Contacts', icon: FileText },
   { path: '/sync', label: 'Synchronisation', icon: Eye },
-  { path: '/admin', label: 'Admin', icon: MessageSquare },
+  { path: '/settings', label: 'Paramètres', icon: Settings },
 ];
 
 export default function AdminLayout({ children }) {

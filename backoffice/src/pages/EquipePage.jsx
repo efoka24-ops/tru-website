@@ -22,36 +22,100 @@ export default function EquipePage() {
 
   const queryClient = useQueryClient();
 
-  // URLs de configuration
-  const BACKEND_API_URL = 'https://tru-backend-five.vercel.app/api'; // Backend principal - SEULE source
+  // URLs de configuration pour les différents services
+  const BACKEND_API_URL = 'http://localhost:5000/api'; // Backend principal
+  const FRONTEND_API_URL = 'http://localhost:5173/api';
+  const TRU_SITE_URL = 'http://localhost:3000/api'; // Site TRU principal
 
-  // Récupérer du backend principal (port 5000) - SEULE SOURCE
+  // Récupérer les données du frontend d'abord
+  const fetchFrontendTeam = async (source = 'default') => {
+    try {
+      const response = await fetch(`${FRONTEND_API_URL}/team`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Source': source
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Données équipe récupérées du frontend:', data?.length || 0, 'membres');
+        return data || [];
+      }
+    } catch (error) {
+      console.warn('⚠️ Frontend API not available:', error.message);
+    }
+    return [];
+  };
+  // Récupérer du backend principal (port 5000)
   const fetchBackendTeam = async () => {
     try {
-      console.log('📡 Appel Backend pour récupérer l\'équipe...');
       const response = await fetch(`${BACKEND_API_URL}/team`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
-
-      if (!response.ok) {
-        throw new Error(`Erreur Backend: ${response.status}`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Données équipe récupérées du backend principal:', data?.length || 0, 'membres');
+        return data || [];
       }
-
-      const data = await response.json();
-      console.log('✅ Équipe reçue du Backend:', data?.length || 0, 'membres');
-      return data || [];
     } catch (error) {
-      console.error('❌ Erreur Backend:', error.message);
-      return [];
+      console.warn('⚠️ Backend API not available:', error.message);
     }
+    return [];
+  };
+
+  // Récupérer également depuis le site TRU principal
+  const fetchTRUSiteTeam = async () => {
+    try {
+      const response = await fetch(`${TRU_SITE_URL}/team`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Données équipe récupérées du site TRU:', data?.length || 0, 'membres');
+        return data || [];
+      }
+    } catch (error) {
+      console.warn('⚠️ Site TRU API not available:', error.message);
+    }
+    return [];
   };
 
   const { data: teamMembers = [], isLoading, refetch } = useQuery({
     queryKey: ['teamMembers'],
-    queryFn: fetchBackendTeam,
-    staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    queryFn: async () => {
+      // Essayer le backend principal d'abord
+      const backendData = await fetchBackendTeam();
+      if (backendData.length > 0) {
+        return backendData;
+      }
+
+      // Essayer le site TRU
+      const truData = await fetchTRUSiteTeam();
+      if (truData.length > 0) {
+        return truData;
+      }
+
+      // Essayer le frontend
+      const frontendData = await fetchFrontendTeam('query');
+      if (frontendData.length > 0) {
+        return frontendData;
+      }
+
+      // Sinon, utiliser le backend base44
+      try {
+        const backendBase44Data = await base44.entities.TeamMember.list('display_order');
+        console.log('✅ Données équipe récupérées du backend base44:', backendBase44Data?.length || 0, 'membres');
+        return backendBase44Data || [];
+      } catch (error) {
+        console.error('❌ Erreur lors de la récupération des données:', error);
+        return [];
+      }
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
   });
 
   const showNotification = (message, type = 'success', duration = 3000) => {
@@ -59,107 +123,120 @@ export default function EquipePage() {
     setTimeout(() => setNotification(null), duration);
   };
 
-  const createMutation = useMutation({
-    mutationFn: async (data) => {
-      console.log('📡 Création nouveau membre:', data);
-      
-      // Sauvegarder directement dans le Backend
-      const response = await fetch(`${BACKEND_API_URL}/team`, {
+  // Envoyer une mise à jour à tous les services
+  const syncTeamToFrontend = async (action, member) => {
+    const payload = {
+      action,
+      member,
+      timestamp: new Date().toISOString(),
+      source: 'backoffice'
+    };
+
+    // Synchroniser avec le backend principal (port 5000)
+    try {
+      if (action === 'create') {
+        await fetch(`${BACKEND_API_URL}/team`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(member)
+        });
+        console.log(`✅ Membre créé et synchronisé au backend principal`);
+      } else if (action === 'update' && member.id) {
+        await fetch(`${BACKEND_API_URL}/team/${member.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(member)
+        });
+        console.log(`✅ Membre modifié et synchronisé au backend principal`);
+      } else if (action === 'delete' && member.id) {
+        await fetch(`${BACKEND_API_URL}/team/${member.id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        console.log(`✅ Membre supprimé du backend principal`);
+      }
+    } catch (error) {
+      console.warn('⚠️ Backend principal sync skipped:', error.message);
+    }
+
+    // Notifier le frontend admin
+    try {
+      await fetch(`${FRONTEND_API_URL}/team-update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify(payload)
       });
-      
-      // Vérifier la réponse AVANT de parser le JSON
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Erreur Backend (Status ' + response.status + '):', errorText);
-        throw new Error(`Erreur ${response.status}: ${errorText.substring(0, 100)}`);
-      }
-      
-      const responseData = await response.json();
-      console.log('✅ Membre créé avec succès:', responseData);
-      return responseData;
+      console.log(`✅ Notification ${action} envoyée au frontend admin`);
+    } catch (error) {
+      console.warn('⚠️ Frontend admin notification skipped:', error.message);
+    }
+
+    // Notifier le site TRU principal
+    try {
+      await fetch(`${TRU_SITE_URL}/team-update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      console.log(`✅ Notification ${action} envoyée au site TRU`);
+    } catch (error) {
+      console.warn('⚠️ Site TRU notification skipped:', error.message);
+    }
+  };
+
+  const createMutation = useMutation({
+    mutationFn: async (data) => {
+      const result = await base44.entities.TeamMember.create(data);
+      // Synchroniser avec le frontend et le site TRU
+      await syncTeamToFrontend('create', result);
+      return result;
     },
-    onSuccess: (result) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
       refetch();
       setIsEditingDialog(false);
       setEditingMember(null);
-      setPhotoPreview(null);
-      showNotification('✅ Membre ajouté et visible sur le site!', 'success');
+      showNotification('✅ Membre ajouté et synchronisé!', 'success');
     },
     onError: (error) => {
-      console.error('❌ Erreur mutation:', error);
-      showNotification('❌ Erreur: ' + (error.message || 'Erreur inconnue'), 'error', 4000);
+      showNotification('❌ Erreur lors de l\'ajout: ' + (error.message || 'Erreur inconnue'), 'error', 4000);
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      console.log(`📡 Envoi modification pour ID ${id}:`, data);
-      
-      // Sauvegarder directement dans le Backend
-      const response = await fetch(`${BACKEND_API_URL}/team/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      
-      // Vérifier la réponse AVANT de parser le JSON
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Erreur Backend (Status ' + response.status + '):', errorText);
-        throw new Error(`Erreur ${response.status}: ${errorText.substring(0, 100)}`);
-      }
-      
-      const responseData = await response.json();
-      console.log('✅ Membre modifié avec succès:', responseData);
-      return responseData;
+      const result = await base44.entities.TeamMember.update(id, data);
+      // Synchroniser avec le frontend et le site TRU
+      await syncTeamToFrontend('update', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
       refetch();
       setIsEditingDialog(false);
       setEditingMember(null);
-      setPhotoPreview(null);
-      showNotification('✅ Membre modifié et visible sur le site!', 'success');
+      showNotification('✅ Membre modifié et synchronisé!', 'success');
     },
     onError: (error) => {
-      console.error('❌ Erreur mutation:', error);
-      showNotification('❌ Erreur: ' + (error.message || 'Erreur inconnue'), 'error', 4000);
+      showNotification('❌ Erreur lors de la modification: ' + (error.message || 'Erreur inconnue'), 'error', 4000);
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
-      console.log('📡 Suppression membre ID:', id);
-      
-      // Supprimer directement dans le Backend
-      const response = await fetch(`${BACKEND_API_URL}/team/${id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      // Vérifier la réponse AVANT de parser le JSON
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Erreur Backend (Status ' + response.status + '):', errorText);
-        throw new Error(`Erreur ${response.status}: ${errorText.substring(0, 100)}`);
-      }
-      
-      const responseData = await response.json();
-      console.log('✅ Membre supprimé avec succès:', responseData);
-      return responseData;
+      const result = await base44.entities.TeamMember.delete(id);
+      // Synchroniser la suppression avec les services
+      await syncTeamToFrontend('delete', { id });
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
       refetch();
       setDeleteConfirm(null);
-      showNotification('✅ Membre supprimé du site!', 'success');
+      showNotification('✅ Membre supprimé et synchronisé!', 'success');
     },
     onError: (error) => {
-      showNotification('❌ Erreur: ' + (error.message || 'Erreur inconnue'), 'error', 4000);
+      showNotification('❌ Erreur lors de la suppression: ' + (error.message || 'Erreur inconnue'), 'error', 4000);
     },
   });
 
@@ -168,62 +245,36 @@ export default function EquipePage() {
       showNotification('Le nom est obligatoire', 'error');
       return;
     }
-    if (!editingMember.title?.trim()) {
-      showNotification('Le titre/fonction est obligatoire', 'error');
+    if (!editingMember.role?.trim()) {
+      showNotification('La fonction est obligatoire', 'error');
       return;
     }
 
     if (editingMember.id) {
       updateMutation.mutate({ id: editingMember.id, data: editingMember });
     } else {
-      createMutation.mutate({ ...editingMember, is_founder: editingMember.is_founder || false });
+      createMutation.mutate({ ...editingMember, display_order: teamMembers.length });
     }
   };
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Compresser l'image avant de la convertir
-      const canvas = document.createElement('canvas');
-      const img = new Image();
-      
-      img.onload = () => {
-        // Redimensionner à max 400x400
-        const maxSize = 400;
-        let width = img.width;
-        let height = img.height;
-        
-        if (width > height) {
-          if (width > maxSize) {
-            height = Math.round((height * maxSize) / width);
-            width = maxSize;
-          }
-        } else {
-          if (height > maxSize) {
-            width = Math.round((width * maxSize) / height);
-            height = maxSize;
-          }
-        }
-        
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        // Convertir en base64 avec compression JPEG
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% qualité
-        
-        setPhotoPreview(compressedBase64);
-        setEditingMember({ ...editingMember, image: compressedBase64 });
-        showNotification('📸 Photo compressée et prête! Cliquez sur Enregistrer.', 'success', 2000);
-      };
-      
-      // Lire le fichier
+      // Aperçu local
       const reader = new FileReader();
       reader.onload = (event) => {
-        img.src = event.target.result;
+        setPhotoPreview(event.target.result);
       };
       reader.readAsDataURL(file);
+
+      // Upload vers le backend
+      try {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        setEditingMember({ ...editingMember, photo_url: file_url });
+        showNotification('Photo uploadée avec succès!', 'success', 2000);
+      } catch (error) {
+        showNotification('Erreur lors de l\'upload de la photo', 'error', 3000);
+      }
     }
   };
 
@@ -231,7 +282,7 @@ export default function EquipePage() {
     if (newExpertise.trim()) {
       setEditingMember({
         ...editingMember,
-        specialties: [...(editingMember.specialties || []), newExpertise.trim()]
+        expertise: [...(editingMember.expertise || []), newExpertise.trim()]
       });
       setNewExpertise('');
     }
@@ -240,7 +291,7 @@ export default function EquipePage() {
   const removeExpertise = (index) => {
     setEditingMember({
       ...editingMember,
-      specialties: editingMember.specialties.filter((_, i) => i !== index)
+      expertise: editingMember.expertise.filter((_, i) => i !== index)
     });
   };
 
@@ -285,20 +336,20 @@ export default function EquipePage() {
 
   const openEditDialog = (member) => {
     setEditingMember({ ...member });
-    setPhotoPreview(member.image);
+    setPhotoPreview(member.photo_url);
     setIsEditingDialog(true);
   };
 
   const openNewDialog = () => {
     setEditingMember({
       name: '',
-      title: '',
-      bio: '',
-      image: '',
+      role: '',
+      description: '',
+      photo_url: '',
       email: '',
       phone: '',
       linkedin: '',
-      specialties: [],
+      expertise: [],
       achievements: [],
       is_founder: false,
       is_visible: true
@@ -544,8 +595,8 @@ export default function EquipePage() {
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-slate-700">Fonction *</label>
                     <Input
-                      value={editingMember.title}
-                      onChange={(e) => setEditingMember({...editingMember, title: e.target.value})}
+                      value={editingMember.role}
+                      onChange={(e) => setEditingMember({...editingMember, role: e.target.value})}
                       placeholder="Ex: Fondateur & PDG"
                       className="border-2 border-slate-200 focus:border-emerald-500"
                     />
@@ -557,8 +608,8 @@ export default function EquipePage() {
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-700 mb-1 block">📝 Description</label>
                 <Textarea
-                  value={editingMember.bio || ''}
-                  onChange={(e) => setEditingMember({...editingMember, bio: e.target.value})}
+                  value={editingMember.description || ''}
+                  onChange={(e) => setEditingMember({...editingMember, description: e.target.value})}
                   placeholder="Courte biographie ou présentation..."
                   rows={4}
                   className="border-2 border-slate-200 focus:border-emerald-500"
@@ -621,7 +672,7 @@ export default function EquipePage() {
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  {(editingMember.specialties || []).map((exp, i) => (
+                  {(editingMember.expertise || []).map((exp, i) => (
                     <motion.span
                       key={i}
                       initial={{ scale: 0.8 }}
@@ -709,7 +760,7 @@ export default function EquipePage() {
                 </Button>
                 <Button
                   onClick={handleSave}
-                  disabled={!editingMember.name?.trim() || !editingMember.title?.trim() || createMutation.isPending || updateMutation.isPending}
+                  disabled={!editingMember.name?.trim() || !editingMember.role?.trim() || createMutation.isPending || updateMutation.isPending}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Save className="w-4 h-4" />
