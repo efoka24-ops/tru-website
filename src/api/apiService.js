@@ -5,6 +5,10 @@ const API_BASE_URL = import.meta.env.VITE_API_URL
     ? 'http://localhost:5000/api' 
     : '/api');
 
+// Log the API URL for debugging
+console.log('🔗 API_BASE_URL:', API_BASE_URL);
+console.log('📝 VITE_API_URL env var:', import.meta.env.VITE_API_URL);
+
 // Configuration for team sync with backoffice
 const BACKOFFICE_API_URL = 'http://localhost:3001/api';
 
@@ -12,9 +16,16 @@ const BACKOFFICE_API_URL = 'http://localhost:3001/api';
 export const apiService = {
   async getServices() {
     try {
-      const response = await fetch(`${API_BASE_URL}/services`);
-      if (!response.ok) throw new Error('Erreur réseau');
-      return await response.json();
+      const url = `${API_BASE_URL}/services`;
+      console.log('📡 Fetching:', url);
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error(`❌ Erreur ${response.status}:`, response.statusText);
+        throw new Error(`Erreur réseau: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log('✅ Services loaded:', data);
+      return data;
     } catch (error) {
       console.error('Erreur récupération services:', error);
       return [];

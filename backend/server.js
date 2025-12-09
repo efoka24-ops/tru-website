@@ -162,6 +162,16 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running' });
 });
 
+// Test route for debugging
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    status: 'OK',
+    message: 'Backend is responding correctly',
+    timestamp: new Date().toISOString(),
+    apiUrl: process.env.VITE_API_URL || 'Not set'
+  });
+});
+
 // Upload Image Route - Returns base64 encoded data URL for Vercel
 app.post('/api/upload', upload.single('image'), (req, res) => {
   try {
