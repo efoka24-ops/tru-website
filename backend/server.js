@@ -61,22 +61,9 @@ app.use(cors({
 // Handle preflight OPTIONS requests explicitly (BEFORE other routes)
 app.options('*', cors());
 
-// Force HTTPS and remove trailing slashes (important for Vercel)
-app.use((req, res, next) => {
-  // Ensure CORS headers are set
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
-  // Remove trailing slashes from routes (prevents 308 redirects)
-  if (req.path !== '/' && req.path.endsWith('/')) {
-    const query = req.url.slice(req.path.length);
-    return res.redirect(301, req.baseUrl + req.path.slice(0, -1) + query);
-  }
-  next();
-});
-
-app.use(express.json());
+// Increase request size limits for base64 images
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Routes Health
 app.get('/api/health', (req, res) => {
