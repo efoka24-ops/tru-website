@@ -715,12 +715,15 @@ app.post('/api/testimonials', upload.single('image'), (req, res) => {
     const maxId = ids.length > 0 ? Math.max(...ids) : 0;
     const newId = maxId + 1;
     
-    // Accepter l'image soit du FormData (req.file) soit du JSON (req.body.image)
+    // Accepter l'image soit du FormData (req.file) soit du JSON (req.body.image - data URL)
     let imageUrl = null;
     if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`;
-    } else if (req.body.image) {
-      imageUrl = req.body.image; // C'est déjà le chemin complet depuis l'upload précédent
+      // Convert file to base64 data URL
+      const base64 = req.file.buffer.toString('base64');
+      imageUrl = `data:${req.file.mimetype};base64,${base64}`;
+    } else if (req.body.image && req.body.image.startsWith('data:')) {
+      // Image is already a data URL
+      imageUrl = req.body.image;
     }
     
     const newTestimonial = {
@@ -760,11 +763,14 @@ app.put('/api/testimonials/:id', upload.single('image'), (req, res) => {
     if (index !== -1) {
       const oldTestimonial = data.testimonials[index];
       
-      // Déterminer l'image: fichier nouvellement uploadé, chemin du JSON, ou ancienne image
+      // Déterminer l'image: fichier nouvellement uploadé, data URL du JSON, ou ancienne image
       let imageUrl = oldTestimonial.image;
       if (req.file) {
-        imageUrl = `/uploads/${req.file.filename}`;
-      } else if (req.body.image && req.body.image !== oldTestimonial.image) {
+        // Convert file to base64 data URL
+        const base64 = req.file.buffer.toString('base64');
+        imageUrl = `data:${req.file.mimetype};base64,${base64}`;
+      } else if (req.body.image && req.body.image.startsWith('data:')) {
+        // Image is already a data URL
         imageUrl = req.body.image;
       }
       
@@ -839,7 +845,11 @@ app.post('/api/news', upload.single('image'), (req, res) => {
     
     let imageUrl = '';
     if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`;
+      // Convert file to base64 data URL
+      const base64 = req.file.buffer.toString('base64');
+      imageUrl = `data:${req.file.mimetype};base64,${base64}`;
+    } else if (req.body.image && req.body.image.startsWith('data:')) {
+      imageUrl = req.body.image;
     }
     
     const newNews = {
@@ -879,7 +889,11 @@ app.put('/api/news/:id', upload.single('image'), (req, res) => {
       let imageUrl = oldNews.image;
       
       if (req.file) {
-        imageUrl = `/uploads/${req.file.filename}`;
+        // Convert file to base64 data URL
+        const base64 = req.file.buffer.toString('base64');
+        imageUrl = `data:${req.file.mimetype};base64,${base64}`;
+      } else if (req.body.image && req.body.image.startsWith('data:')) {
+        imageUrl = req.body.image;
       }
       
       const updatedNews = {
@@ -1053,7 +1067,11 @@ app.post('/api/applications', upload.single('resume'), (req, res) => {
     
     let resumeUrl = '';
     if (req.file) {
-      resumeUrl = `/uploads/${req.file.filename}`;
+      // Convert file to base64 data URL
+      const base64 = req.file.buffer.toString('base64');
+      resumeUrl = `data:${req.file.mimetype};base64,${base64}`;
+    } else if (req.body.resume && req.body.resume.startsWith('data:')) {
+      resumeUrl = req.body.resume;
     }
     
     const newApplication = {
