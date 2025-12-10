@@ -63,19 +63,33 @@ function getDefaultData() {
 /**
  * Read data from storage
  * - On local: reads from data.json
- * - On Vercel: reads from memory (initializes on first read)
+ * - On Vercel: reads from memory, initializes from data.json if available
  */
 export function readData() {
   try {
     // Check if running on Vercel (serverless environment)
-    // Vercel sets VERCEL=1, or we can check if __dirname is writable
     const isServerless = process.env.VERCEL === '1';
 
     if (isServerless) {
       // Use in-memory storage for Vercel
       if (!inMemoryData) {
         console.log('📦 Initializing in-memory data store (Vercel Serverless)');
-        inMemoryData = getDefaultData();
+        
+        // Try to load data.json first (it exists in Vercel deployment)
+        try {
+          if (fs.existsSync(dataPath)) {
+            const fileData = fs.readFileSync(dataPath, 'utf8');
+            const parsed = JSON.parse(fileData);
+            console.log('✅ Loaded data from data.json into memory');
+            inMemoryData = parsed;
+          } else {
+            console.log('⚠️ data.json not found, using default data');
+            inMemoryData = getDefaultData();
+          }
+        } catch (fileErr) {
+          console.warn('⚠️ Could not read data.json:', fileErr.message);
+          inMemoryData = getDefaultData();
+        }
       }
       return JSON.parse(JSON.stringify(inMemoryData)); // Deep copy
     } else {

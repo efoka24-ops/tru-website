@@ -24,6 +24,7 @@ export default function EquipePage() {
   const queryClient = useQueryClient();
 
   // URLs de configuration pour les différents services
+  const BACKEND_API_URL = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api`;
   const FRONTEND_API_URL = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api`;
   const TRU_SITE_URL = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api`;
 
