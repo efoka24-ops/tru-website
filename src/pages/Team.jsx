@@ -20,14 +20,15 @@ export default function Team() {
       setLoading(false);
     });
 
-    // Set up polling to check for updates every 30 seconds
+    // Set up polling to check for updates every 10 seconds (faster refresh)
     const pollInterval = setInterval(() => {
       apiService.getTeam().then(data => {
         if (data && data.length > 0) {
           setTeamData(data);
+          console.log('🔄 Team data refreshed:', data.length, 'members');
         }
       });
-    }, 30000);
+    }, 10000);
 
     return () => clearInterval(pollInterval);
   }, []);

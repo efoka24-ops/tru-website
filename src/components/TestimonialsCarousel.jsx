@@ -15,20 +15,24 @@ export default function TestimonialsCarousel() {
     const fetchTestimonials = async () => {
       try {
         const data = await apiService.getTestimonials();
+        console.log('📡 Testimonials fetched:', data);
         if (Array.isArray(data)) {
-          setTestimonials(data);
+          // Filter out any testimonials with deleted status
+          const validTestimonials = data.filter(t => t && t.id);
+          setTestimonials(validTestimonials);
+          console.log('✅ Testimonials loaded:', validTestimonials.length, 'items');
           setIsLoading(false);
         }
       } catch (error) {
-        console.error('Erreur lors du chargement des témoignages:', error);
+        console.error('❌ Erreur lors du chargement des témoignages:', error);
         setIsLoading(false);
       }
     };
 
     fetchTestimonials();
 
-    // Polling every 30 seconds for updates
-    const pollInterval = setInterval(fetchTestimonials, 30000);
+    // Polling every 10 seconds for updates (faster refresh)
+    const pollInterval = setInterval(fetchTestimonials, 10000);
     return () => clearInterval(pollInterval);
   }, []);
 
@@ -117,14 +121,15 @@ export default function TestimonialsCarousel() {
                 className="flex-shrink-0 w-full md:w-auto flex flex-col items-center md:items-start"
               >
                 <div className="w-32 h-32 rounded-full border-4 border-emerald-500 shadow-lg bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center overflow-hidden">
-                  {currentTestimonial.image ? (
+                  {currentTestimonial.image && (currentTestimonial.image.startsWith('http') || currentTestimonial.image.startsWith('data:')) ? (
                     <img
                       src={currentTestimonial.image}
                       alt={currentTestimonial.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        console.error('Erreur chargement image:', currentTestimonial.image);
-                        e.target.style.display = 'none';
+                        console.error('❌ Erreur chargement image testimonial:', currentTestimonial.image);
+                        // Hide image on error, show placeholder instead
+                        e.target.parentElement.innerHTML = '<div class="text-4xl">👤</div>';
                       }}
                     />
                   ) : (
