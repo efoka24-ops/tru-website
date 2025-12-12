@@ -107,7 +107,7 @@
       "name": "Halimatou Sadia Ahmadou",
       "title": "Chef de Projet Junior",
       "bio": "Specialist in designing and implementing robust software architectures, with extensive expertise in guiding the development process from conception to deployment. Skilled in creating scalable, maintainable, and efficient systems that meet complex business and technical requirements.",
-      "image": "/uploads/IMG-20251209-WA0082-1765304556608-387683339.jpg",
+      "image": "https://api.placeholder.com/300/300/4A90E2/FFFFFF?text=Halimatou",
       "email": "bob@sitetru.com",
       "phone": "+237 696317216",
       "linked_in": "",
@@ -123,7 +123,7 @@
       "name": "Hervé Tatinou",
       "title": "Senior Design Lead",
       "bio": "A passionate and innovative creative designer dedicated to crafting exceptional user experiences that seamlessly blend functionality with aesthetic appeal, ensuring every detail enhances usability, engagement, and overall satisfaction.",
-      "image": "/uploads/WhatsApp Image 2025-12-09 at 08.00.31-1765287301157-188292703.jpeg",
+      "image": "https://api.placeholder.com/300/300/E91E63/FFFFFF?text=Herve",
       "email": "carol@sitetru.com",
       "phone": "+237 656298190",
       "linked_in": "",
@@ -153,7 +153,7 @@
       ],
       "is_founder": true,
       "linked_in": "https://web.facebook.com/iamZIEFE",
-      "image": "/uploads/ko-1765287066725-169782350.jpeg"
+      "image": "https://api.placeholder.com/300/300/10B981/FFFFFF?text=Emmanuel"
     },
     {
       "id": 5,
@@ -162,7 +162,7 @@
       "bio": "",
       "email": "",
       "phone": "",
-      "image": "/uploads/iiii-1765287539070-720975187.jpg",
+      "image": "https://api.placeholder.com/300/300/FF6B6B/FFFFFF?text=Samiratou",
       "specialties": [],
       "certifications": [],
       "is_founder": false,
@@ -175,7 +175,7 @@
       "name": "Mokine",
       "description": "Mokine",
       "category": "",
-      "image": "/uploads/i-1765287866446-756139142.jpg",
+      "image": "https://api.placeholder.com/400/300/9C27B0/FFFFFF?text=Mokine",
       "benefits": [],
       "features": [],
       "createdAt": "2025-12-09T13:44:39.451Z"
@@ -217,7 +217,7 @@
       "company": "Orange",
       "testimonial": "formidable equipe",
       "rating": 3,
-      "image": null,
+      "image": "https://api.placeholder.com/150/150/FF9800/FFFFFF?text=Patrick",
       "createdAt": "2025-12-09T13:57:02.931Z"
     },
     {
@@ -227,7 +227,7 @@
       "company": "MIT",
       "testimonial": "merveilleuse experience",
       "rating": 2,
-      "image": null,
+      "image": "https://api.placeholder.com/150/150/2196F3/FFFFFF?text=Touza",
       "createdAt": "2025-12-09T14:00:31.954Z"
     },
     {
@@ -237,7 +237,7 @@
       "company": "TRU GROUP",
       "testimonial": "La qualité au service de la quantité.",
       "rating": 5,
-      "image": "/uploads/IMG_9235 - Copie-1765288953308-807192370.jpg",
+      "image": "https://api.placeholder.com/150/150/4CAF50/FFFFFF?text=FOKA",
       "createdAt": "2025-12-09T14:03:12.532Z"
     }
   ],
@@ -258,10 +258,10 @@
     {
       "id": 1,
       "title": "test",
-      "description": "Test du frontend : les pages publiques News.jsx et Careers.jsx ont été vérifiées avec succès. Ce test confirme que la page News.jsx, dédiée à la diffusion des actualités et mises à jour, ainsi que la page Careers.jsx, centrée sur les opportunités professionnelles et les informations relatives aux carrières, fonctionnent correctement et répondent aux attentes en matière de performance et d’accessibilité. Ces résultats assurent expérience utilisateur fluide et cohérente pour les visiteurs consultant ces sections clés du site.",
+      "description": "Test du frontend : les pages publiques News.jsx et Careers.jsx ont été vérifiées avec succès. Ce test confirme que la page News.jsx, dédiée à la diffusion des actualités et mises à jour, ainsi que la page Careers.jsx, centrée sur les opportunités professionnelles et les informations relatives aux carrières, fonctionnent correctement et répondent aux attentes en matière de performance et d'accessibilité. Ces résultats assurent expérience utilisateur fluide et cohérente pour les visiteurs consultant ces sections clés du site.",
       "content": "",
       "category": "Actualités",
-      "image": "/uploads/IMG_9254 - Copie-1765303905146-791273997.jpg",
+      "image": "https://api.placeholder.com/600/400/FF5722/FFFFFF?text=Actualites",
       "date": "2025-12-09T18:11:45.354Z",
       "createdAt": "2025-12-09T18:11:45.354Z"
     }
