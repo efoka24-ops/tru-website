@@ -24,14 +24,15 @@ export default function EquipePage() {
   const queryClient = useQueryClient();
 
   // URLs de configuration pour les différents services
-  const BACKEND_API_URL = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api`;
-  const FRONTEND_API_URL = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api`;
-  const TRU_SITE_URL = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api`;
+  const BACKEND_API_URL = `${import.meta.env.VITE_BACKEND_URL || 'https://tru-backend-o1zc.onrender.com'}/api`;
+  const FRONTEND_API_URL = `https://tru-website.vercel.app`;
+  const TRU_SITE_URL = `https://tru-website.vercel.app`;
 
-  // Récupérer les données du frontend d'abord
+  // Récupérer les données du backend (source unique de vérité)
   const fetchFrontendTeam = async (source = 'default') => {
+    // Frontend sur Vercel n'a pas d'API - les données viennent du backend
     try {
-      const response = await fetch(`${FRONTEND_API_URL}/team`, {
+      const response = await fetch(`${BACKEND_API_URL}/team`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -40,11 +41,11 @@ export default function EquipePage() {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Données équipe récupérées du frontend:', data?.length || 0, 'membres');
+        console.log('✅ Données équipe récupérées du backend principal:', data?.length || 0, 'membres');
         return data || [];
       }
     } catch (error) {
-      console.warn('⚠️ Frontend API not available:', error.message);
+      console.warn('⚠️ Backend API not available:', error.message);
     }
     return [];
   };
@@ -66,16 +67,17 @@ export default function EquipePage() {
     return [];
   };
 
-  // Récupérer également depuis le site TRU principal
+  // Récupérer également depuis le backend (source unique)
   const fetchTRUSiteTeam = async () => {
+    // Site TRU sur Vercel n'a pas d'API - utiliser le backend
     try {
-      const response = await fetch(`${TRU_SITE_URL}/team`, {
+      const response = await fetch(`${BACKEND_API_URL}/team`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Données équipe récupérées du site TRU:', data?.length || 0, 'membres');
+        console.log('✅ Données équipe récupérées du backend:', data?.length || 0, 'membres');
         return data || [];
       }
     } catch (error) {
@@ -169,24 +171,18 @@ export default function EquipePage() {
 
     // Notifier le frontend admin
     try {
-      await fetch(`${FRONTEND_API_URL}/team-update`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      console.log(`✅ Notification ${action} envoyée au frontend admin`);
+      // Note: Frontend sur Vercel n'a pas d'endpoint team-update, il récupère les données via le backend
+      // Skip cette notification
+      console.log(`⏭️ Frontend admin notification skipped (Vercel récupère depuis le backend)`);
     } catch (error) {
       console.warn('⚠️ Frontend admin notification skipped:', error.message);
     }
 
     // Notifier le site TRU principal
     try {
-      await fetch(`${TRU_SITE_URL}/team-update`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      console.log(`✅ Notification ${action} envoyée au site TRU`);
+      // Note: Site TRU sur Vercel n'a pas d'endpoint team-update, il récupère les données via le backend
+      // Skip cette notification
+      console.log(`⏭️ Site TRU notification skipped (Vercel récupère depuis le backend)`);
     } catch (error) {
       console.warn('⚠️ Site TRU notification skipped:', error.message);
     }
