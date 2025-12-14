@@ -2,62 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RefreshCw, Download, Upload, Check, AlertCircle, Loader, Database } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { backendClient } from '../api/backendClient';
 
-// Import des données du frontend
-const TEAM_DATA = [
-  {
-    id: 1,
-    name: 'Emmanuel Foka Ziegoube',
-    title: 'Fondateur & PDG',
-    bio: 'Ingénieur en génie logiciel | Lauréat CASAM-INOV, PNUD, ECAM Expert en transformation digitale et innovation sociale.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
-    is_founder: true,
-    specialties: ['Stratégie', 'Innovation', 'Leadership']
-  },
-  {
-    id: 2,
-    name: 'Aissatou Diallo',
-    title: 'Directrice Technique',
-    bio: 'Ingénieure informatique avec 8 ans d\'expérience en développement et architecture cloud.',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
-    is_founder: false,
-    specialties: ['Cloud', 'Architecture', 'DevOps']
-  },
-  {
-    id: 3,
-    name: 'Jean Kameni',
-    title: 'Consultant Transformation',
-    bio: 'Consultant en organisation avec expertise dans les processus gouvernementaux et ONG.',
-    image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop',
-    is_founder: false,
-    specialties: ['Organisation', 'Processus', 'Gouvernance']
-  },
-  {
-    id: 4,
-    name: 'Marie Tagne',
-    title: 'Lead Developer Mobile',
-    bio: 'Développeuse mobile spécialisée en React Native et Flutter avec passion pour l\'innovation.',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop',
-    is_founder: false,
-    specialties: ['Mobile', 'React Native', 'UX']
-  },
-  {
-    id: 5,
-    name: 'Pierre Bouvier',
-    title: 'Expert Data & Analytics',
-    bio: 'Data scientist avec spécialisation en intelligence décisionnelle et machine learning.',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
-    is_founder: false,
-    specialties: ['Data Science', 'BI', 'Machine Learning']
-  }
-];
+// Default empty data
+const EMPTY_TEAM_DATA = [];
 
 export default function SyncViewPage() {
-  const [selectedSource, setSelectedSource] = useState('content');
+  const [selectedSource, setSelectedSource] = useState('backend');
   const [refreshing, setRefreshing] = useState(false);
-
-  // Données du Frontend (content.js)
-  const frontendTeam = TEAM_DATA;
 
   // Récupérer l'équipe du Backend Principal
   const { data: backendTeam = [], isLoading: backendLoading, refetch: refetchBackend } = useQuery({
@@ -82,11 +34,11 @@ export default function SyncViewPage() {
     setTimeout(() => setRefreshing(false), 500);
   };
 
-  const currentTeam = selectedSource === 'content' ? frontendTeam : backendTeam;
+  const currentTeam = selectedSource === 'backend' ? backendTeam : EMPTY_TEAM_DATA;
   const currentLoading = selectedSource === 'backend' ? backendLoading : false;
 
   const teamCount = {
-    content: frontendTeam.length,
+    content: EMPTY_TEAM_DATA.length,
     backend: backendTeam.length
   };
 
