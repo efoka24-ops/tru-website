@@ -12,14 +12,38 @@ class SyncService {
   }
 
   /**
+   * Trouver un match entre deux éléments (par ID, nom, ou email)
+   */
+  findMatch(frontendItem, backendData) {
+    // Chercher par ID d'abord
+    let match = backendData.find(b => b.id === frontendItem.id);
+    if (match) return match;
+
+    // Chercher par nom et email (en cas d'IDs différents)
+    match = backendData.find(b => 
+      b.name?.toLowerCase() === frontendItem.name?.toLowerCase() &&
+      b.email === frontendItem.email
+    );
+    if (match) return match;
+
+    // Chercher par nom seulement
+    match = backendData.find(b =>
+      b.name?.toLowerCase() === frontendItem.name?.toLowerCase()
+    );
+    return match;
+  }
+
+  /**
    * Comparer les données entre deux sources
    */
   compareData(frontendData, backendData) {
     const differences = [];
+    const matchedBackendIds = new Set();
 
-    // Vérifier les éléments dans frontend mais pas dans backend
+    // Vérifier les éléments dans frontend
     frontendData.forEach(item => {
-      const backendItem = backendData.find(b => b.id === item.id);
+      const backendItem = this.findMatch(item, backendData);
+      
       if (!backendItem) {
         differences.push({
           type: 'MISSING_IN_BACKEND',
@@ -29,23 +53,26 @@ class SyncService {
           backendData: null,
           severity: 'HIGH'
         });
-      } else if (!this.isEqual(item, backendItem)) {
-        differences.push({
-          type: 'MISMATCH',
-          id: item.id,
-          name: item.name,
-          frontendData: item,
-          backendData: backendItem,
-          differences: this.findDifferences(item, backendItem),
-          severity: 'MEDIUM'
-        });
+      } else {
+        matchedBackendIds.add(backendItem.id);
+        
+        if (!this.isEqual(item, backendItem)) {
+          differences.push({
+            type: 'MISMATCH',
+            id: backendItem.id,  // Use backend ID for updates
+            name: item.name,
+            frontendData: item,
+            backendData: backendItem,
+            differences: this.findDifferences(item, backendItem),
+            severity: 'MEDIUM'
+          });
+        }
       }
     });
 
     // Vérifier les éléments dans backend mais pas dans frontend
     backendData.forEach(item => {
-      const frontendItem = frontendData.find(f => f.id === item.id);
-      if (!frontendItem) {
+      if (!matchedBackendIds.has(item.id)) {
         differences.push({
           type: 'MISSING_IN_FRONTEND',
           id: item.id,
@@ -263,26 +290,42 @@ class SyncService {
   async applyResolution(difference, resolution) {
     try {
       if (resolution === 'USE_FRONTEND') {
-        // Envoyer la version frontend au backend
-        return await this.syncToBackend(difference.frontendData);
+        // Envoyer la version frontend au backend (update ou create)
+        if (difference.type === 'MISSING_IN_BACKEND') {
+          // Créer dans le backend avec l'ID du frontend
+          return await this.createInBackend({
+            ...difference.frontendData,
+            id: difference.id  // Utiliser l'ID du frontend pour la création
+          });
+        } else if (difference.type === 'MISMATCH') {
+          // Mettre à jour avec l'ID du backend
+          return await this.syncToBackend({
+            ...difference.frontendData,
+            id: difference.id  // Utiliser l'ID du backend pour l'update
+          });
+        }
       } else if (resolution === 'USE_BACKEND') {
         // Garder la version backend (rien à faire)
         return {
           success: true,
-          message: `✅ Garde la version backend`
+          message: `✅ Garde la version backend: ${difference.name}`
         };
       } else if (resolution === 'CREATE_IN_BACKEND') {
         // Créer l'élément dans le backend
-        return await this.createInBackend(difference.frontendData);
+        return await this.createInBackend({
+          ...difference.frontendData,
+          id: difference.id
+        });
       } else if (resolution === 'DELETE_IN_FRONTEND') {
         // Marquer pour suppression (juste loguer)
         logger.warn(`Élément marqué pour suppression frontend: ${difference.name}`);
         return {
           success: true,
-          message: `⚠️ Marqué pour suppression du frontend`
+          message: `⚠️ Marqué pour suppression du frontend: ${difference.name}`
         };
       }
     } catch (error) {
+      console.error('Error applying resolution:', error);
       return {
         success: false,
         message: `❌ Erreur: ${error.message}`,

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { syncService } from '@/services/syncService';
 import { logger } from '@/services/logger';
-import { base44 } from '@/api/base44Client';
+import { teamAPI } from '@/services/api';
 
 export default function SyncViewPage() {
   const [report, setReport] = useState(null);
@@ -28,9 +28,13 @@ export default function SyncViewPage() {
     queryKey: ['teamMembers'],
     queryFn: async () => {
       try {
-        const data = await base44.entities.TeamMember.list('display_order');
-        return data || [];
+        console.log('🔍 Fetching frontend team data...');
+        const response = await teamAPI.getAll();
+        const data = response.data || [];
+        console.log('✅ Frontend team loaded:', data);
+        return data;
       } catch (error) {
+        console.error('❌ Error fetching frontend team:', error);
         logger.error('Erreur récupération équipe frontoffice', { error: error.message });
         return [];
       }
