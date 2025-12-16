@@ -243,10 +243,13 @@ app.put('/api/team/:id', upload.single('image'), (req, res) => {
       const base64 = req.file.buffer.toString('base64');
       imageUrl = `data:${req.file.mimetype};base64,${base64}`;
     } else if (req.body.image && req.body.image.startsWith('data:')) {
-      if (req.body.image.length > 250 * 1024) {
-        return res.status(400).json({ error: 'Image trop volumineuse' });
+      if (req.body.image.length > 1024 * 1024) { // 1MB limit
+        console.warn('⚠️ Image too large:', req.body.image.length, 'bytes');
+        // Don't fail, just skip the image update
+        imageUrl = data.team[memberIndex].image;
+      } else {
+        imageUrl = req.body.image;
       }
-      imageUrl = req.body.image;
     }
 
     let specialties = data.team[memberIndex].specialties || [];
