@@ -1,274 +1,524 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { RefreshCw, Download, Upload, Check, AlertCircle, Loader, Database } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { backendClient } from '../api/backendClient';
-
-// Default empty data
-const EMPTY_TEAM_DATA = [];
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  RefreshCw,
+  AlertCircle,
+  CheckCircle2,
+  Zap,
+  Database,
+  Globe,
+  ChevronDown
+} from 'lucide-react';
+import { syncService } from '@/services/syncService';
+import { logger } from '@/services/logger';
+import { base44 } from '@/api/base44Client';
 
 export default function SyncViewPage() {
-  const [selectedSource, setSelectedSource] = useState('backend');
-  const [refreshing, setRefreshing] = useState(false);
+  const [report, setReport] = useState(null);
+  const [selectedResolutions, setSelectedResolutions] = useState({});
+  const [isSyncing, setSyncing] = useState(false);
+  const [syncResults, setSyncResults] = useState(null);
+  const [expandedDiff, setExpandedDiff] = useState(null);
+  const [autoResolve, setAutoResolve] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Récupérer l'équipe du Backend Principal
-  const { data: backendTeam = [], isLoading: backendLoading, refetch: refetchBackend } = useQuery({
-    queryKey: ['team', 'backend'],
+  // Récupérer les données du backoffice
+  const { data: frontendTeam = [] } = useQuery({
+    queryKey: ['teamMembers'],
     queryFn: async () => {
       try {
-        const data = await backendClient.getTeam();
-        console.log('✅ Backend Team:', data?.length, 'membres');
+        const data = await base44.entities.TeamMember.list('display_order');
         return data || [];
       } catch (error) {
-        console.error('❌ Erreur Backend:', error.message);
+        logger.error('Erreur récupération équipe frontoffice', { error: error.message });
         return [];
       }
-    },
-    staleTime: 0,
-    cacheTime: 0,
+    }
   });
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await refetchBackend();
-    setTimeout(() => setRefreshing(false), 500);
+  /**
+   * Analyser les incohérences
+   */
+  const analyzeSync = async () => {
+    setIsLoading(true);
+    try {
+      logger.info('Début analyse synchronisation');
+      
+      const backendTeam = await syncService.fetchBackendTeam();
+      const differences = syncService.compareData(frontendTeam, backendTeam);
+      const newReport = syncService.generateReport(differences);
+
+      setReport(newReport);
+      setSyncResults(null);
+      setSelectedResolutions({});
+
+      logger.success('Analyse synchronisation complète', {
+        differences: newReport.totalDifferences,
+        byType: newReport.byType
+      });
+    } catch (error) {
+      logger.error('Erreur analyse synchronisation', { error: error.message });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const currentTeam = selectedSource === 'backend' ? backendTeam : EMPTY_TEAM_DATA;
-  const currentLoading = selectedSource === 'backend' ? backendLoading : false;
+  /**
+   * Appliquer les résolutions
+   */
+  const applySyncResolutions = async () => {
+    const resolutions = Object.entries(selectedResolutions).map(([key, resolution]) => {
+      const difference = report.differences.find(d => `${d.type}-${d.id}` === key);
+      return { difference, resolution };
+    });
 
-  const teamCount = {
-    content: EMPTY_TEAM_DATA.length,
-    backend: backendTeam.length
+    if (resolutions.length === 0) {
+      logger.warn('Aucune résolution sélectionnée');
+      return;
+    }
+
+    setSyncing(true);
+    try {
+      const result = await syncService.syncBatch(resolutions);
+      setSyncResults(result);
+      
+      if (result.success) {
+        // Réanalyser après synchronisation
+        setTimeout(() => analyzeSync(), 1000);
+      }
+    } finally {
+      setSyncing(false);
+    }
   };
+
+  /**
+   * Auto-résoudre intelligemment
+   */
+  const autoResolveAll = () => {
+    const resolutions = {};
+    report.differences.forEach(diff => {
+      const suggested = syncService.suggestAutoResolution(diff);
+      if (suggested) {
+        resolutions[`${diff.type}-${diff.id}`] = suggested;
+      }
+    });
+    setSelectedResolutions(resolutions);
+    setAutoResolve(true);
+  };
+
+  /**
+   * Obtenir l'icône du type de différence
+   */
+  const getTypeIcon = (type) => {
+    const icons = {
+      MISSING_IN_BACKEND: '⬆️',
+      MISSING_IN_FRONTEND: '⬇️',
+      MISMATCH: '⚠️'
+    };
+    return icons[type] || '•';
+  };
+
+  /**
+   * Obtenir la couleur du type
+   */
+  const getTypeColor = (type) => {
+    const colors = {
+      MISSING_IN_BACKEND: 'bg-blue-100 text-blue-700 border-blue-300',
+      MISSING_IN_FRONTEND: 'bg-purple-100 text-purple-700 border-purple-300',
+      MISMATCH: 'bg-yellow-100 text-yellow-700 border-yellow-300'
+    };
+    return colors[type] || 'bg-gray-100 text-gray-700';
+  };
+
+  /**
+   * Obtenir la description du type
+   */
+  const getTypeDescription = (type) => {
+    const descriptions = {
+      MISSING_IN_BACKEND: 'Existe en frontoffice mais pas en backend',
+      MISSING_IN_FRONTEND: 'Existe en backend mais pas en frontoffice',
+      MISMATCH: 'Données différentes entre frontoffice et backend'
+    };
+    return descriptions[type] || '';
+  };
+
+  const handleResolutionChange = (key, resolution) => {
+    setSelectedResolutions(prev => ({
+      ...prev,
+      [key]: resolution
+    }));
+  };
+
+  useEffect(() => {
+    // Analyser au chargement
+    analyzeSync();
+  }, [frontendTeam]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">
-            📊 Vue de Synchronisation
-          </h1>
-          <p className="text-slate-600">Affichage des données d'équipe de tous les services</p>
-        </motion.div>
+    <div className="p-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-slate-900 mb-2">🔄 Synchronisation des données</h1>
+        <p className="text-slate-600">
+          Détectez et corrigez les incohérences entre le frontoffice et le backend
+        </p>
+      </div>
 
-        {/* Source Selection & Refresh */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8 flex gap-4 items-center flex-wrap"
-        >
-          <div className="flex gap-2">
-            {[
-              { id: 'content', label: 'Frontend (content.js)', count: teamCount.content, icon: '📄' },
-              { id: 'backend', label: 'Backend (5000)', count: teamCount.backend, icon: '🗄️' }
-            ].map((source) => (
-              <motion.button
-                key={source.id}
-                onClick={() => setSelectedSource(source.id)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
-                  selectedSource === source.id
-                    ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg'
-                    : 'bg-white text-slate-700 border border-slate-200 hover:border-emerald-400'
-                }`}
-              >
-                <span>{source.icon}</span>
-                {source.label}
-                <span className="ml-2 inline-block px-2 py-1 rounded-full text-xs font-bold bg-white/20">
-                  {source.count}
-                </span>
-              </motion.button>
-            ))}
-          </div>
-
-          <motion.button
-            onClick={handleRefresh}
-            disabled={refreshing}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="ml-auto px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold flex items-center gap-2 transition-all disabled:opacity-50"
+      {/* Boutons d'action */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-lg shadow-md border border-slate-200 p-6 mb-6"
+      >
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={analyzeSync}
+            disabled={isLoading}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-            {refreshing ? 'Rafraîchissement...' : 'Rafraîchir'}
-          </motion.button>
-        </motion.div>
+            <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+            {isLoading ? 'Analyse en cours...' : 'Analyser'}
+          </button>
 
-        {/* Team Display */}
-        <AnimatePresence mode="wait">
-          {currentLoading ? (
-            <motion.div
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center justify-center py-20"
-            >
-              <div className="text-center">
-                <Loader className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
-                <p className="text-slate-600 font-semibold">Chargement des données...</p>
-              </div>
-            </motion.div>
-          ) : currentTeam.length === 0 ? (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="bg-white rounded-xl shadow-lg p-12 text-center border-2 border-dashed border-slate-300"
-            >
-              <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-              <p className="text-slate-600 font-semibold text-lg">Aucun membre trouvé</p>
-              <p className="text-slate-500 mt-2">La source sélectionnée ne contient pas de données</p>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="content"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {currentTeam.map((member, index) => (
-                <motion.div
-                  key={member.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all group border-l-4 border-emerald-500"
-                >
-                  {/* Member Image */}
-                  {member.image && (
-                    <div className="h-48 overflow-hidden bg-slate-200">
-                      <img
-                        src={member.image}
-                        alt={member.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                    </div>
-                  )}
+          {report && report.totalDifferences > 0 && (
+            <>
+              <button
+                onClick={autoResolveAll}
+                className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition-colors"
+              >
+                <Zap className="w-5 h-5" />
+                Auto-résoudre
+              </button>
 
-                  {/* Member Info */}
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-900">{member.name}</h3>
-                        <p className="text-emerald-600 font-semibold">{member.title}</p>
-                      </div>
-                      {member.is_founder && (
-                        <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold">
-                          ⭐ Fondateur
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Bio */}
-                    {member.bio && (
-                      <p className="text-slate-600 text-sm mb-4 line-clamp-3">
-                        {member.bio}
-                      </p>
-                    )}
-
-                    {/* Contact Info */}
-                    <div className="space-y-2 mb-4 text-sm">
-                      {member.email && (
-                        <p className="text-slate-600">
-                          <span className="font-semibold">Email:</span> {member.email}
-                        </p>
-                      )}
-                      {member.phone && (
-                        <p className="text-slate-600">
-                          <span className="font-semibold">Tél:</span> {member.phone}
-                        </p>
-                      )}
-                      {member.linkedin && (
-                        <p className="text-slate-600">
-                          <span className="font-semibold">LinkedIn:</span>{' '}
-                          <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                            Profil
-                          </a>
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Specialties/Expertise */}
-                    {(member.specialties || member.expertise) && (
-                      <div className="mb-4">
-                        <p className="text-xs font-bold text-slate-900 mb-2">Spécialités:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {(member.specialties || member.expertise).map((spec, i) => (
-                            <span key={i} className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
-                              {spec}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Achievements */}
-                    {member.achievements && member.achievements.length > 0 && (
-                      <div className="mb-4">
-                        <p className="text-xs font-bold text-slate-900 mb-2">Réalisations:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {member.achievements.map((ach, i) => (
-                            <span key={i} className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                              {ach}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Status */}
-                    <div className="pt-4 border-t border-slate-200 flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-green-600" />
-                      <span className="text-slate-600">ID: {member.id}</span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+              <button
+                onClick={applySyncResolutions}
+                disabled={isSyncing || Object.keys(selectedResolutions).length === 0}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50"
+              >
+                <Zap className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`} />
+                {isSyncing ? 'Synchronisation...' : 'Synchroniser'}
+              </button>
+            </>
           )}
-        </AnimatePresence>
+        </div>
 
-        {/* Stats Footer */}
+        {report && (
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-red-50 rounded-lg p-3">
+              <p className="text-sm font-semibold text-red-700">Total</p>
+              <p className="text-2xl font-bold text-red-900">{report.totalDifferences}</p>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-3">
+              <p className="text-sm font-semibold text-blue-700">⬆️ À créer en backend</p>
+              <p className="text-2xl font-bold text-blue-900">{report.byType.MISSING_IN_BACKEND}</p>
+            </div>
+            <div className="bg-purple-50 rounded-lg p-3">
+              <p className="text-sm font-semibold text-purple-700">⬇️ À créer en frontoffice</p>
+              <p className="text-2xl font-bold text-purple-900">{report.byType.MISSING_IN_FRONTEND}</p>
+            </div>
+            <div className="bg-yellow-50 rounded-lg p-3">
+              <p className="text-sm font-semibold text-yellow-700">⚠️ Malappariées</p>
+              <p className="text-2xl font-bold text-yellow-900">{report.byType.MISMATCH}</p>
+            </div>
+          </div>
+        )}
+      </motion.div>
+
+      {/* Résultats de synchronisation */}
+      {syncResults && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-4"
+          className={`rounded-lg shadow-md border p-6 mb-6 ${
+            syncResults.success
+              ? 'bg-green-50 border-green-300'
+              : 'bg-red-50 border-red-300'
+          }`}
         >
-          {[
-            { label: 'Frontend (content.js)', count: frontendTeam.length, color: 'emerald', icon: '📄' },
-            { label: 'Backend (5000)', count: backendTeam.length, color: 'blue', icon: '🗄️' }
-          ].map((stat) => (
-            <div key={stat.label} className={`p-4 rounded-lg bg-${stat.color}-50 border border-${stat.color}-200`}>
-              <p className={`text-sm font-semibold text-${stat.color}-900 mb-1 flex items-center gap-2`}>
-                <span>{stat.icon}</span>
-                {stat.label}
-              </p>
-              <p className={`text-3xl font-bold text-${stat.color}-600`}>{stat.count} membres</p>
+          <div className="flex items-start gap-4">
+            {syncResults.success ? (
+              <CheckCircle2 className="w-8 h-8 text-green-600 flex-shrink-0 mt-1" />
+            ) : (
+              <AlertCircle className="w-8 h-8 text-red-600 flex-shrink-0 mt-1" />
+            )}
+            <div className="flex-1">
+              <h3 className={`font-bold text-lg mb-2 ${
+                syncResults.success ? 'text-green-900' : 'text-red-900'
+              }`}>
+                {syncResults.message}
+              </h3>
+              {syncResults.results && (
+                <div className="space-y-1 text-sm">
+                  {syncResults.results.map((result, idx) => (
+                    <div key={idx} className={`flex items-center gap-2 ${
+                      result.success ? 'text-green-800' : 'text-red-800'
+                    }`}>
+                      {result.success ? '✅' : '❌'} {result.name}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          ))}
+          </div>
         </motion.div>
+      )}
 
-        {/* Info */}
+      {/* Liste des différences */}
+      {report && report.totalDifferences > 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-8 text-center text-slate-600 text-sm"
+          className="space-y-3"
         >
-          <p>Les données sont synchronisées en temps réel depuis les trois services</p>
+          {report.differences.map((diff, index) => {
+            const key = `${diff.type}-${diff.id}`;
+            const resolution = selectedResolutions[key];
+            const isSelected = !!resolution;
+
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className={`border rounded-lg overflow-hidden transition-all ${getTypeColor(diff.type)}`}
+              >
+                {/* Header */}
+                <button
+                  onClick={() =>
+                    setExpandedDiff(expandedDiff === key ? null : key)
+                  }
+                  className="w-full px-4 py-3 flex items-center justify-between hover:opacity-75 transition-opacity text-left"
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <span className="text-2xl">{getTypeIcon(diff.type)}</span>
+                    <div className="flex-1">
+                      <div className="font-semibold">{diff.name}</div>
+                      <div className="text-xs opacity-75 mt-0.5">
+                        {getTypeDescription(diff.type)}
+                      </div>
+                    </div>
+                  </div>
+                  <motion.div
+                    animate={{
+                      rotate: expandedDiff === key ? 180 : 0
+                    }}
+                  >
+                    <ChevronDown className="w-5 h-5" />
+                  </motion.div>
+                </button>
+
+                {/* Contenu expansible */}
+                <AnimatePresence>
+                  {expandedDiff === key && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="border-t px-4 py-4 bg-white space-y-4"
+                    >
+                      {/* Comparaison des données */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Frontoffice */}
+                        {diff.frontendData && (
+                          <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Globe className="w-4 h-4 text-blue-600" />
+                              <span className="font-semibold text-blue-900">Frontoffice</span>
+                            </div>
+                            <pre className="text-xs overflow-auto max-h-40 text-slate-700">
+                              {JSON.stringify(diff.frontendData, null, 2)}
+                            </pre>
+                          </div>
+                        )}
+
+                        {/* Backend */}
+                        {diff.backendData && (
+                          <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Database className="w-4 h-4 text-slate-600" />
+                              <span className="font-semibold text-slate-900">Backend</span>
+                            </div>
+                            <pre className="text-xs overflow-auto max-h-40 text-slate-700">
+                              {JSON.stringify(diff.backendData, null, 2)}
+                            </pre>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Détails des différences */}
+                      {diff.differences && diff.differences.length > 0 && (
+                        <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                          <p className="font-semibold text-yellow-900 mb-2">Champs différents:</p>
+                          <div className="space-y-2">
+                            {diff.differences.map((fieldDiff, idx) => (
+                              <div key={idx} className="text-sm text-yellow-800">
+                                <p className="font-medium">{fieldDiff.field}:</p>
+                                <div className="grid grid-cols-2 gap-2 ml-2 text-xs">
+                                  <div>
+                                    <span className="font-semibold">Frontoffice:</span>
+                                    <pre className="bg-white p-1 rounded mt-1 overflow-auto max-h-20">
+                                      {JSON.stringify(fieldDiff.frontendValue, null, 2)}
+                                    </pre>
+                                  </div>
+                                  <div>
+                                    <span className="font-semibold">Backend:</span>
+                                    <pre className="bg-white p-1 rounded mt-1 overflow-auto max-h-20">
+                                      {JSON.stringify(fieldDiff.backendValue, null, 2)}
+                                    </pre>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Sélecteur de résolution */}
+                      <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                        <p className="font-semibold text-slate-900 mb-3">Résolution:</p>
+                        <div className="space-y-2">
+                          {diff.type === 'MISSING_IN_BACKEND' && (
+                            <>
+                              <label className="flex items-center gap-3 p-2 rounded hover:bg-white cursor-pointer transition-colors">
+                                <input
+                                  type="radio"
+                                  name={`resolution-${key}`}
+                                  value="CREATE_IN_BACKEND"
+                                  checked={resolution === 'CREATE_IN_BACKEND'}
+                                  onChange={(e) =>
+                                    handleResolutionChange(key, e.target.value)
+                                  }
+                                  className="w-4 h-4"
+                                />
+                                <div>
+                                  <span className="font-medium text-slate-900">
+                                    ⬆️ Créer dans le backend
+                                  </span>
+                                  <p className="text-xs text-slate-600">
+                                    Envoyer la version frontoffice au backend
+                                  </p>
+                                </div>
+                              </label>
+                              <label className="flex items-center gap-3 p-2 rounded hover:bg-white cursor-pointer transition-colors">
+                                <input
+                                  type="radio"
+                                  name={`resolution-${key}`}
+                                  value="DELETE_IN_FRONTEND"
+                                  checked={resolution === 'DELETE_IN_FRONTEND'}
+                                  onChange={(e) =>
+                                    handleResolutionChange(key, e.target.value)
+                                  }
+                                  className="w-4 h-4"
+                                />
+                                <div>
+                                  <span className="font-medium text-slate-900">
+                                    🗑️ Supprimer du frontoffice
+                                  </span>
+                                  <p className="text-xs text-slate-600">
+                                    Ignorer cet élément
+                                  </p>
+                                </div>
+                              </label>
+                            </>
+                          )}
+
+                          {diff.type === 'MISSING_IN_FRONTEND' && (
+                            <label className="flex items-center gap-3 p-2 rounded hover:bg-white cursor-pointer transition-colors">
+                              <input
+                                type="radio"
+                                name={`resolution-${key}`}
+                                value="USE_BACKEND"
+                                checked={resolution === 'USE_BACKEND'}
+                                onChange={(e) =>
+                                  handleResolutionChange(key, e.target.value)
+                                }
+                                className="w-4 h-4"
+                              />
+                              <div>
+                                <span className="font-medium text-slate-900">
+                                  ⬇️ Garder la version backend
+                                </span>
+                                <p className="text-xs text-slate-600">
+                                  Le frontoffice récupérera les données du backend
+                                </p>
+                              </div>
+                            </label>
+                          )}
+
+                          {diff.type === 'MISMATCH' && (
+                            <>
+                              <label className="flex items-center gap-3 p-2 rounded hover:bg-white cursor-pointer transition-colors">
+                                <input
+                                  type="radio"
+                                  name={`resolution-${key}`}
+                                  value="USE_FRONTEND"
+                                  checked={resolution === 'USE_FRONTEND'}
+                                  onChange={(e) =>
+                                    handleResolutionChange(key, e.target.value)
+                                  }
+                                  className="w-4 h-4"
+                                />
+                                <div>
+                                  <span className="font-medium text-slate-900">
+                                    ⬆️ Utiliser version frontoffice
+                                  </span>
+                                  <p className="text-xs text-slate-600">
+                                    Envoyer la version frontoffice au backend
+                                  </p>
+                                </div>
+                              </label>
+                              <label className="flex items-center gap-3 p-2 rounded hover:bg-white cursor-pointer transition-colors">
+                                <input
+                                  type="radio"
+                                  name={`resolution-${key}`}
+                                  value="USE_BACKEND"
+                                  checked={resolution === 'USE_BACKEND'}
+                                  onChange={(e) =>
+                                    handleResolutionChange(key, e.target.value)
+                                  }
+                                  className="w-4 h-4"
+                                />
+                                <div>
+                                  <span className="font-medium text-slate-900">
+                                    ⬇️ Utiliser version backend
+                                  </span>
+                                  <p className="text-xs text-slate-600">
+                                    Garder la version backend (rien à faire)
+                                  </p>
+                                </div>
+                              </label>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
         </motion.div>
-      </div>
+      ) : report ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center py-12 bg-white rounded-lg shadow-md border border-slate-200"
+        >
+          <CheckCircle2 className="w-16 h-16 text-emerald-600 mx-auto mb-4" />
+          <h3 className="text-2xl font-bold text-slate-900 mb-2">
+            ✅ Parfaitement synchronisé!
+          </h3>
+          <p className="text-slate-600">
+            Toutes les données du frontoffice et du backend sont cohérentes.
+          </p>
+        </motion.div>
+      ) : (
+        <div className="text-center py-12">
+          <p className="text-slate-600">Cliquez sur "Analyser" pour vérifier la synchronisation</p>
+        </div>
+      )}
     </div>
   );
 }
