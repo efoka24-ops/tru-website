@@ -7,6 +7,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Admin from './pages/Admin'
 import EquipeSimplePage from './pages/EquipeSimplePage'
+import MemberAccessPage from './pages/MemberAccessPage'
 import ServicesPage from './pages/ServicesPage'
 import SolutionsPage from './pages/SolutionsPage'
 import ContactsPage from './pages/ContactsPage'
@@ -67,6 +68,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/equipe" element={<EquipeSimplePage />} />
+              <Route path="/member-access" element={<MemberAccessPage />} />
               <Route path="/services" element={<ServicesPage />} />
               <Route path="/solutions" element={<SolutionsPage />} />
               <Route path="/contacts" element={<ContactsPage />} />

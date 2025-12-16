@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Briefcase, Lightbulb, FileText, Settings, BarChart3, TrendingUp, AlertCircle } from 'lucide-react';
+import { Users, Briefcase, Lightbulb, FileText, Settings, BarChart3, TrendingUp, AlertCircle, Lock } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { apiClient } from '@/api/simpleClient';
 import { backendClient } from '@/api/backendClient';
 import SyncStatus from '@/components/SyncStatus';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { data: stats = {}, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
@@ -234,6 +236,28 @@ export default function Dashboard() {
             </div>
           </motion.div>
         </div>
+
+        {/* Accès Membres Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mb-12 p-8 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl shadow-lg cursor-pointer hover:shadow-xl hover:scale-105 transition-all"
+          onClick={() => navigate('/member-access')}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-white/20 rounded-lg">
+                <Lock className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-white">Gestion des Accès Membres</h3>
+                <p className="text-purple-100 mt-1">Créer et gérer les comptes de connexion des membres</p>
+              </div>
+            </div>
+            <div className="text-white text-4xl">👤</div>
+          </div>
+        </motion.div>
 
         {/* Footer */}
         <motion.div

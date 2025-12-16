@@ -958,6 +958,8 @@ export default function EquipePage() {
         <MemberAccountsPage />
       </div>
       )}
+
+      {/* Delete Confirmation - Outside tabs so it always works */}
       <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <AlertDialogContent className="border-2 border-red-200">
           <AlertDialogHeader>
