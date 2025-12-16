@@ -113,23 +113,41 @@ class SyncService {
     logger.info(`Synchronisation vers backend: ${data.name}`, { id: data.id });
     
     try {
-      const response = await fetch(`${this.backendUrl}/api/team/${data.id}`, {
+      const url = `${this.backendUrl}/api/team/${data.id}`;
+      const payload = {
+        name: data.name,
+        title: data.title || data.role || '',
+        bio: data.bio || data.description || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        image: data.image || data.photo || '',
+        specialties: data.specialties || [],
+        certifications: data.certifications || [],
+        linked_in: data.linked_in || data.linkedin || '',
+        is_founder: data.is_founder || false
+      };
+
+      console.log(`PUT ${url}`, payload);
+      const response = await fetch(url, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
+      const result = await response.json();
       logger.success(`Synchronisation réussie vers backend: ${data.name}`, { id: data.id });
       return {
         success: true,
         message: `✅ ${data.name} synchronisé vers le backend`,
-        data: await response.json()
+        data: result
       };
     } catch (error) {
+      console.error('Sync to backend error:', error);
       logger.error(`Erreur synchronisation backend: ${data.name}`, { error: error.message });
       return {
         success: false,
@@ -146,23 +164,41 @@ class SyncService {
     logger.info(`Création dans backend: ${data.name}`, { id: data.id });
     
     try {
-      const response = await fetch(`${this.backendUrl}/api/team`, {
+      const url = `${this.backendUrl}/api/team`;
+      const payload = {
+        name: data.name,
+        title: data.title || data.role || '',
+        bio: data.bio || data.description || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        image: data.image || data.photo || '',
+        specialties: data.specialties || [],
+        certifications: data.certifications || [],
+        linked_in: data.linked_in || data.linkedin || '',
+        is_founder: data.is_founder || false
+      };
+
+      console.log(`POST ${url}`, payload);
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
+      const result = await response.json();
       logger.success(`Création réussie dans backend: ${data.name}`, { id: data.id });
       return {
         success: true,
         message: `✅ ${data.name} créé dans le backend`,
-        data: await response.json()
+        data: result
       };
     } catch (error) {
+      console.error('Create in backend error:', error);
       logger.error(`Erreur création backend: ${data.name}`, { error: error.message });
       return {
         success: false,
@@ -177,11 +213,23 @@ class SyncService {
    */
   async fetchBackendTeam() {
     try {
+      console.log(`Fetching backend team from: ${this.backendUrl}/api/team`);
       const response = await fetch(`${this.backendUrl}/api/team`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Backend team data received:', data);
+      logger.info('Équipe backend récupérée', { count: data.length });
+      return data;
     } catch (error) {
-      logger.error('Impossible de récupérer équipe du backend', { error: error.message });
+      console.error('Erreur fetch backend team:', error);
+      logger.error('Impossible de récupérer équipe du backend', { 
+        error: error.message,
+        url: `${this.backendUrl}/api/team`
+      });
       return [];
     }
   }

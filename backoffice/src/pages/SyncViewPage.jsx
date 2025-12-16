@@ -44,10 +44,24 @@ export default function SyncViewPage() {
     setIsLoading(true);
     try {
       logger.info('Début analyse synchronisation');
+      console.log('Frontend team from query:', frontendTeam);
       
       const backendTeam = await syncService.fetchBackendTeam();
+      console.log('Backend team fetched:', backendTeam);
+      
+      if (!Array.isArray(backendTeam)) {
+        throw new Error('Backend team is not an array');
+      }
+      
+      if (!Array.isArray(frontendTeam)) {
+        throw new Error('Frontend team is not an array');
+      }
+      
       const differences = syncService.compareData(frontendTeam, backendTeam);
+      console.log('Differences found:', differences);
+      
       const newReport = syncService.generateReport(differences);
+      console.log('Report generated:', newReport);
 
       setReport(newReport);
       setSyncResults(null);
@@ -58,7 +72,13 @@ export default function SyncViewPage() {
         byType: newReport.byType
       });
     } catch (error) {
+      console.error('Sync error:', error);
       logger.error('Erreur analyse synchronisation', { error: error.message });
+      setReport(null);
+      setSyncResults({
+        success: false,
+        message: `❌ Erreur analyse: ${error.message}`
+      });
     } finally {
       setIsLoading(false);
     }
@@ -68,25 +88,47 @@ export default function SyncViewPage() {
    * Appliquer les résolutions
    */
   const applySyncResolutions = async () => {
-    const resolutions = Object.entries(selectedResolutions).map(([key, resolution]) => {
-      const difference = report.differences.find(d => `${d.type}-${d.id}` === key);
-      return { difference, resolution };
-    });
+    const resolutions = Object.entries(selectedResolutions)
+      .filter(([key]) => {
+        const diff = report.differences.find(d => `${d.type}-${d.id}` === key);
+        return !!diff;
+      })
+      .map(([key, resolution]) => {
+        const difference = report.differences.find(d => `${d.type}-${d.id}` === key);
+        return { difference, resolution };
+      });
 
     if (resolutions.length === 0) {
       logger.warn('Aucune résolution sélectionnée');
+      alert('❌ Veuillez sélectionner au moins une résolution');
       return;
     }
 
     setSyncing(true);
     try {
+      console.log('Applying resolutions:', resolutions);
+      logger.info(`Début synchronisation de ${resolutions.length} éléments`);
+      
       const result = await syncService.syncBatch(resolutions);
+      
+      console.log('Sync result:', result);
+      logger.info('Résultats synchronisation', { result });
+      
       setSyncResults(result);
       
       if (result.success) {
         // Réanalyser après synchronisation
         setTimeout(() => analyzeSync(), 1000);
+      } else {
+        logger.error('Erreur lors de la synchronisation', { result });
       }
+    } catch (error) {
+      console.error('Sync error:', error);
+      logger.error('Erreur synchronisation batch', { error: error.message });
+      setSyncResults({
+        success: false,
+        message: `❌ Erreur: ${error.message}`
+      });
     } finally {
       setSyncing(false);
     }

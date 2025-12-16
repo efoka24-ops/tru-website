@@ -162,7 +162,7 @@ app.get('/api/team', (req, res) => {
 
 app.post('/api/team', upload.single('image'), (req, res) => {
   try {
-    console.log('➕ POST /api/team');
+    console.log('➕ POST /api/team', req.body);
     
     let imageUrl = null;
     if (req.file) {
@@ -202,7 +202,17 @@ app.post('/api/team', upload.single('image'), (req, res) => {
     }
 
     const data = readData();
-    const newId = Math.max(0, ...data.team.map(t => t.id)) + 1;
+    
+    // Utiliser l'ID fourni ou générer un nouveau
+    let newId = req.body.id;
+    if (!newId) {
+      newId = Math.max(0, ...data.team.map(t => t.id)) + 1;
+    } else {
+      // Vérifier que cet ID n'existe pas déjà
+      if (data.team.find(t => t.id == newId)) {
+        return res.status(400).json({ error: `ID ${newId} déjà existant` });
+      }
+    }
 
     const member = {
       id: newId,
@@ -220,6 +230,7 @@ app.post('/api/team', upload.single('image'), (req, res) => {
 
     data.team.push(member);
     writeData(data);
+    console.log('✅ Team member created:', member);
 
     res.status(201).json(member);
   } catch (error) {
@@ -231,10 +242,13 @@ app.post('/api/team', upload.single('image'), (req, res) => {
 app.put('/api/team/:id', upload.single('image'), (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`🔄 PUT /api/team/${id}`, req.body);
+    
     const data = readData();
     const memberIndex = data.team.findIndex(t => t.id == id);
 
     if (memberIndex === -1) {
+      console.warn(`❌ Membre non trouvé: ${id}`);
       return res.status(404).json({ error: 'Membre non trouvé' });
     }
 
@@ -290,6 +304,7 @@ app.put('/api/team/:id', upload.single('image'), (req, res) => {
     };
 
     writeData(data);
+    console.log('✅ Team member updated:', data.team[memberIndex]);
     res.json(data.team[memberIndex]);
   } catch (error) {
     console.error('Erreur mise à jour équipe:', error);
