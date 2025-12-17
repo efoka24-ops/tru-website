@@ -617,7 +617,7 @@ export default function MemberAccountsPage() {
 
       {/* Create Account Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="bg-white border-slate-200 w-[400px] max-h-[600px] overflow-y-auto">
+        <DialogContent className="bg-white border-slate-200 w-[600px] max-h-[400px] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-slate-900">Créer un Accès Membre</DialogTitle>
           </DialogHeader>
@@ -633,16 +633,24 @@ export default function MemberAccountsPage() {
                 value={formData.memberId}
                 onChange={(e) => {
                   const selectedId = e.target.value;
-                  const selectedMemberObj = members && members.length > 0 
-                    ? members.find(m => m.id === parseInt(selectedId))
-                    : null;
-                  setFormData(prev => ({
-                    ...prev,
-                    memberId: selectedId,
-                    email: selectedMemberObj?.email || ''
-                  }));
+                  if (selectedId && members && members.length > 0) {
+                    const selectedMemberObj = members.find(m => String(m.id) === String(selectedId));
+                    if (selectedMemberObj) {
+                      setFormData(prev => ({
+                        ...prev,
+                        memberId: selectedId,
+                        email: selectedMemberObj.email || ''
+                      }));
+                    }
+                  } else {
+                    setFormData(prev => ({
+                      ...prev,
+                      memberId: selectedId,
+                      email: ''
+                    }));
+                  }
                 }}
-                className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
               >
                 <option value="">-- Choisir un membre --</option>
                 {isLoading ? (
@@ -653,7 +661,7 @@ export default function MemberAccountsPage() {
                   members
                     .filter(m => !m.account?.hasAccount)
                     .map(member => (
-                      <option key={`member-${member.id}`} value={member.id}>
+                      <option key={`member-${member.id}`} value={String(member.id)}>
                         {member.name} ({member.email})
                       </option>
                     ))
@@ -663,73 +671,62 @@ export default function MemberAccountsPage() {
               </select>
             </div>
 
-            {/* Email Address */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                <Mail className="w-4 h-4 inline mr-2" />
-                Email
-              </label>
-              <Input
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="member@trugroup.cm"
-                className="bg-white border-slate-300 text-slate-900 font-medium"
-              />
+            {/* Grille 2 colonnes pour les champs */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Email Address */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <Mail className="w-3 h-3 inline mr-1" />
+                  Email
+                </label>
+                <Input
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="email@company.com"
+                  className="bg-white border-slate-300 text-slate-900 font-medium text-sm"
+                />
+              </div>
+
+              {/* Role */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <Shield className="w-3 h-3 inline mr-1" />
+                  Rôle
+                </label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                >
+                  <option value="member">Membre</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                <Shield className="w-4 h-4 inline mr-2" />
-                Mot de Passe Initial
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <Shield className="w-3 h-3 inline mr-1" />
+                Mot de Passe (Optionnel)
               </label>
               <Input
                 type="password"
                 value={formData.initialPassword}
                 onChange={(e) => setFormData(prev => ({ ...prev, initialPassword: e.target.value }))}
-                placeholder="Laisser vide pour utiliser le code"
-                className="bg-white border-slate-300 text-slate-900 font-medium"
+                placeholder="Code utilisé sinon"
+                className="bg-white border-slate-300 text-slate-900 font-medium text-sm"
               />
-              <p className="text-slate-500 text-xs mt-1">Si vide, le membre utilisera le code de connexion</p>
             </div>
 
-            {/* Role */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                <Shield className="w-4 h-4 inline mr-2" />
-                Rôle
-              </label>
-              <select
-                value={formData.role}
-                onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
-              >
-                <option value="member">Membre Standard</option>
-                <option value="admin">Administrateur</option>
-              </select>
-            </div>
-
-            {/* Info Box */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <h4 className="font-semibold text-blue-900 text-sm mb-2 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                Informations
-              </h4>
-              <ul className="text-xs text-blue-800 space-y-1">
-                <li>✓ Code unique: 12 caractères</li>
-                <li>✓ Validité: 24 heures</li>
-                <li>✓ Token JWT sécurisé</li>
-              </ul>
-            </div>
-
-            {/* Member Info Display */}
+            {/* Membre Sélectionné */}
             {formData.memberId && members && (
-              <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                <h4 className="font-semibold text-slate-900 text-sm mb-2">Membre Sélectionné</h4>
-                {members.find(m => m.id === formData.memberId) && (
-                  <div className="text-xs text-slate-700 space-y-1">
-                    <p><strong>Nom:</strong> {members.find(m => m.id === formData.memberId)?.name}</p>
-                    <p><strong>Email:</strong> {formData.email}</p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+                <h4 className="font-semibold text-blue-900 text-xs mb-1">👤 Sélectionné</h4>
+                {members.find(m => String(m.id) === String(formData.memberId)) && (
+                  <div className="text-xs text-blue-800">
+                    <p><strong>{members.find(m => String(m.id) === String(formData.memberId))?.name}</strong></p>
+                    <p>{formData.email}</p>
                   </div>
                 )}
               </div>
