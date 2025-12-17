@@ -22,6 +22,15 @@ export default function MemberAccountsPage() {
   const [selectedMember, setSelectedMember] = useState(null);
   const [notification, setNotification] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
+  
+  // Filtrage et recherche
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [sortBy, setSortBy] = useState('email'); // 'email', 'createdAt', 'lastLogin'
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc', 'desc'
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const [formData, setFormData] = useState({
     email: '',
@@ -243,6 +252,58 @@ export default function MemberAccountsPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  // Fonction de filtrage et tri
+  const filteredMembers = members
+    .filter(member => {
+      const hasAccount = !!member.account;
+      const email = member.account?.email || member.email || '';
+      const name = member.name || '';
+      
+      // Recherche
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = email.toLowerCase().includes(searchLower) || 
+                           name.toLowerCase().includes(searchLower);
+      
+      // Filtre rôle
+      const matchesRole = filterRole === 'all' || member.account?.role === filterRole;
+      
+      // Filtre statut
+      const matchesStatus = filterStatus === 'all' || member.account?.status === filterStatus;
+      
+      return hasAccount && matchesSearch && matchesRole && matchesStatus;
+    })
+    .sort((a, b) => {
+      let aVal, bVal;
+      
+      switch(sortBy) {
+        case 'email':
+          aVal = (a.account?.email || '').toLowerCase();
+          bVal = (b.account?.email || '').toLowerCase();
+          break;
+        case 'createdAt':
+          aVal = new Date(a.account?.createdAt || 0).getTime();
+          bVal = new Date(b.account?.createdAt || 0).getTime();
+          break;
+        case 'lastLogin':
+          aVal = new Date(a.account?.lastLogin || 0).getTime();
+          bVal = new Date(b.account?.lastLogin || 0).getTime();
+          break;
+        default:
+          return 0;
+      }
+      
+      if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredMembers.length / itemsPerPage);
+  const paginatedMembers = filteredMembers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -287,6 +348,101 @@ export default function MemberAccountsPage() {
         )}
       </AnimatePresence>
 
+      {/* Filters & Search */}
+      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-slate-900">Filters</h3>
+          <Button
+            onClick={() => setCreateDialogOpen(true)}
+            className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Create Account
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          {/* Search */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Search</label>
+            <Input
+              placeholder="Email or name..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="border-slate-300"
+            />
+          </div>
+
+          {/* Filter by Role */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Role</label>
+            <select
+              value={filterRole}
+              onChange={(e) => {
+                setFilterRole(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Roles</option>
+              <option value="member">Member</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          {/* Filter by Status */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Status</label>
+            <select
+              value={filterStatus}
+              onChange={(e) => {
+                setFilterStatus(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+
+          {/* Sort by */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Sort by</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="email">Email</option>
+              <option value="createdAt">Created Date</option>
+              <option value="lastLogin">Last Login</option>
+            </select>
+          </div>
+
+          {/* Sort Order */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Order</label>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Results count */}
+        <div className="text-sm text-slate-600">
+          Showing <span className="font-semibold">{paginatedMembers.length}</span> of <span className="font-semibold">{filteredMembers.length}</span> member(s)
+        </div>
+      </div>
+
       {/* Members Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
@@ -302,7 +458,7 @@ export default function MemberAccountsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
-              {members.map((member) => (
+              {paginatedMembers.map((member) => (
                 <motion.tr
                   key={member.id}
                   initial={{ opacity: 0 }}
@@ -394,6 +550,44 @@ export default function MemberAccountsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-t border-slate-200">
+            <div className="text-sm text-slate-600">
+              Page <span className="font-semibold">{currentPage}</span> of <span className="font-semibold">{totalPages}</span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-lg border border-slate-300 text-slate-900 text-sm font-semibold hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition ${
+                    currentPage === page
+                      ? 'bg-blue-600 text-white'
+                      : 'border border-slate-300 text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 rounded-lg border border-slate-300 text-slate-900 text-sm font-semibold hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Create Account Dialog */}
