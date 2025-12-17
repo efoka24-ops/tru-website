@@ -491,6 +491,34 @@ app.put('/api/members/:id/photo', verifyToken, requireOwnProfile, upload.single(
 
 // ============= ADMIN - MEMBER ACCOUNTS ROUTES =============
 
+// GET /api/test/team - Endpoint de test pour vérifier les données de l'équipe
+app.get('/api/test/team', (req, res) => {
+  try {
+    const data = readData();
+    const team = data.team || [];
+    console.log('[TEST/TEAM] Data loaded:', {
+      hasTeam: !!data.team,
+      teamLength: team.length,
+      teamNames: team.map(m => ({ id: m.id, name: m.name, email: m.email }))
+    });
+    
+    res.json({
+      success: true,
+      team: team,
+      total: team.length,
+      debug: {
+        hasTeam: !!data.team,
+        teamLength: team.length,
+        hasMemberAccounts: !!data.memberAccounts,
+        memberAccountsCount: (data.memberAccounts || []).length
+      }
+    });
+  } catch (error) {
+    console.error('[TEST/TEAM] Error:', error);
+    res.status(500).json({ error: 'Failed to fetch team', details: error.message });
+  }
+});
+
 // GET /api/admin/members - Lister tous les membres de l'équipe avec statut de compte
 app.get('/api/admin/members', verifyToken, requireAdmin, (req, res) => {
   try {
@@ -500,10 +528,25 @@ app.get('/api/admin/members', verifyToken, requireAdmin, (req, res) => {
     const team = data.team || [];
     console.log(`[ADMIN/MEMBERS] Total team members: ${team.length}`);
     
+    // Vérifier si team est vide ou si ce n'est pas un array
+    if (!Array.isArray(team)) {
+      console.error('[ADMIN/MEMBERS] team is not an array:', typeof team);
+      return res.json({
+        success: true,
+        members: [],
+        total: 0,
+        warning: 'Team data is not an array'
+      });
+    }
+    
     const membersWithAccounts = team.map(member => {
       const account = data.memberAccounts?.find(a => a.memberId === member.id);
       return {
-        ...member,
+        id: member.id,
+        name: member.name || 'Unknown',
+        email: member.email || 'no-email@company.com',
+        title: member.title || '',
+        image: member.image || '',
         account: account ? {
           id: account.id,
           email: account.email,
@@ -518,12 +561,18 @@ app.get('/api/admin/members', verifyToken, requireAdmin, (req, res) => {
       };
     });
     
-    console.log(`[ADMIN/MEMBERS] Returning ${membersWithAccounts.length} members`);
+    console.log(`[ADMIN/MEMBERS] Returning ${membersWithAccounts.length} members:`, 
+      membersWithAccounts.map(m => ({ id: m.id, name: m.name, hasAccount: m.account.hasAccount })));
     
     res.json({
       success: true,
       members: membersWithAccounts,
-      total: membersWithAccounts.length
+      total: membersWithAccounts.length,
+      debug: {
+        teamLength: team.length,
+        membersWithAccounts: membersWithAccounts.length,
+        membersWithoutAccount: membersWithAccounts.filter(m => !m.account.hasAccount).length
+      }
     });
   } catch (error) {
     console.error('Get members error:', error);

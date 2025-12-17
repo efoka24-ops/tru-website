@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
-const API_URL = `${import.meta.env.VITE_BACKEND_URL || 'https://tru-backend-o1zc.onrender.com'}/api`;
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://tru-backend-o1zc.onrender.com';
 
 export default function MemberAccountsPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -49,12 +49,15 @@ export default function MemberAccountsPage() {
   const token = localStorage.getItem('adminToken');
 
   // Récupérer liste des membres de l'équipe
-  const { data: members = [], isLoading, error: membersError } = useQuery({
+  const { data: members = [], isLoading, error: membersError, refetch } = useQuery({
     queryKey: ['members', token],
     queryFn: async () => {
       try {
+        console.log('[FRONTEND] Token:', token ? 'Exists ✓' : 'Missing ✗');
+        console.log('[FRONTEND] API_BASE_URL:', API_BASE_URL);
         console.log('[FRONTEND] Fetching members from /api/admin/members...');
-        const response = await fetch(`${API_URL}/admin/members`, {
+        
+        const response = await fetch(`${API_BASE_URL}/api/admin/members`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -62,32 +65,44 @@ export default function MemberAccountsPage() {
           }
         });
         
+        console.log('[FRONTEND] Response status:', response.status);
+        
         if (!response.ok) {
-          console.error('[FRONTEND] Failed to fetch members:', response.status, response.statusText);
-          throw new Error(`API Error: ${response.status}`);
+          const errorData = await response.json().catch(() => ({}));
+          console.error('[FRONTEND] API Error:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData
+          });
+          throw new Error(`API Error ${response.status}: ${errorData.error || response.statusText}`);
         }
         
         const data = await response.json();
-        console.log('[FRONTEND] Members loaded:', {
+        console.log('[FRONTEND] Members loaded successfully:', {
           total: data.total,
           count: data.members?.length || 0,
+          debug: data.debug,
           members: data.members?.map(m => ({ id: m.id, name: m.name, email: m.email, hasAccount: m.account?.hasAccount }))
         });
-        return data.members || [];
+        
+        // Retourner le tableau même s'il est vide
+        return Array.isArray(data.members) ? data.members : [];
       } catch (error) {
-        console.error('[FRONTEND] Error fetching members:', error);
+        console.error('[FRONTEND] Error fetching members:', error.message);
         throw error;
       }
     },
     enabled: !!token,
-    retry: 2,
-    staleTime: 5 * 60 * 1000
+    retry: 3,
+    retryDelay: 1000,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000
   });
 
   // Créer un compte
   const createAccountMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await fetch(`${API_URL}/admin/members/${data.memberId}/account`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/members/${data.memberId}/account`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +142,7 @@ export default function MemberAccountsPage() {
   // Modifier un compte
   const updateAccountMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await fetch(`${API_URL}/admin/members/${data.memberId}/account`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/members/${data.memberId}/account`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -166,7 +181,7 @@ export default function MemberAccountsPage() {
   // Supprimer un compte
   const deleteAccountMutation = useMutation({
     mutationFn: async (memberId) => {
-      const response = await fetch(`${API_URL}/admin/members/${memberId}/account`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/members/${memberId}/account`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -196,7 +211,7 @@ export default function MemberAccountsPage() {
   // Générer nouveau code
   const generateCodeMutation = useMutation({
     mutationFn: async (memberId) => {
-      const response = await fetch(`${API_URL}/admin/members/${memberId}/login-code`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/members/${memberId}/login-code`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -622,12 +637,37 @@ export default function MemberAccountsPage() {
 
       {/* Create Account Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="bg-white border-slate-200 w-[700px] max-h-[450px] overflow-y-auto">
+        <DialogContent className="bg-white border-slate-200 w-[750px] max-h-[750px] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-slate-900">Créer un Accès Membre</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
+            {/* Status information */}
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-slate-900">État du chargement:</p>
+                  <div className="mt-1 space-y-1 text-slate-700">
+                    <p>• Token: {token ? '✓ Présent' : '✗ Manquant'}</p>
+                    <p>• Membres chargés: {isLoading ? '⏳ Chargement...' : members.length > 0 ? `✓ ${members.length} trouvé(s)` : '✗ Aucun'}</p>
+                    {membersError && <p className="text-red-600">• Erreur: {membersError.message}</p>}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    console.log('[DIAGNOSTIC] Manual refetch triggered');
+                    refetch();
+                  }}
+                  disabled={isLoading}
+                  className="px-3 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-400 text-white rounded text-xs font-semibold transition-colors"
+                >
+                  {isLoading ? '🔄' : '🔍'} Tester
+                </button>
+              </div>
+            </div>
+
             {/* Sélectionner le Membre de l'Équipe */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -659,11 +699,20 @@ export default function MemberAccountsPage() {
                 className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
               >
                 <option value="">-- Choisir un membre de l'équipe --</option>
-                {isLoading ? (
-                  <option disabled>⏳ Chargement de l'équipe...</option>
-                ) : membersError ? (
-                  <option disabled>❌ Erreur: {membersError.message}</option>
-                ) : members && members.length > 0 ? (
+                
+                {isLoading && (
+                  <>
+                    <option disabled>⏳ Chargement de l'équipe...</option>
+                  </>
+                )}
+                
+                {membersError && !isLoading && (
+                  <>
+                    <option disabled>❌ Erreur: {membersError.message}</option>
+                  </>
+                )}
+                
+                {!isLoading && !membersError && members && members.length > 0 && (
                   members
                     .filter(m => !m.account?.hasAccount)
                     .map(member => (
@@ -671,12 +720,32 @@ export default function MemberAccountsPage() {
                         👤 {member.name} {member.title ? `(${member.title})` : ''} - {member.email}
                       </option>
                     ))
-                ) : (
+                )}
+                
+                {!isLoading && !membersError && (!members || members.length === 0) && (
+                  <option disabled>ℹ️ Aucun membre chargé</option>
+                )}
+                
+                {!isLoading && !membersError && members && members.filter(m => !m.account?.hasAccount).length === 0 && members.length > 0 && (
                   <option disabled>✓ Tous les membres ont un accès</option>
                 )}
               </select>
-              {members.length === 0 && !isLoading && (
-                <p className="text-xs text-amber-600 mt-1">⚠️ Impossible de charger la liste de l'équipe</p>
+              
+              {!isLoading && membersError && (
+                <div className="mt-2 p-2 bg-red-50 border border-red-300 rounded text-xs text-red-700">
+                  ❌ Erreur de chargement: {membersError.message}
+                  <button
+                    type="button"
+                    onClick={() => refetch()}
+                    className="ml-2 underline font-semibold hover:no-underline"
+                  >
+                    Réessayer
+                  </button>
+                </div>
+              )}
+              
+              {!isLoading && !membersError && members && members.length > 0 && (
+                <p className="text-xs text-green-600 mt-1">✓ {members.length} membre(s) chargé(s)</p>
               )}
             </div>
 
