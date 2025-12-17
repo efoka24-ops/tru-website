@@ -104,6 +104,20 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // ============= HEALTH ROUTES =============
 
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'Backend is running',
+    message: 'TRU Backend API',
+    version: '1.0',
+    endpoints: {
+      health: '/api/health',
+      test: '/api/test',
+      team: '/api/team',
+      admin_members: '/api/admin/members'
+    }
+  });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running' });
 });
