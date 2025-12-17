@@ -33,6 +33,7 @@ export default function MemberAccountsPage() {
   const itemsPerPage = 10;
 
   const [formData, setFormData] = useState({
+    memberId: '',
     email: '',
     initialPassword: '',
     role: 'member'
@@ -205,6 +206,7 @@ export default function MemberAccountsPage() {
   const handleCreateAccount = (member) => {
     setSelectedMember(member);
     setFormData({
+      memberId: member.id,
       email: member.email || '',
       initialPassword: '',
       role: 'member'
@@ -223,17 +225,19 @@ export default function MemberAccountsPage() {
   };
 
   const handleSubmitCreate = () => {
-    if (!selectedMember || !formData.email) {
+    if (!formData.memberId || !formData.email) {
       setNotification({
         type: 'error',
-        message: 'Email is required'
+        message: 'Member and Email are required'
       });
       return;
     }
 
     createAccountMutation.mutate({
-      memberId: selectedMember.id,
-      ...formData
+      memberId: formData.memberId,
+      email: formData.email,
+      initialPassword: formData.initialPassword,
+      role: formData.role
     });
   };
 
@@ -351,13 +355,19 @@ export default function MemberAccountsPage() {
       {/* Filters & Search */}
       <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-slate-900">Filters</h3>
+          <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+            <Shield className="w-5 h-5" />
+            Gestion des Accès
+          </h3>
           <Button
-            onClick={() => setCreateDialogOpen(true)}
-            className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+            onClick={() => {
+              setFormData({ memberId: '', email: '', initialPassword: '', role: 'member' });
+              setCreateDialogOpen(true);
+            }}
+            className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 font-semibold"
           >
             <Plus className="w-4 h-4" />
-            Create Account
+            Créer un Accès
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -592,147 +602,251 @@ export default function MemberAccountsPage() {
 
       {/* Create Account Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="bg-white border-slate-200">
+        <DialogContent className="bg-white border-slate-200 max-w-4xl">
           <DialogHeader>
-            <DialogTitle className="text-slate-900">Create Account for {selectedMember?.name}</DialogTitle>
+            <DialogTitle className="text-slate-900">Créer un Accès Membre</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
-              <Input
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="member@trugroup.cm"
-                className="bg-white border-slate-300 text-slate-900"
-              />
+          <div className="grid grid-cols-2 gap-6">
+            {/* Colonne Gauche */}
+            <div className="space-y-4">
+              {/* Sélectionner le Membre */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  <User className="w-4 h-4 inline mr-2" />
+                  Sélectionner Membre
+                </label>
+                <select
+                  value={formData.memberId}
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    const selectedMemberObj = members.find(m => m.id === selectedId);
+                    setFormData(prev => ({
+                      ...prev,
+                      memberId: selectedId,
+                      email: selectedMemberObj?.email || ''
+                    }));
+                  }}
+                  className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                >
+                  <option value="">-- Choisir un membre --</option>
+                  {members.filter(m => !m.account?.hasAccount).map(member => (
+                    <option key={member.id} value={member.id}>
+                      {member.name} ({member.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Email Address */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  <Mail className="w-4 h-4 inline mr-2" />
+                  Email
+                </label>
+                <Input
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="member@trugroup.cm"
+                  className="bg-white border-slate-300 text-slate-900 font-medium"
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  <Shield className="w-4 h-4 inline mr-2" />
+                  Mot de Passe Initial
+                </label>
+                <Input
+                  type="password"
+                  value={formData.initialPassword}
+                  onChange={(e) => setFormData(prev => ({ ...prev, initialPassword: e.target.value }))}
+                  placeholder="Laisser vide pour utiliser le code"
+                  className="bg-white border-slate-300 text-slate-900 font-medium"
+                />
+                <p className="text-slate-500 text-xs mt-1">Si vide, le membre utilisera le code de connexion</p>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Initial Password (Optional)</label>
-              <Input
-                type="password"
-                value={formData.initialPassword}
-                onChange={(e) => setFormData(prev => ({ ...prev, initialPassword: e.target.value }))}
-                placeholder="Leave empty to require login code"
-                className="bg-white border-slate-300 text-slate-900"
-              />
-              <p className="text-slate-500 text-xs mt-1">If left empty, member will use login code</p>
-            </div>
+            {/* Colonne Droite */}
+            <div className="space-y-4">
+              {/* Role */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  <Shield className="w-4 h-4 inline mr-2" />
+                  Rôle
+                </label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                >
+                  <option value="member">Membre Standard</option>
+                  <option value="admin">Administrateur</option>
+                </select>
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Role</label>
-              <select
-                value={formData.role}
-                onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="member">Member</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+              {/* Info Box */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  Informations
+                </h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>✓ Code unique: 12 caractères</li>
+                  <li>✓ Validité: 24 heures</li>
+                  <li>✓ Token JWT sécurisé</li>
+                  <li>✓ Permissions par rôle</li>
+                </ul>
+              </div>
 
-            <div className="flex gap-3 justify-end mt-6">
-              <Button
-                variant="outline"
-                onClick={() => setCreateDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmitCreate}
-                disabled={createAccountMutation.isPending}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                {createAccountMutation.isPending ? (
-                  <>
-                    <Loader className="w-4 h-4 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4" />
-                    Create Account
-                  </>
-                )}
-              </Button>
+              {/* Member Info Display */}
+              {formData.memberId && (
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-slate-900 mb-2">Membre Sélectionné</h4>
+                  {members.find(m => m.id === formData.memberId) && (
+                    <div className="text-sm text-slate-700 space-y-1">
+                      <p><strong>Nom:</strong> {members.find(m => m.id === formData.memberId)?.name}</p>
+                      <p><strong>Email:</strong> {formData.email}</p>
+                      <p><strong>ID:</strong> {formData.memberId}</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 justify-end mt-6 pt-4 border-t border-slate-200">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCreateDialogOpen(false);
+                setFormData({ memberId: '', email: '', initialPassword: '', role: 'member' });
+              }}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleSubmitCreate}
+              disabled={createAccountMutation.isPending}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {createAccountMutation.isPending ? (
+                <>
+                  <Loader className="w-4 h-4 animate-spin" />
+                  Création...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  Créer Accès
+                </>
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Edit Account Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="bg-slate-800 border-slate-700">
+        <DialogContent className="bg-white border-slate-200 max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-white">Edit Account - {selectedMember?.name}</DialogTitle>
+            <DialogTitle className="text-slate-900 flex items-center gap-2">
+              <Edit2 className="w-5 h-5" />
+              Modifier Accès - {selectedMember?.name}
+            </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
-              <Input
-                value={editFormData.email}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
-                className="bg-slate-700 border-slate-600"
-              />
+          <div className="grid grid-cols-2 gap-6">
+            {/* Colonne Gauche */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  <Mail className="w-4 h-4 inline mr-2" />
+                  Email
+                </label>
+                <Input
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
+                  className="bg-white border-slate-300 text-slate-900 font-medium"
+                  placeholder="email@company.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  <Shield className="w-4 h-4 inline mr-2" />
+                  Rôle
+                </label>
+                <select
+                  value={editFormData.role}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, role: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                >
+                  <option value="member">Membre Standard</option>
+                  <option value="admin">Administrateur</option>
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Status</label>
-              <select
-                value={editFormData.status}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, status: e.target.value }))}
-                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="active">Active</option>
-                <option value="pending">Pending</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
+            {/* Colonne Droite */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  <CheckCircle className="w-4 h-4 inline mr-2" />
+                  Statut
+                </label>
+                <select
+                  value={editFormData.status}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, status: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                >
+                  <option value="active">Actif</option>
+                  <option value="pending">En Attente</option>
+                  <option value="inactive">Inactif</option>
+                </select>
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Role</label>
-              <select
-                value={editFormData.role}
-                onChange={(e) => setEditFormData(prev => ({ ...prev, role: e.target.value }))}
-                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="member">Member</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-
-            <div className="flex gap-3 justify-end mt-6">
-              <Button
-                variant="outline"
-                onClick={() => setEditDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmitEdit}
-                disabled={updateAccountMutation.isPending}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                {updateAccountMutation.isPending ? (
-                  <>
-                    <Loader className="w-4 h-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4" />
-                    Save Changes
-                  </>
-                )}
-              </Button>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <h4 className="font-semibold text-amber-900 text-sm">État Actuel</h4>
+                <div className="text-xs text-amber-800 space-y-1 mt-2">
+                  <p><strong>Email:</strong> {editFormData.email}</p>
+                  <p><strong>Rôle:</strong> {editFormData.role === 'admin' ? 'Administrateur' : 'Membre'}</p>
+                  <p><strong>Statut:</strong> {editFormData.status === 'active' ? '✓ Actif' : editFormData.status === 'pending' ? '⏳ En attente' : '✗ Inactif'}</p>
+                </div>
+              </div>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
 
-      {/* Delete Confirmation */}
+          <div className="flex gap-3 justify-end mt-6 pt-4 border-t border-slate-200">
+            <Button
+              variant="outline"
+              onClick={() => setEditDialogOpen(false)}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleSubmitEdit}
+              disabled={updateAccountMutation.isPending}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {updateAccountMutation.isPending ? (
+                <>
+                  <Loader className="w-4 h-4 animate-spin" />
+                  Enregistrement...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  Enregistrer
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>      {/* Delete Confirmation */}
       <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <AlertDialogContent className="bg-slate-800 border-slate-700">
           <AlertDialogHeader>
