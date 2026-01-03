@@ -20,24 +20,78 @@
   "services": [
     {
       "id": 1,
-      "name": "Consulting",
-      "description": "Professional consulting services",
-      "price": 100,
-      "category": "business"
+      "icon": "Building2",
+      "title": "Conseil & Organisation",
+      "description": "Nous accompagnons les institutions dans leur modernisation organisationnelle.",
+      "features": [
+        "Audit organisationnel",
+        "Cartographie et optimisation des processus",
+        "Rédaction de manuels et procédures",
+        "Conduite du changement"
+      ],
+      "objective": "Rendre les organisations plus efficientes, modernes et transparentes.",
+      "color": "from-blue-500 to-indigo-600",
+      "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop"
     },
     {
       "id": 2,
-      "name": "Development",
-      "description": "Software development solutions",
-      "price": 150,
-      "category": "tech"
+      "icon": "Monitor",
+      "title": "Transformation digitale",
+      "description": "Nous concevons et déployons des solutions numériques adaptées à vos besoins.",
+      "features": [
+        "Digitalisation des services publics",
+        "E-administration",
+        "Outils de gestion",
+        "Tableaux de bord décisionnels"
+      ],
+      "objective": "Rendre la technologie accessible et durable.",
+      "color": "from-amber-500 to-orange-600",
+      "image": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop"
     },
     {
       "id": 3,
-      "name": "Design",
-      "description": "UI/UX design services",
-      "price": 80,
-      "category": "design"
+      "icon": "Smartphone",
+      "title": "Développement d'applications",
+      "description": "Nous créons des plateformes et applications sur mesure.",
+      "features": [
+        "Applications mobiles",
+        "Plateformes web",
+        "Systèmes d'information sectoriels",
+        "Outils SaaS"
+      ],
+      "objective": "Concevoir des solutions sur mesure, scalables et sécurisées.",
+      "color": "from-emerald-500 to-teal-600",
+      "image": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=600&fit=crop"
+    },
+    {
+      "id": 4,
+      "icon": "ClipboardCheck",
+      "title": "Gestion de projet & assistance technique",
+      "description": "Nous mettons à disposition des experts pour garantir le succès de vos projets.",
+      "features": [
+        "Gestion de projet",
+        "Pilotage stratégique",
+        "Suivi-évaluation",
+        "Coordination multisectorielle"
+      ],
+      "objective": "Garantir la réussite de chaque projet.",
+      "color": "from-purple-500 to-violet-600",
+      "image": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop"
+    },
+    {
+      "id": 5,
+      "icon": "GraduationCap",
+      "title": "Formation & renforcement des capacités",
+      "description": "Nous proposons des formations professionnelles adaptées.",
+      "features": [
+        "Gestion de projet (classique & agile)",
+        "Outils numériques",
+        "Data & intelligence décisionnelle",
+        "Leadership et innovation"
+      ],
+      "objective": "Renforcer l'employabilité des jeunes et cadres locaux.",
+      "color": "from-pink-500 to-rose-600",
+      "image": "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&h=600&fit=crop"
     }
   ],
   "content": [
@@ -103,108 +157,158 @@
   ],
   "team": [
     {
-      "id": 2,
-      "name": "Halimatou Sadia Ahmadou",
-      "title": "Chef de Projet Junior",
-      "bio": "Specialist in designing and implementing robust software architectures, with extensive expertise in guiding the development process from conception to deployment. Skilled in creating scalable, maintainable, and efficient systems that meet complex business and technical requirements.",
-      "image": "https://api.placeholder.com/300/300/4A90E2/FFFFFF?text=Halimatou",
-      "email": "bob@sitetru.com",
-      "phone": "+237 696317216",
-      "linked_in": "",
-      "specialties": [
-        "Software Architecture",
-        "Backend",
-        "DevOps"
-      ],
-      "is_founder": false
-    },
-    {
-      "id": 3,
-      "name": "Hervé Tatinou",
-      "title": "Senior Design Lead",
-      "bio": "A passionate and innovative creative designer dedicated to crafting exceptional user experiences that seamlessly blend functionality with aesthetic appeal, ensuring every detail enhances usability, engagement, and overall satisfaction.",
-      "image": "https://api.placeholder.com/300/300/E91E63/FFFFFF?text=Herve",
-      "email": "carol@sitetru.com",
-      "phone": "+237 656298190",
-      "linked_in": "",
-      "specialties": [
-        "UI/UX",
-        "Design Systems",
-        "Branding"
-      ],
-      "is_founder": false
-    },
-    {
-      "id": 4,
-      "name": "Emmanuel Foka ",
-      "title": "Fondateur & CEO",
-      "bio": "Ingénieur en génie logiciel, lauréat CASAM-INOV, PNUD et ECAM. Expert en transformation digitale et innovation sociale avec une vision claire pour l'Afrique.",
+      "id": 1,
+      "name": "Emmanuel Foka Ziegoube",
+      "title": "Fondateur & PDG",
+      "bio": "Ingénieur en génie logiciel | Lauréat CASAM-INOV, PNUD, ECAM Expert en transformation digitale et innovation sociale.",
+      "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      "is_founder": true,
       "email": "emmanuel@trugroup.cm",
       "phone": "+237 678758976",
+      "linked_in": "https://web.facebook.com/iamZIEFE",
       "specialties": [
-        "Transformation digitale ",
-        "Génie logiciel ",
-        "Innovation sociale"
+        "Stratégie",
+        "Innovation",
+        "Leadership"
       ],
       "certifications": [
         "Lauréat CASAM-INOV",
-        " Prix PNUD Innovation ",
+        "Prix PNUD Innovation",
         "Prix ECAM"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Aissatou Diallo",
+      "title": "Directrice Technique",
+      "bio": "Ingénieure informatique avec 8 ans d'expérience en développement et architecture cloud.",
+      "image": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+      "is_founder": false,
+      "email": "aissatou@trugroup.cm",
+      "phone": "+237 696317216",
+      "linked_in": "",
+      "specialties": [
+        "Cloud",
+        "Architecture",
+        "DevOps"
       ],
-      "is_founder": true,
-      "linked_in": "https://web.facebook.com/iamZIEFE",
-      "image": "https://api.placeholder.com/300/300/10B981/FFFFFF?text=Emmanuel"
+      "certifications": []
+    },
+    {
+      "id": 3,
+      "name": "Jean Kameni",
+      "title": "Consultant Transformation",
+      "bio": "Consultant en organisation avec expertise dans les processus gouvernementaux et ONG.",
+      "image": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
+      "is_founder": false,
+      "email": "jean@trugroup.cm",
+      "phone": "+237 656298190",
+      "linked_in": "",
+      "specialties": [
+        "Organisation",
+        "Processus",
+        "Gouvernance"
+      ],
+      "certifications": []
+    },
+    {
+      "id": 4,
+      "name": "Marie Tagne",
+      "title": "Lead Developer Mobile",
+      "bio": "Développeuse mobile spécialisée en React Native et Flutter avec passion pour l'innovation.",
+      "image": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+      "is_founder": false,
+      "email": "marie@trugroup.cm",
+      "phone": "+237 700000000",
+      "linked_in": "",
+      "specialties": [
+        "Mobile",
+        "React Native",
+        "UX"
+      ],
+      "certifications": []
     },
     {
       "id": 5,
-      "name": "Samiratou",
-      "title": "Chef de Projet Junior",
-      "bio": "",
-      "email": "",
-      "phone": "",
-      "image": "https://api.placeholder.com/300/300/FF6B6B/FFFFFF?text=Samiratou",
-      "specialties": [],
-      "certifications": [],
+      "name": "Pierre Bouvier",
+      "title": "Expert Data & Analytics",
+      "bio": "Data scientist avec spécialisation en intelligence décisionnelle et machine learning.",
+      "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
       "is_founder": false,
-      "linked_in": ""
-    },
-    {
-      "id": 6,
-      "name": "Test Member",
-      "title": "Developer",
-      "bio": "Test bio",
-      "image": null,
-      "email": "test@example.com",
-      "phone": "+237000000000",
-      "specialties": [
-        "React",
-        "Node.js"
-      ],
-      "certifications": [],
+      "email": "pierre@trugroup.cm",
+      "phone": "+237 711111111",
       "linked_in": "",
-      "is_founder": false
+      "specialties": [
+        "Data Science",
+        "BI",
+        "Machine Learning"
+      ],
+      "certifications": []
     }
   ],
   "solutions": [
     {
       "id": 1,
+      "name": "MokineVeto",
+      "subtitle": "Télémédecine vétérinaire",
+      "description": "Consultations vétérinaires en ligne, géolocalisation du bétail et détection précoce des maladies.",
+      "longDescription": "Un outil digital permettant aux éleveurs d'accéder à des consultations vétérinaires en ligne, la géolocalisation du bétail, la détection précoce des maladies et des conseils en santé animale. Une innovation majeure pour les zones rurales.",
+      "color": "from-emerald-500 to-teal-600",
+      "icon": "🐄",
+      "features": [
+        "Consultations en ligne",
+        "Géolocalisation bétail",
+        "Détection maladies",
+        "Conseils santé animale"
+      ]
+    },
+    {
+      "id": 2,
       "name": "Mokine",
-      "description": "Mokine",
-      "category": "",
-      "image": "https://api.placeholder.com/400/300/9C27B0/FFFFFF?text=Mokine",
-      "benefits": [],
-      "features": [],
-      "createdAt": "2025-12-09T13:44:39.451Z"
+      "subtitle": "Traçabilité & Sécurité",
+      "description": "Solution IoT pour la géolocalisation en temps réel et la protection du bétail.",
+      "longDescription": "Solution IoT pensée pour lutter contre le vol de bétail, les pertes et le manque de contrôle du mouvement des animaux. Inclut géolocalisation en temps réel, alertes intelligentes et tableau de bord éleveur.",
+      "color": "from-blue-500 to-indigo-600",
+      "icon": "📍",
+      "features": [
+        "Géolocalisation temps réel",
+        "Alertes intelligentes",
+        "Dashboard éleveur",
+        "Protection bétail"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "MokineKid",
+      "subtitle": "Sécurité enfants",
+      "description": "Bracelet intelligent avec géolocalisation, zones de sécurité et bouton SOS.",
+      "longDescription": "Solution de sécurité personnelle offrant géolocalisation en temps réel, zone de sécurité (geofencing), bouton SOS et alertes instantanées aux parents. Un outil essentiel pour la sécurité des enfants en Afrique.",
+      "color": "from-amber-500 to-orange-600",
+      "icon": "👶",
+      "features": [
+        "Géolocalisation temps réel",
+        "Zones sécurisées",
+        "Bouton SOS",
+        "Alertes parents"
+      ]
     }
   ],
   "settings": {
     "id": 1,
-    "siteTitle": "Site TRU",
-    "slogan": "Transforming Reality Universally",
+    "company_name": "TRU GROUP",
+    "slogan": "Au cœur de l'innovation",
+    "siteTitle": "TRU GROUP",
+    "email": "info@trugroup.cm",
+    "phone": "+237 691 22 71 49",
+    "address": "Maroua, Cameroun",
+    "primary_color": "#22c55e",
+    "logo_url": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6931c0aad472b3548a5e1e75/66a0a52ca_images1.jpg",
+    "facebook_url": "#",
+    "linkedin_url": "#",
+    "twitter_url": "#",
     "tagline": "Innovation & Solutions",
-    "email": "trugroupsarl@yahoo.com",
-    "phone": "678758976",
-    "address": "base 301, garoua, cameroun",
+    "description": "",
+    "primaryColor": "#10b981",
     "socialMedia": {
       "facebook": "",
       "twitter": "",
@@ -220,8 +324,6 @@
       "saturday": "Fermé",
       "sunday": "Fermé"
     },
-    "primaryColor": "#10b981",
-    "description": "",
     "updatedAt": "2025-12-09T18:46:27.846Z",
     "maintenanceMode": false
   },

@@ -79,7 +79,9 @@ const allowedOrigins = [
   'http://localhost:5000',
   'https://tru-backoffice.vercel.app',
   'https://tru-backend-o1zc.onrender.com',
-  'https://tru-website.vercel.app'
+  'https://tru-website.vercel.app',
+  'https://bo.trugroup.cm',
+  'https://fo.trugroup.cm'
 ];
 
 app.use(cors({
