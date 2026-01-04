@@ -3,7 +3,11 @@
  * Provides access to all entities and integrations via base44 API
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const API_BASE_URL = `${BACKEND_URL}/api`;
+
+console.log('🔗 API_BASE_URL:', API_BASE_URL);
+console.log('📝 VITE_BACKEND_URL env var:', import.meta.env.VITE_BACKEND_URL);
 
 // Entity API endpoints
 export const base44 = {
