@@ -3,8 +3,8 @@
     {
       "id": 1,
       "name": "Admin User",
-      "email": "admin@sitetru.com",
-      "password": "hashed_password",
+      "email": "admin@trugroup.cm",
+      "password": "TRU2024!",
       "role": "admin",
       "createdAt": "2025-01-01T00:00:00Z"
     },
