@@ -29,9 +29,9 @@ dist-ssr
 .env.*.local
 .env.production.local
 
-# Git submodules (kept as regular folders)
-tru-backend-deploy/.git/
-backoffice/.git/
+# Backend data (local changes, don't commit)
+# Users can modify this locally but it won't be tracked
+backend/data.json
 
 # Vercel
 .vercel/
