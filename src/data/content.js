@@ -163,21 +163,21 @@ export const team = [
   },
   {
     id: 2,
-    name: 'Aissatou Diallo',
-    title: 'Directrice Technique',
-    bio: 'Ingénieure informatique avec 8 ans d\'expérience en développement et architecture cloud.',
+    name: 'Tatinou Hervé',
+    title: 'Senior UI/UX Designer',
+    bio: 'Senior UI/UX Designer, Tatinou Hervé conçoit des expériences digitales centrées utilisateur, alliant esthétique, ergonomie et performance produit. Il excelle dans la création d\'interfaces intuitives et évolutives pour des produits à fort impact.',
     image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
     is_founder: false,
-    specialties: ['Cloud', 'Architecture', 'DevOps']
+    specialties: ['UI/UX Design', 'Product Design', 'Recherche utilisateur', 'Wireframing & prototypage', 'Design systems', 'Mobile-first']
   },
   {
     id: 3,
-    name: 'Jean Kameni',
-    title: 'Consultant Transformation',
-    bio: 'Consultant en organisation avec expertise dans les processus gouvernementaux et ONG.',
-    image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop',
+    name: 'Halimatou Sadia Ahmadou',
+    title: 'Lead Project Manager',
+    bio: 'Experte en gestion de projets | Coordination stratégique | Pilotage opérationnel. Pilote des projets complexes avec une approche structurée, orientée performance et collaboration. Elle excelle dans la coordination d\'équipes, le suivi des livrables et l\'alignement des projets avec les objectifs stratégiques.',
+    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop',
     is_founder: false,
-    specialties: ['Organisation', 'Processus', 'Gouvernance']
+    specialties: ['Gestion de projets', 'Planification stratégique', 'Coordination d\'équipes', 'Suivi-évaluation', 'Agile et classique']
   },
   {
     id: 4,
