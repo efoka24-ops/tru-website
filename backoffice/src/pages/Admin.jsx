@@ -135,10 +135,17 @@ export default function Admin() {
 
   const saveSettingsMutation = useMutation({
     mutationFn: async (data) => {
-      if (settingsArray[0]) {
-        return base44.entities.SiteSettings.update(settingsArray[0].id, data);
-      } else {
-        return base44.entities.SiteSettings.create(data);
+      try {
+        // Get the latest settings from the query
+        const currentSettings = queryClient.getQueryData(['siteSettings']);
+        if (currentSettings && currentSettings[0]) {
+          return base44.entities.SiteSettings.update(currentSettings[0].id, data);
+        } else {
+          return base44.entities.SiteSettings.create(data);
+        }
+      } catch (err) {
+        console.error('❌ Error saving settings:', err);
+        throw err;
       }
     },
     onSuccess: () => {

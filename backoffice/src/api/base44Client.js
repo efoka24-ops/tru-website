@@ -3,7 +3,8 @@
  * Provides access to all entities and integrations via base44 API
  */
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+// Hardcode the backend URL for both dev and production
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://tru-backend-o1zc.onrender.com';
 const API_BASE_URL = `${BACKEND_URL}/api`;
 
 console.log('🔗 API_BASE_URL:', API_BASE_URL);
