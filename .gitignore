@@ -29,6 +29,10 @@ dist-ssr
 .env.*.local
 .env.production.local
 
+# Git submodules (kept as regular folders)
+tru-backend-deploy/.git/
+backoffice/.git/
+
 # Vercel
 .vercel/
 
