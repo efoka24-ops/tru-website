@@ -216,14 +216,17 @@ export const apiClient = {
 
   // SYNCHRONISATION
   async notifyFrontend(action, type, data) {
+    // En production, les notifications ne sont pas nécessaires
+    // Le frontend récupère les données du backend via les hooks
+    // Cette fonction est gardée pour la compatibilité
     try {
-      await fetch(`http://localhost:5173/api/sync`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, type, data, timestamp: new Date().toISOString() })
-      });
+      const frontendUrl = import.meta.env.VITE_FRONTEND_URL || 'https://fo.trugroup.cm';
+      // Dans une app réelle, on pourrait utiliser WebSocket ou Server-Sent Events
+      // Pour l'instant, on log juste l'action
+      console.log('📢 Frontend sync notification:', { action, type, frontendUrl });
     } catch (error) {
-      console.warn('⚠️ Frontend notification failed:', error.message);
+      // Silencieusement ignorer les erreurs
+      console.debug('Frontend notification:', error.message);
     }
   }
 };
