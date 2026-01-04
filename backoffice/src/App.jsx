@@ -20,30 +20,38 @@ import SyncViewPage from './pages/SyncViewPage'
 import LogsPage from './pages/LogsPage'
 import './index.css'
 
+console.log('✅ App.jsx: All imports successful');
+
 const queryClient = new QueryClient()
 
 function App() {
+  console.log('🚀 App component rendering...');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('📝 App useEffect: Checking authentication...');
     // Vérifier si l'utilisateur est déjà connecté
     const token = localStorage.getItem('authToken');
+    console.log('🔐 Auth token found:', !!token);
     setIsAuthenticated(!!token);
     setLoading(false);
   }, []);
 
   const handleLogin = () => {
+    console.log('🔓 handleLogin called');
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
+    console.log('🔒 handleLogout called');
     localStorage.removeItem('authToken');
     localStorage.removeItem('userEmail');
     setIsAuthenticated(false);
   };
 
   if (loading) {
+    console.log('⏳ App is loading...');
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 to-orange-900">
         <div className="text-center">
@@ -53,6 +61,8 @@ function App() {
       </div>
     );
   }
+
+  console.log('✅ App rendering content. isAuthenticated:', isAuthenticated);
 
   return (
     <QueryClientProvider client={queryClient}>
