@@ -37,19 +37,26 @@ export default function Admin() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const queryClient = useQueryClient();
+  
+  // Use constants for query keys to prevent minification issues
+  const QUERY_KEYS = {
+    TEAM: 'team_members_key_v1',
+    TESTIMONIALS: 'testimonials_key_v1',
+    SETTINGS: 'site_settings_key_v1',
+  };
 
   const { data: teamMembers = [], isLoading: loadingMembers } = useQuery({
-    queryKey: ['teamMembers'],
+    queryKey: [QUERY_KEYS.TEAM],
     queryFn: () => base44.entities.TeamMember.list('display_order'),
   });
 
   const { data: testimonials = [], isLoading: loadingTestimonials } = useQuery({
-    queryKey: ['testimonials'],
+    queryKey: [QUERY_KEYS.TESTIMONIALS],
     queryFn: () => base44.entities.Testimonial.list('display_order'),
   });
 
   const { data: settingsArray = [], isLoading: loadingSettings, error: settingsError } = useQuery({
-    queryKey: ['siteSettings'],
+    queryKey: [QUERY_KEYS.SETTINGS],
     queryFn: async () => {
       try {
         console.log('🔧 Fetching settings from:', `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/settings`);
@@ -84,7 +91,7 @@ export default function Admin() {
   const createMemberMutation = useMutation({
     mutationFn: (data) => base44.entities.TeamMember.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TEAM] });
       setIsEditing(false);
       setEditingMember(null);
     },
@@ -93,7 +100,7 @@ export default function Admin() {
   const updateMemberMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.TeamMember.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TEAM] });
       setIsEditing(false);
       setEditingMember(null);
     },
@@ -102,7 +109,7 @@ export default function Admin() {
   const deleteMemberMutation = useMutation({
     mutationFn: (id) => base44.entities.TeamMember.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TEAM] });
       setDeleteConfirm(null);
     },
   });
@@ -110,7 +117,7 @@ export default function Admin() {
   const createTestimonialMutation = useMutation({
     mutationFn: (data) => base44.entities.Testimonial.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TESTIMONIALS] });
       setIsEditingTestimonial(false);
       setEditingTestimonial(null);
     },
@@ -119,7 +126,7 @@ export default function Admin() {
   const updateTestimonialMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Testimonial.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TESTIMONIALS] });
       setIsEditingTestimonial(false);
       setEditingTestimonial(null);
     },
@@ -128,7 +135,7 @@ export default function Admin() {
   const deleteTestimonialMutation = useMutation({
     mutationFn: (id) => base44.entities.Testimonial.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TESTIMONIALS] });
       setDeleteConfirm(null);
     },
   });
@@ -137,7 +144,7 @@ export default function Admin() {
     mutationFn: async (data) => {
       try {
         // Get the latest settings from the query
-        const currentSettings = queryClient.getQueryData(['siteSettings']);
+        const currentSettings = queryClient.getQueryData([QUERY_KEYS.SETTINGS]);
         if (currentSettings && currentSettings[0]) {
           return base44.entities.SiteSettings.update(currentSettings[0].id, data);
         } else {
@@ -149,7 +156,7 @@ export default function Admin() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['siteSettings'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SETTINGS] });
     },
   });
 
