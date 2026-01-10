@@ -22,7 +22,34 @@
   },
   "services": [],
   "solutions": [],
-  "team": [],
+  "team": [
+    {
+      "id": 1,
+      "name": "Emmanuel Foka Ziegoube",
+      "title": "Fondateur & PDG",
+      "bio": "Ingénieur en génie logiciel | Lauréat CASAM-INOV, PNUD, ECAM Expert en transformation digitale et innovation sociale.",
+      "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      "is_founder": true,
+      "email": "emmanuel@trugroup.cm",
+      "phone": "+237 678758976",
+      "linked_in": "https://web.facebook.com/iamZIEFE",
+      "specialties": ["Leadership"],
+      "certifications": []
+    },
+    {
+      "id": 2,
+      "name": "Tatinou Hervé",
+      "title": "Senior UI/UX Designer",
+      "bio": "Senior UI/UX Designer, Tatinou Hervé conçoit des expériences digitales centrées utilisateur.",
+      "image": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+      "is_founder": false,
+      "email": "tatinou@trugroup.cm",
+      "phone": "+237 XXX XXX XXX",
+      "linked_in": "",
+      "specialties": ["Collaboration produit & développement"],
+      "certifications": []
+    }
+  ],
   "testimonials": [],
   "contacts": [],
   "news": [],
