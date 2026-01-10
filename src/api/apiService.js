@@ -5,9 +5,11 @@ const baseURL = import.meta.env.VITE_API_URL
     ? 'http://localhost:5000' 
     : 'https://tru-backend-o1zc.onrender.com');
 
-// Normalize URL - remove trailing slash
+// Normalize URL - remove trailing slash and /api if present
 const cleanURL = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
-const API_BASE_URL = `${cleanURL}/api`;
+// Remove /api suffix if it was added in the env var
+const baseWithoutAPI = cleanURL.endsWith('/api') ? cleanURL.slice(0, -4) : cleanURL;
+const API_BASE_URL = `${baseWithoutAPI}/api`;
 
 // Log the API URL for debugging
 console.log('🔗 API_BASE_URL:', API_BASE_URL);
