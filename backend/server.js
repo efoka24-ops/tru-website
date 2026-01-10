@@ -931,7 +931,7 @@ app.post('/api/team', upload.single('image'), (req, res) => {
     };
 
     data.team.push(member);
-    writeData(data);
+    writeDataAndBackup(data, 'ADD_TEAM_MEMBER', `Added: ${member.name}`);
     console.log('✅ Team member created:', member);
 
     res.status(201).json(member);
@@ -1005,7 +1005,7 @@ app.put('/api/team/:id', upload.single('image'), (req, res) => {
       is_founder: req.body.is_founder !== undefined ? (req.body.is_founder === 'true' || req.body.is_founder === true) : data.team[memberIndex].is_founder
     };
 
-    writeData(data);
+    writeDataAndBackup(data, 'UPDATE_TEAM_MEMBER', `Updated: ${data.team[memberIndex].name}`);
     console.log('✅ Team member updated:', data.team[memberIndex]);
     res.json(data.team[memberIndex]);
   } catch (error) {
@@ -1025,7 +1025,7 @@ app.delete('/api/team/:id', (req, res) => {
     }
 
     const deleted = data.team.splice(memberIndex, 1);
-    writeData(data);
+    writeDataAndBackup(data, 'DELETE_TEAM_MEMBER', `Deleted: ${deleted[0].name}`);
     res.json(deleted[0]);
   } catch (error) {
     console.error('Erreur suppression équipe:', error);
