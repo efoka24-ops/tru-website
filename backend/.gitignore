@@ -9,3 +9,5 @@ uploads/*
 !uploads/.gitkeep
 .vercel
 .env*.local
+# Exclure data.json pour éviter de perdre les données en production
+data.json
