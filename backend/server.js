@@ -1942,6 +1942,24 @@ app.delete('/api/projects/:id', (req, res) => {
   }
 });
 
+// ============= MIGRATION ROUTES =============
+
+// POST /api/admin/migrate-data - Migrate data from data.json to PostgreSQL
+import { migrateDataHandler } from './controllers/migrationController.js';
+
+app.post('/api/admin/migrate-data', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    console.log('🚀 Migration endpoint called by:', req.user?.email);
+    await migrateDataHandler(req, res);
+  } catch (error) {
+    console.error('Migration error:', error);
+    res.status(500).json({
+      status: 'FAILED',
+      error: error.message
+    });
+  }
+});
+
 // ============= 404 HANDLER =============
 
 app.use((req, res) => {
