@@ -10,6 +10,7 @@ import { generateLoginCode, getExpiryDate, isCodeExpired } from './utils/codeGen
 import { verifyToken, requireAdmin, requireMember, requireOwnProfile } from './middleware/auth.js';
 import gitBackupService from './services/gitAutoBackupService.js';
 import initializeData from './initializeData.js';
+import DataManager from './dataManager.js';
 
 dotenv.config();
 
@@ -35,6 +36,8 @@ let globalData = {};
 (async () => {
   try {
     globalData = await initializeData();
+    // Vérifier l'intégrité au démarrage
+    DataManager.checkIntegrity();
   } catch (error) {
     console.error('❌ Erreur initialisation globale:', error);
   }
@@ -42,35 +45,12 @@ let globalData = {};
 
 // Helper function to read data
 function readData() {
-  try {
-    const data = fs.readFileSync(DATA_FILE, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading data.json:', error);
-    return {
-      users: [],
-      services: [],
-      contacts: [],
-      team: [],
-      solutions: [],
-      settings: {},
-      testimonials: [],
-      jobs: [],
-      news: [],
-      applications: []
-    };
-  }
+  return DataManager.readData();
 }
 
-// Helper function to write data
+// Helper function to write data with atomic protection
 function writeData(data) {
-  try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
-    return true;
-  } catch (error) {
-    console.error('Error writing data.json:', error);
-    return false;
-  }
+  return DataManager.writeData(data);
 }
 
 // Helper function to write data AND backup to GitHub
