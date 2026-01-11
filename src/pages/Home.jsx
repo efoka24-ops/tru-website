@@ -50,14 +50,14 @@ export default function Home() {
               Au cœur de l'innovation
             </div>
             
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
               Innovation digitale
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-500">
                 adaptée à l'Afrique
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-slate-300 leading-relaxed mb-10 mx-auto">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-300 leading-relaxed mb-10 mx-auto max-w-3xl px-2 sm:px-0">
               Nous accompagnons les institutions, entreprises et communautés dans leur transition numérique grâce à des solutions technologiques innovantes.
             </p>
             

@@ -50,10 +50,10 @@ export default function Solutions() {
             transition={{ duration: 0.8 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
               💡 Nos Solutions
             </h1>
-            <p className="text-xl text-blue-100 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-blue-100 leading-relaxed">
               Des approches globales et intégrées pour résoudre vos défis stratégiques
             </p>
           </motion.div>

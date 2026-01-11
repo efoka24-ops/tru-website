@@ -75,10 +75,10 @@ export default function Team() {
             transition={{ duration: 0.8 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-white mb-6">
               Notre Équipe
             </h1>
-            <p className="text-xl text-slate-300 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed">
               Une équipe pluridisciplinaire d'experts passionnés par l'innovation et le développement de l'Afrique.
             </p>
           </motion.div>
@@ -95,7 +95,7 @@ export default function Team() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                 Leadership
               </h2>
               <p className="text-xl text-slate-600 max-w-2xl mx-auto">
@@ -113,7 +113,7 @@ export default function Team() {
                   transition={{ delay: index * 0.2 }}
                   className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500"
                 >
-                  <div className="grid md:grid-cols-2 gap-8 p-8 md:p-12">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 p-4 sm:p-8 md:p-12">
                     <div className="flex items-center justify-center">
                       <div className="w-full max-w-xs rounded-2xl overflow-hidden shadow-lg bg-slate-200">
                         {member.image && typeof member.image === 'string' ? (
@@ -182,7 +182,7 @@ export default function Team() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                 Notre Équipe Experte
               </h2>
               <p className="text-xl text-slate-600 max-w-2xl mx-auto">
@@ -190,7 +190,7 @@ export default function Team() {
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
               {otherMembers.map((member, index) => (
                 <motion.div
                   key={member.id}
@@ -264,7 +264,7 @@ export default function Team() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4">
               Nos domaines d'expertise
             </h2>
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
@@ -272,7 +272,7 @@ export default function Team() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
             {expertise.map((item, index) => (
               <motion.div
                 key={index}
@@ -302,12 +302,12 @@ export default function Team() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4">
               Notre culture d'équipe
             </h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12">
             {[
               {
                 title: "Collaboration",
@@ -345,7 +345,7 @@ export default function Team() {
       {/* Join Us */}
       <section className="py-20 bg-gradient-to-r from-green-600 to-emerald-700 text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">
             Vous souhaitez rejoindre notre équipe ?
           </h2>
           <p className="text-lg text-green-100 mb-8">
