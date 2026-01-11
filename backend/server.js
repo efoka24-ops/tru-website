@@ -11,6 +11,7 @@ import { verifyToken, requireAdmin, requireMember, requireOwnProfile } from './m
 import gitBackupService from './services/gitAutoBackupService.js';
 import initializeData from './initializeData.js';
 import DataManager from './dataManager.js';
+import * as db from './databaseService.js';
 
 dotenv.config();
 
@@ -1985,10 +1986,19 @@ app.use((req, res) => {
 
 // ============= SERVER START =============
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`✅ Server running on port ${PORT}`);
-  console.log(`📊 Database: JSON (data.json)`);
-  console.log(`🔗 API: http://localhost:${PORT}/api`);
+  
+  // Initialize PostgreSQL connection
+  try {
+    await db.initializeDatabase();
+    console.log(`✅ Connected to PostgreSQL`);
+    console.log(`📊 Database tables initialized successfully`);
+    console.log(`🔗 API: http://localhost:${PORT}/api`);
+  } catch (error) {
+    console.error('❌ PostgreSQL initialization failed:', error.message);
+    console.log('📊 Falling back to JSON (data.json)');
+  }
   
   // 🔄 Démarrer la sauvegarde périodique GitHub
   gitBackupService.startPeriodicBackup();
