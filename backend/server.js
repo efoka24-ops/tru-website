@@ -36,9 +36,23 @@ if (!fs.existsSync(DATA_DIR)) {
 let globalData = {};
 (async () => {
   try {
+    // Initialize database tables on startup
+    await db.initializeDatabase();
+    console.log('✅ Database tables initialized');
+    
     globalData = await initializeData();
     // Vérifier l'intégrité au démarrage
     DataManager.checkIntegrity();
+    
+    // Auto-migrate data.json → PostgreSQL on first startup (if needed)
+    if (process.env.NODE_ENV === 'production') {
+      console.log('🔄 Checking if migration is needed...');
+      const hasTeam = await db.getTeamMembers();
+      if (!hasTeam || hasTeam.length === 0) {
+        console.log('⏳ Auto-running migration: data.json → PostgreSQL');
+        await migrateDataToPG(globalData);
+      }
+    }
   } catch (error) {
     console.error('❌ Erreur initialisation globale:', error);
   }
@@ -59,6 +73,13 @@ async function writeDataAndBackup(data, action, details = '') {
   // Write locally first
   const writeOk = writeData(data);
   
+  // Also sync to PostgreSQL if available
+  try {
+    await syncDataToPG(data);
+  } catch (err) {
+    console.warn('⚠️  PostgreSQL sync warning:', err.message);
+  }
+  
   if (writeOk && process.env.GITHUB_TOKEN) {
     // Auto-backup to GitHub (async, doesn't block)
     gitBackupService.autoCommit(action, details).catch(err => {
@@ -67,6 +88,74 @@ async function writeDataAndBackup(data, action, details = '') {
   }
   
   return writeOk;
+}
+
+/**
+ * Sync all data to PostgreSQL
+ */
+async function syncDataToPG(data) {
+  try {
+    // Sync Team
+    if (data.team && Array.isArray(data.team)) {
+      for (const member of data.team) {
+        try {
+          await db.addOrUpdateTeamMember(member);
+        } catch (e) {
+          console.warn(`⚠️  Failed to sync team member ${member.name}:`, e.message);
+        }
+      }
+    }
+    
+    // Sync Services
+    if (data.services && Array.isArray(data.services)) {
+      for (const service of data.services) {
+        try {
+          await db.addOrUpdateService(service);
+        } catch (e) {
+          console.warn(`⚠️  Failed to sync service ${service.id}:`, e.message);
+        }
+      }
+    }
+    
+    // Sync Solutions
+    if (data.solutions && Array.isArray(data.solutions)) {
+      for (const solution of data.solutions) {
+        try {
+          await db.addOrUpdateSolution(solution);
+        } catch (e) {
+          console.warn(`⚠️  Failed to sync solution ${solution.id}:`, e.message);
+        }
+      }
+    }
+    
+    // Sync Testimonials
+    if (data.testimonials && Array.isArray(data.testimonials)) {
+      for (const testimonial of data.testimonials) {
+        try {
+          await db.addOrUpdateTestimonial(testimonial);
+        } catch (e) {
+          console.warn(`⚠️  Failed to sync testimonial ${testimonial.id}:`, e.message);
+        }
+      }
+    }
+    
+    console.log('✅ Data synced to PostgreSQL');
+  } catch (err) {
+    console.warn('⚠️  PostgreSQL sync error:', err.message);
+  }
+}
+
+/**
+ * Migrate all data from data.json to PostgreSQL (auto-run on startup)
+ */
+async function migrateDataToPG(data) {
+  try {
+    console.log('🔄 Starting automatic migration to PostgreSQL...');
+    await syncDataToPG(data);
+    console.log('✅ Migration completed!');
+  } catch (err) {
+    console.error('❌ Migration error:', err);
+  }
 }
 
 

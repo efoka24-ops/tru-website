@@ -401,6 +401,86 @@ export async function addContact(contact) {
 }
 
 /**
+ * Add or Update Team Member (for sync operations)
+ */
+export async function addOrUpdateTeamMember(member) {
+  const result = await query(
+    `INSERT INTO team (name, title, bio, image, email, phone, linked_in, is_founder, specialties, certifications)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+     ON CONFLICT (id) DO UPDATE SET
+       name = $1, title = $2, bio = $3, image = $4, email = $5, 
+       phone = $6, linked_in = $7, is_founder = $8, specialties = $9, 
+       certifications = $10, updated_at = CURRENT_TIMESTAMP
+     RETURNING *`,
+    [
+      member.name, member.title, member.bio, member.image, member.email,
+      member.phone, member.linked_in, member.is_founder || false,
+      JSON.stringify(member.specialties || []),
+      JSON.stringify(member.certifications || [])
+    ]
+  );
+  return result.rows[0];
+}
+
+/**
+ * Add or Update Service (for sync operations)
+ */
+export async function addOrUpdateService(service) {
+  const result = await query(
+    `INSERT INTO services (id, icon, title, description, features, objective, color, image)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     ON CONFLICT (id) DO UPDATE SET
+       icon = $2, title = $3, description = $4, features = $5, objective = $6, 
+       color = $7, image = $8, updated_at = CURRENT_TIMESTAMP
+     RETURNING *`,
+    [
+      service.id, service.icon, service.title, service.description,
+      JSON.stringify(service.features || []),
+      service.objective, service.color, service.image
+    ]
+  );
+  return result.rows[0];
+}
+
+/**
+ * Add or Update Solution (for sync operations)
+ */
+export async function addOrUpdateSolution(solution) {
+  const result = await query(
+    `INSERT INTO solutions (id, name, subtitle, description, long_description, color, icon)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     ON CONFLICT (id) DO UPDATE SET
+       name = $2, subtitle = $3, description = $4, long_description = $5, 
+       color = $6, icon = $7, updated_at = CURRENT_TIMESTAMP
+     RETURNING *`,
+    [
+      solution.id, solution.name, solution.subtitle, solution.description,
+      solution.longDescription, solution.color, solution.icon
+    ]
+  );
+  return result.rows[0];
+}
+
+/**
+ * Add or Update Testimonial (for sync operations)
+ */
+export async function addOrUpdateTestimonial(testimonial) {
+  const result = await query(
+    `INSERT INTO testimonials (id, name, title, company, testimonial, rating, image)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     ON CONFLICT (id) DO UPDATE SET
+       name = $2, title = $3, company = $4, testimonial = $5, rating = $6, 
+       image = $7, updated_at = CURRENT_TIMESTAMP
+     RETURNING *`,
+    [
+      testimonial.id, testimonial.name, testimonial.title, testimonial.company,
+      testimonial.testimonial, testimonial.rating, testimonial.image
+    ]
+  );
+  return result.rows[0];
+}
+
+/**
  * Add Job Application
  */
 export async function addApplication(app) {
