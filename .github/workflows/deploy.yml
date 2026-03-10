@@ -26,8 +26,11 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          push: false          # ne pousse pas encore
-          tags: ghcr.io/${{ github.repository }}:latest
+          push: false                 # ne pousse pas encore
+          # Tags : latest + numéro de build
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.run_number }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
@@ -54,7 +57,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.run_number }}
 
   deploy:
     runs-on: ubuntu-latest
