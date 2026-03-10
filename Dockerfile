@@ -17,7 +17,12 @@ COPY package.json package-lock.json ./
 # Installer toutes les dépendances (dev inclus pour build)
 RUN npm ci --no-audit --no-fund
 
-COPY . .
+COPY index.html ./
+COPY vite.config.js ./
+COPY postcss.config.js ./
+COPY tailwind.config.js ./
+COPY src ./src
+COPY public ./public
 
 RUN chown -R app:app /app
 
