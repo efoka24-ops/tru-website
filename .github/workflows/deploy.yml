@@ -60,7 +60,7 @@ jobs:
           script: |
             set -e
 
-            echo "Connected to server"
+            echo "Connected to server "
             whoami
             hostname
 
