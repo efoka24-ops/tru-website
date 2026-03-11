@@ -63,7 +63,7 @@ jobs:
             echo "Connected to server "
             whoami
             hostname
-
+            pwd
             cd "${{ secrets.DEPLOY_PATH }}"
 
             echo "Login to GHCR"
