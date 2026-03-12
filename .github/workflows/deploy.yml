@@ -38,6 +38,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/tru-website:latest
+            ghcr.io/${{ github.repository_owner }}/tru-website:${{ github.run_number }}
             ghcr.io/${{ github.repository_owner }}/tru-website:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -63,7 +64,7 @@ jobs:
             echo "Connected to server "
             whoami
             hostname
-
+            pwd
             cd "${{ secrets.DEPLOY_PATH }}"
 
             echo "Login to GHCR"
@@ -73,7 +74,7 @@ jobs:
             docker compose pull
 
             echo "Recreate containers"
-            docker compose up -d --force-recreate
+            docker compose up -d --force-recreate --remove-orphans
 
             echo "Remove unused images"
             docker image prune -af
