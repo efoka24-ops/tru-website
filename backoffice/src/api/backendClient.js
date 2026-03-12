@@ -223,5 +223,63 @@ export const backendClient = {
     } catch {
       return false;
     }
+  },
+
+  // Generic HTTP methods for formations and other endpoints
+  async get(endpoint) {
+    const url = endpoint.startsWith('/') ? `${BACKEND_URL}/api${endpoint}` : `${BACKEND_URL}/api/${endpoint}`;
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      }
+    });
+    if (!response.ok) throw new Error(`GET ${endpoint} failed`);
+    return response.json();
+  },
+
+  async post(endpoint, data) {
+    const url = endpoint.startsWith('/') ? `${BACKEND_URL}/api${endpoint}` : `${BACKEND_URL}/api/${endpoint}`;
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error(`POST ${endpoint} failed`);
+    return response.json();
+  },
+
+  async put(endpoint, data) {
+    const url = endpoint.startsWith('/') ? `${BACKEND_URL}/api${endpoint}` : `${BACKEND_URL}/api/${endpoint}`;
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error(`PUT ${endpoint} failed`);
+    return response.json();
+  },
+
+  async delete(endpoint) {
+    const url = endpoint.startsWith('/') ? `${BACKEND_URL}/api${endpoint}` : `${BACKEND_URL}/api/${endpoint}`;
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      }
+    });
+    if (!response.ok) throw new Error(`DELETE ${endpoint} failed`);
+    return response.json();
   }
 };

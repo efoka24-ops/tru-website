@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Users, Briefcase, Lightbulb, FileText, Settings, BarChart3, LogOut, MessageSquare, RefreshCw, ClipboardList, BookOpen, FolderOpen } from 'lucide-react';
+import { Menu, X, Users, Briefcase, Lightbulb, FileText, Settings, BarChart3, LogOut, MessageSquare, RefreshCw, ClipboardList, BookOpen, FolderOpen, GraduationCap, UserCheck } from 'lucide-react';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -14,6 +14,8 @@ const navItems = [
   { path: '/news', label: 'Actualités', icon: FileText },
   { path: '/jobs', label: 'Offres d\'emploi', icon: Briefcase },
   { path: '/applications', label: 'Candidatures', icon: ClipboardList },
+  { path: '/formations', label: 'Formations', icon: GraduationCap },
+  { path: '/inscriptions-formations', label: 'Inscriptions', icon: UserCheck },
   { path: '/sync', label: 'Synchronisation', icon: RefreshCw },
   { path: '/logs', label: 'Journaux', icon: BookOpen },
   { path: '/settings', label: 'Paramètres', icon: Settings },

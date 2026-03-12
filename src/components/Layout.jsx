@@ -181,7 +181,7 @@ export default function Layout({ children, currentPageName }) {
                 <li><Link to={createPageUrl('services')} className="hover:text-green-400 transition-colors">Conseil & Organisation</Link></li>
                 <li><Link to={createPageUrl('services')} className="hover:text-green-400 transition-colors">Transformation digitale</Link></li>
                 <li><Link to={createPageUrl('services')} className="hover:text-green-400 transition-colors">Développement d'apps</Link></li>
-                <li><Link to={createPageUrl('services')} className="hover:text-green-400 transition-colors">Formation</Link></li>
+                <li><Link to="/formations" className="hover:text-green-400 transition-colors">Nos formations</Link></li>
               </ul>
             </div>
 
@@ -204,6 +204,7 @@ export default function Layout({ children, currentPageName }) {
                 <li><Link to={createPageUrl('careers')} className="hover:text-green-400 transition-colors">Offres d'emploi</Link></li>
                 <li><Link to={createPageUrl('about')} className="hover:text-green-400 transition-colors">À propos</Link></li>
                 <li><Link to={createPageUrl('team')} className="hover:text-green-400 transition-colors">Notre équipe</Link></li>
+                <li><Link to="/confirmer-inscription" className="hover:text-green-400 transition-colors">Confirmer inscription</Link></li>
               </ul>
             </div>
 

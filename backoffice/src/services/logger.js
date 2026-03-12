@@ -184,7 +184,9 @@ class Logger {
         throw new Error(`HTTP ${response.status}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      // Return the logs array from the response
+      return Array.isArray(data.logs) ? data.logs : [];
     } catch (error) {
       console.error('Erreur lors de la récupération des logs:', error);
       return [];

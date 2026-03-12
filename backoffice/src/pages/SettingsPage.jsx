@@ -218,6 +218,21 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-semibold mb-2 text-slate-900">
+                        🏢 Nom de l'entreprise
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.company_name || ''}
+                        onChange={(e) => setSettings({ ...settings, company_name: e.target.value })}
+                        placeholder="TRU"
+                        className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 bg-slate-50 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold mb-2 text-slate-900">
                         ✨ Slogan
                       </label>
                       <input
@@ -228,19 +243,18 @@ export default function SettingsPage() {
                         className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 bg-slate-50 transition-colors"
                       />
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold mb-2 text-slate-900">
-                      📝 Tagline
-                    </label>
-                    <input
-                      type="text"
-                      value={settings.tagline || ''}
-                      onChange={(e) => setSettings({ ...settings, tagline: e.target.value })}
-                      placeholder="Une brève description"
-                      className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 bg-slate-50 transition-colors"
-                    />
+                    <div>
+                      <label className="block text-sm font-semibold mb-2 text-slate-900">
+                        📝 Tagline
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.tagline || ''}
+                        onChange={(e) => setSettings({ ...settings, tagline: e.target.value })}
+                        placeholder="Une brève description"
+                        className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 bg-slate-50 transition-colors"
+                      />
+                    </div>
                   </div>
 
                   <div>

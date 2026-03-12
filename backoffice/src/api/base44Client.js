@@ -15,17 +15,17 @@ export const base44 = {
   entities: {
     TeamMember: {
       list: async (orderBy = 'display_order') => {
-        const response = await fetch(`${API_BASE_URL}/team-members?orderBy=${orderBy}`);
+        const response = await fetch(`${API_BASE_URL}/team?orderBy=${orderBy}`);
         if (!response.ok) throw new Error('Failed to fetch team members');
         return response.json();
       },
       get: async (id) => {
-        const response = await fetch(`${API_BASE_URL}/team-members/${id}`);
+        const response = await fetch(`${API_BASE_URL}/team/${id}`);
         if (!response.ok) throw new Error('Failed to fetch team member');
         return response.json();
       },
       create: async (data) => {
-        const response = await fetch(`${API_BASE_URL}/team-members`, {
+        const response = await fetch(`${API_BASE_URL}/team`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
@@ -34,7 +34,7 @@ export const base44 = {
         return response.json();
       },
       update: async (id, data) => {
-        const response = await fetch(`${API_BASE_URL}/team-members/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/team/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
@@ -43,7 +43,7 @@ export const base44 = {
         return response.json();
       },
       delete: async (id) => {
-        const response = await fetch(`${API_BASE_URL}/team-members/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/team/${id}`, {
           method: 'DELETE',
         });
         if (!response.ok) throw new Error('Failed to delete team member');

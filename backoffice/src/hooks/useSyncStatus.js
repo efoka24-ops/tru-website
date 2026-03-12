@@ -19,8 +19,8 @@ export function useSyncStatus() {
   const checkSyncStatus = async () => {
     const newStatus = {
       backend: 'checking',
-      frontend: 'checking',
-      truSite: 'checking',
+      frontend: 'connected', // Frontend is always connected if app is running
+      truSite: 'unknown', // Not checking TRU site from backoffice
       lastSync: new Date(),
       errors: []
     };
@@ -34,27 +34,8 @@ export function useSyncStatus() {
       newStatus.errors.push(`Backend: ${error.message}`);
     }
 
-    // Vérifier Frontend admin (5173)
-    try {
-      const response = await fetch('http://localhost:5173/api/health', {
-        method: 'GET'
-      });
-      newStatus.frontend = response.ok ? 'connected' : 'error';
-    } catch (error) {
-      newStatus.frontend = 'offline';
-      newStatus.errors.push(`Frontend: ${error.message}`);
-    }
-
-    // Vérifier Site TRU (3000)
-    try {
-      const response = await fetch('http://localhost:3000/api/health', {
-        method: 'GET'
-      });
-      newStatus.truSite = response.ok ? 'connected' : 'error';
-    } catch (error) {
-      newStatus.truSite = 'offline';
-      newStatus.errors.push(`Site TRU: ${error.message}`);
-    }
+    // Ne pas vérifier Frontend admin (on est dedans)
+    // Ne pas vérifier Site TRU (pas nécessaire depuis backoffice)
 
     setSyncStatus(newStatus);
   };

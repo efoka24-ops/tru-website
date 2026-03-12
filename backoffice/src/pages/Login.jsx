@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -20,24 +21,39 @@ export default function Login({ onLogin }) {
         throw new Error('Email et mot de passe requis');
       }
 
-      // Données de test (à remplacer par une vraie API)
-      const testCredentials = {
-        email: 'admin@trugroup.cm',
-        password: 'TRU2024!' // À changer en production!
-      };
+      // Appel API backend avec authentification Supabase
+      const response = await api.post('/auth/login', {
+        email: email.trim(),
+        password: password
+      });
 
-      if (email === testCredentials.email && password === testCredentials.password) {
-        // Créer un token simple
-        const token = btoa(`${email}:${Date.now()}`);
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('userEmail', email);
+      if (response.data.success && response.data.token) {
+        // Stocker le token JWT
+        localStorage.setItem('authToken', response.data.token);
+        localStorage.setItem('userEmail', response.data.user?.email || email);
+        localStorage.setItem('userName', response.data.user?.name || 'Admin');
+        localStorage.setItem('userRole', response.data.user?.role || 'admin');
         
+        console.log('✅ Connexion réussie:', response.data.user);
         onLogin();
       } else {
-        throw new Error('Email ou mot de passe incorrect');
+        throw new Error('Réponse invalide du serveur');
       }
     } catch (err) {
-      setError(err.message);
+      console.error('❌ Erreur de connexion:', err);
+      
+      // Gestion des erreurs spécifiques
+      if (err.response) {
+        // Erreur HTTP du serveur
+        const errorMsg = err.response.data?.error || err.response.data?.message;
+        setError(errorMsg || 'Email ou mot de passe incorrect');
+      } else if (err.request) {
+        // Pas de réponse du serveur
+        setError('Impossible de contacter le serveur. Vérifiez votre connexion.');
+      } else {
+        // Autre erreur
+        setError(err.message || 'Une erreur est survenue');
+      }
     } finally {
       setLoading(false);
     }

@@ -18,31 +18,52 @@ const parseArray = (value) => {
   return [];
 };
 
+const getMemberImage = (member) => member.photo_url || member.image || null;
+const getMemberTitle = (member) => member.role || member.title || '';
+const getMemberSpecialties = (member) => member.specialties || member.expertise || [];
+const getMemberCertifications = (member) => member.certifications || member.achievements || [];
+
+const resolveImageSrc = (image) => {
+  if (!image || typeof image !== 'string') return null;
+  if (image.startsWith('http') || image.startsWith('data:')) return image;
+  if (image.startsWith('/uploads')) return apiService.getImageUrl(image);
+  return image;
+};
+
 export default function Team() {
   const [teamData, setTeamData] = useState(defaultTeam);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch team data from API
-    apiService.getTeam().then(data => {
-      if (data && data.length > 0) {
-        setTeamData(data);
-        console.log('✅ Team data loaded from API:', data.length, 'members');
-      } else {
-        console.log('ℹ️ Using default team data from content.js');
+    const loadTeamData = async () => {
+      try {
+        const data = await apiService.getTeam();
+        if (data && data.length > 0) {
+          setTeamData(data);
+          console.log('✅ Team data loaded from API:', data.length, 'members');
+          const first = data[0];
+          console.log('📊 Sample member:', { name: first.name, specialties: getMemberSpecialties(first), certifications: getMemberCertifications(first) });
+        } else {
+          console.log('ℹ️ Using default team data from content.js');
+        }
+      } catch (error) {
+        console.error('❌ Error loading team:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    };
 
-    // Set up polling to check for updates every 10 seconds (faster refresh)
+    loadTeamData();
+
+    // Poll every 2 seconds for quick updates from backoffice
     const pollInterval = setInterval(() => {
       apiService.getTeam().then(data => {
         if (data && data.length > 0) {
           setTeamData(data);
-          console.log('🔄 Team data refreshed:', data.length, 'members');
+          console.log('🔄 Team data refreshed from API');
         }
-      });
-    }, 10000);
+      }).catch(err => console.error('Poll error:', err));
+    }, 2000);
 
     return () => clearInterval(pollInterval);
   }, []);
@@ -56,8 +77,8 @@ export default function Team() {
     { icon: Globe, title: "Experts terrain", desc: "Développement local" }
   ];
 
-  const founders = teamData.filter(m => m.is_founder);
-  const otherMembers = teamData.filter(m => !m.is_founder);
+  const founders = teamData.filter(m => m.is_founder || m.isFounder);
+  const otherMembers = teamData.filter(m => !(m.is_founder || m.isFounder));
 
   return (
     <div className="min-h-screen bg-white">
@@ -116,15 +137,9 @@ export default function Team() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 p-4 sm:p-8 md:p-12">
                     <div className="flex items-center justify-center">
                       <div className="w-full max-w-xs rounded-2xl overflow-hidden shadow-lg bg-slate-200">
-                        {member.image && typeof member.image === 'string' ? (
+                        {getMemberImage(member) ? (
                           <img 
-                            src={
-                              member.image.startsWith('http') || member.image.startsWith('data:')
-                                ? member.image 
-                                : member.image.startsWith('/uploads')
-                                  ? apiService.getImageUrl(member.image)
-                                  : '/placeholder.svg'
-                            }
+                            src={resolveImageSrc(getMemberImage(member)) || '/placeholder.svg'}
                             alt={member.name}
                             className="w-full h-full object-cover aspect-square"
                             onError={(e) => {
@@ -139,23 +154,23 @@ export default function Team() {
                     </div>
                     <div>
                       <h3 className="text-3xl font-bold text-slate-900 mb-2">{member.name}</h3>
-                      <p className="text-green-600 font-semibold text-lg mb-4">{member.title}</p>
+                      <p className="text-green-600 font-semibold text-lg mb-4">{getMemberTitle(member)}</p>
                       <p className="text-slate-600 leading-relaxed mb-6">{member.bio}</p>
                       <div>
                         <p className="text-sm font-bold text-slate-900 mb-3">Spécialités:</p>
                         <div className="flex flex-wrap gap-2 mb-4">
-                          {parseArray(member.specialties).map((spec, i) => (
+                          {parseArray(getMemberSpecialties(member)).map((spec, i) => (
                             <span key={i} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
                               {spec}
                             </span>
                           ))}
                         </div>
                       </div>
-                      {parseArray(member.certifications).length > 0 && (
+                      {parseArray(getMemberCertifications(member)).length > 0 && (
                         <div>
                           <p className="text-sm font-bold text-slate-900 mb-3">🏆 Certifications & Awards:</p>
                           <div className="flex flex-wrap gap-2">
-                            {parseArray(member.certifications).map((cert, i) => (
+                            {parseArray(getMemberCertifications(member)).map((cert, i) => (
                               <span key={i} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                                 {cert}
                               </span>
@@ -201,15 +216,9 @@ export default function Team() {
                   className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-500"
                 >
                   <div className="w-full h-56 overflow-hidden bg-slate-200">
-                    {member.image && typeof member.image === 'string' ? (
+                    {getMemberImage(member) ? (
                       <img 
-                        src={
-                          member.image.startsWith('http') || member.image.startsWith('data:')
-                            ? member.image 
-                            : member.image.startsWith('/uploads')
-                              ? apiService.getImageUrl(member.image)
-                              : '/placeholder.svg'
-                        }
+                        src={resolveImageSrc(getMemberImage(member)) || '/placeholder.svg'}
                         alt={member.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -223,23 +232,23 @@ export default function Team() {
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-slate-900 mb-1">{member.name}</h3>
-                    <p className="text-green-600 font-semibold mb-3">{member.title}</p>
+                    <p className="text-green-600 font-semibold mb-3">{getMemberTitle(member)}</p>
                     <p className="text-slate-600 text-sm mb-4">{member.bio}</p>
                     <div className="mb-4">
                       <p className="text-xs font-bold text-slate-900 mb-2">Spécialités:</p>
                       <div className="flex flex-wrap gap-1">
-                        {parseArray(member.specialties).map((spec, i) => (
+                        {parseArray(getMemberSpecialties(member)).map((spec, i) => (
                           <span key={i} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
                             {spec}
                           </span>
                         ))}
                       </div>
                     </div>
-                    {parseArray(member.certifications).length > 0 && (
+                    {parseArray(getMemberCertifications(member)).length > 0 && (
                       <div>
                         <p className="text-xs font-bold text-slate-900 mb-2">🏆 Certifications:</p>
                         <div className="flex flex-wrap gap-1">
-                          {parseArray(member.certifications).map((cert, i) => (
+                          {parseArray(getMemberCertifications(member)).map((cert, i) => (
                             <span key={i} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
                               {cert}
                             </span>

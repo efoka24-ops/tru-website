@@ -9,10 +9,13 @@ import {
   Users, Settings, Plus, Pencil, Trash2, Save, X, Upload, Eye, EyeOff, 
   ArrowUp, ArrowDown, MessageSquare, Star, Briefcase, Lightbulb, FileText 
 } from 'lucide-react';
+import Cropper from 'react-easy-crop';
 import ServiceManager from '../components/admin/ServiceManager';
 import SolutionManager from '../components/admin/SolutionManager';
 import PageContentManager from '../components/admin/PageContentManager';
 import MemberAccountsPage from './MemberAccountsPage';
+import { uploadTeamPhoto } from '@/api/uploadHelper';
+import { getCroppedImageBlob } from '@/utils/imageCrop';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,6 +38,14 @@ export default function Admin() {
   const [newExpertise, setNewExpertise] = useState('');
   const [newAchievement, setNewAchievement] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isCropping, setIsCropping] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [pendingImageSrc, setPendingImageSrc] = useState('');
+  const [pendingImageFile, setPendingImageFile] = useState(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const queryClient = useQueryClient();
   
@@ -161,13 +172,31 @@ export default function Admin() {
   });
 
   const handleSaveMember = () => {
+    if (!editingMember) return;
+    
+    // Normalize data for backend API
+    const memberData = {
+      name: editingMember.name,
+      role: editingMember.role || editingMember.title,
+      bio: editingMember.bio || editingMember.description,
+      email: editingMember.email,
+      phone: editingMember.phone,
+      photo_url: editingMember.photo_url,
+      description: editingMember.description,
+      expertise: Array.isArray(editingMember.expertise) ? editingMember.expertise : [],
+      achievements: Array.isArray(editingMember.achievements) ? editingMember.achievements : [],
+      is_founder: editingMember.is_founder,
+      is_visible: editingMember.is_visible,
+      display_order: editingMember.display_order
+    };
+    
+    console.log('💾 Saving member:', { name: memberData.name, expertise: memberData.expertise, achievements: memberData.achievements });
+    
     if (editingMember.id) {
-      updateMemberMutation.mutate({ id: editingMember.id, data: editingMember });
+      updateMemberMutation.mutate({ id: editingMember.id, data: memberData });
     } else {
-      createMemberMutation.mutate({
-        ...editingMember,
-        display_order: teamMembers.length
-      });
+      memberData.display_order = teamMembers.length;
+      createMemberMutation.mutate(memberData);
     }
   };
 
@@ -192,6 +221,60 @@ export default function Admin() {
         setEditingTestimonial({ ...editingTestimonial, photo_url: file_url });
       }
     }
+  };
+
+  const handleMemberPhotoSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPendingImageSrc(reader.result);
+      setPendingImageFile(file);
+      setIsCropping(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = (croppedArea, croppedPixels) => {
+    setCroppedAreaPixels(croppedPixels);
+  };
+
+  const resetCropState = () => {
+    setIsCropping(false);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+    setPendingImageSrc('');
+    setPendingImageFile(null);
+    setUploadProgress(0);
+  };
+
+  const handleCropSave = async () => {
+    if (!pendingImageSrc || !croppedAreaPixels) return;
+
+    setIsUploadingPhoto(true);
+    setUploadProgress(0);
+    try {
+      const blob = await getCroppedImageBlob(
+        pendingImageSrc,
+        croppedAreaPixels,
+        pendingImageFile?.type || 'image/jpeg'
+      );
+      const fileName = pendingImageFile?.name || `team-photo-${Date.now()}.jpg`;
+      const croppedFile = new File([blob], fileName, { type: blob.type });
+      const photoUrl = await uploadTeamPhoto(croppedFile, setUploadProgress);
+      setEditingMember((prev) => ({ ...prev, photo_url: photoUrl }));
+      resetCropState();
+    } catch (error) {
+      console.error('Erreur upload photo equipe:', error);
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
+  const handleRemoveMemberPhoto = () => {
+    setEditingMember((prev) => ({ ...prev, photo_url: '' }));
   };
 
   const handleLogoUpload = async (e) => {
@@ -734,18 +817,29 @@ export default function Admin() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handlePhotoUpload(e, 'member')}
+                    onChange={handleMemberPhotoSelect}
                     className="hidden"
                     id="photo-upload"
                   />
-                  <label htmlFor="photo-upload">
-                    <Button variant="outline" asChild className="border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50 text-emerald-700">
-                      <span className="cursor-pointer">
-                        <Upload className="w-4 h-4 mr-2" />
-                        Changer la photo
-                      </span>
+                  <div className="flex flex-wrap gap-2">
+                    <label htmlFor="photo-upload">
+                      <Button variant="outline" asChild className="border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50 text-emerald-700">
+                        <span className="cursor-pointer">
+                          <Upload className="w-4 h-4 mr-2" />
+                          Changer la photo
+                        </span>
+                      </Button>
+                    </label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleRemoveMemberPhoto}
+                      className="border-red-200 text-red-600 hover:border-red-300 hover:bg-red-50"
+                      disabled={!editingMember.photo_url}
+                    >
+                      Supprimer la photo
                     </Button>
-                  </label>
+                  </div>
                 </div>
               </div>
 
@@ -897,6 +991,67 @@ export default function Admin() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isCropping} onOpenChange={(open) => { if (!open) resetCropState(); }}>
+        <DialogContent className="max-w-2xl bg-white">
+          <DialogHeader className="border-b border-slate-200 pb-4">
+            <DialogTitle className="text-2xl text-slate-900">Recadrer la photo</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 pt-4">
+            <div className="relative w-full h-80 bg-slate-900 rounded-lg overflow-hidden">
+              {pendingImageSrc && (
+                <Cropper
+                  image={pendingImageSrc}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={handleCropComplete}
+                />
+              )}
+            </div>
+            <div className="flex items-center gap-4">
+              <Label className="text-slate-700">Zoom</Label>
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.1}
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className="flex-1"
+              />
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={resetCropState} className="border-slate-300">
+                Annuler
+              </Button>
+              <Button
+                onClick={handleCropSave}
+                disabled={isUploadingPhoto}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {isUploadingPhoto ? 'Upload...' : 'Valider'}
+              </Button>
+            </div>
+            {isUploadingPhoto && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm text-slate-600">
+                  <span>Upload en cours</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-500 transition-all"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 

@@ -15,6 +15,8 @@ import TestimonialsPage from './pages/TestimonialsPage'
 import NewsPage from './pages/NewsPage'
 import JobsPage from './pages/JobsPage'
 import ApplicationsPage from './pages/ApplicationsPage'
+import FormationsPage from './pages/FormationsPage'
+import InscriptionsFormationsPage from './pages/InscriptionsFormationsPage'
 import SettingsPage from './pages/SettingsPage'
 import SyncViewPage from './pages/SyncViewPage'
 import LogsPage from './pages/LogsPage'
@@ -94,6 +96,8 @@ function App() {
               <Route path="/news" element={<NewsPage />} />
               <Route path="/jobs" element={<JobsPage />} />
               <Route path="/applications" element={<ApplicationsPage />} />
+              <Route path="/formations" element={<FormationsPage />} />
+              <Route path="/inscriptions-formations" element={<InscriptionsFormationsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/sync" element={<SyncViewPage />} />
               <Route path="/logs" element={<LogsPage />} />

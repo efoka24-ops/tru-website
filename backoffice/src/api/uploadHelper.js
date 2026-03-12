@@ -55,3 +55,52 @@ export async function uploadResume(file) {
     throw error;
   }
 }
+
+export async function uploadTeamPhoto(file, onProgress) {
+  try {
+    if (!file) {
+      throw new Error('Aucun fichier fourni');
+    }
+
+    const formData = new FormData();
+    const fileName = file.name || `team-photo-${Date.now()}.jpg`;
+    formData.append('image', file, fileName);
+
+    return await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `${BACKEND_URL}/api/uploads/team-photo`, true);
+
+      xhr.upload.onprogress = (event) => {
+        if (!event.lengthComputable) return;
+        const percent = Math.round((event.loaded / event.total) * 100);
+        if (typeof onProgress === 'function') {
+          onProgress(percent);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            resolve(data.url);
+          } catch (parseError) {
+            reject(parseError);
+          }
+        } else {
+          try {
+            const errorData = JSON.parse(xhr.responseText);
+            reject(new Error(errorData.error || 'Erreur upload photo'));
+          } catch {
+            reject(new Error('Erreur upload photo'));
+          }
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Erreur upload photo'));
+      xhr.send(formData);
+    });
+  } catch (error) {
+    console.error('Team photo upload error:', error);
+    throw error;
+  }
+}
