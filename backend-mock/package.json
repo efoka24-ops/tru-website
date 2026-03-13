@@ -1,0 +1,14 @@
+{
+  "name": "tru-backend-mock",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Mock backend server for frontend testing",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^4.22.1"
+  }
+}

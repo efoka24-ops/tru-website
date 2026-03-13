@@ -24,8 +24,19 @@
 ```
 1. Cliquer "New Project"
 2. Configurer:
-   - Name: tru-group
-   - Database Password: [générer fort]
+   - Name: tru-groupbd
+   - Database Password: Tr4G$p!2026_Sec
+Project ID : lupnscaeituljcddaagk
+
+anon
+public     eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1cG5zY2FlaXR1bGpjZGRhYWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MDI3MTYsImV4cCI6MjA4NzA3ODcxNn0.reaqvR1L9dQ4K8AhnxKPSdZn9IKonX7gE_yNqop-3hQ
+
+
+
+api key public 
+
+sb_publishable_EvGTY0fc4mQA5ijKYu46gg_4QOpaSaw
+
      Exemple: Tr4G$p!2026_Sec
    - Region: Europe West (Belgium) ou Frankfurt
    - Pricing Plan: Free
