@@ -7,14 +7,6 @@
       "password": "hashed_password",
       "role": "admin",
       "createdAt": "2025-01-01T00:00:00Z"
-    },
-    {
-      "id": 2,
-      "name": "John Doe",
-      "email": "john@example.com",
-      "password": "hashed_password",
-      "role": "user",
-      "createdAt": "2025-01-05T00:00:00Z"
     }
   ],
   "services": [
@@ -153,40 +145,6 @@
         "Suivi-évaluation et reporting",
         "Gestion des risques et des délais",
         "Méthodologies agiles et classiques"
-      ],
-      "certifications": []
-    },
-    {
-      "id": 4,
-      "name": "Marie Tagne",
-      "title": "Lead Developer Mobile",
-      "bio": "Développeuse mobile spécialisée en React Native et Flutter avec passion pour l'innovation.",
-      "image": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
-      "is_founder": false,
-      "email": "marie@trugroup.cm",
-      "phone": "+237 700000000",
-      "linked_in": "",
-      "specialties": [
-        "Mobile",
-        "React Native",
-        "UX"
-      ],
-      "certifications": []
-    },
-    {
-      "id": 5,
-      "name": "Pierre Bouvier",
-      "title": "Expert Data & Analytics",
-      "bio": "Data scientist avec spécialisation en intelligence décisionnelle et machine learning.",
-      "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-      "is_founder": false,
-      "email": "pierre@trugroup.cm",
-      "phone": "+237 711111111",
-      "linked_in": "",
-      "specialties": [
-        "Data Science",
-        "BI",
-        "Machine Learning"
       ],
       "certifications": []
     }

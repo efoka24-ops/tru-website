@@ -7,14 +7,6 @@
       "password": "hashed_password",
       "role": "admin",
       "createdAt": "2025-01-01T00:00:00Z"
-    },
-    {
-      "id": 2,
-      "name": "John Doe",
-      "email": "john@example.com",
-      "password": "hashed_password",
-      "role": "user",
-      "createdAt": "2025-01-05T00:00:00Z"
     }
   ],
   "services": [

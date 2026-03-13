@@ -169,26 +169,6 @@ const defaultData = {
       expertise: ['Gestion de projets', 'Agile/Scrum', 'Coordination'],
       achievements: ['Certifiée PMP', '15+ projets réussis'],
       display_order: 3
-    },
-    {
-      id: 4,
-      name: 'Marie Tagne',
-      role: 'Développeuse Full Stack',
-      bio: 'Marie est notre développeuse full stack expérimentée, spécialisée dans les applications web modernes.',
-      photo_url: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/images/team/marie.jpg',
-      expertise: ['JavaScript/Node.js', 'React', 'Databases'],
-      achievements: ['5+ ans coding', 'Full-stack expert'],
-      display_order: 4
-    },
-    {
-      id: 5,
-      name: 'Pierre Bouvier',
-      role: 'Data Analyst',
-      bio: 'Pierre transforme les données brutes en insights actionnables pour nos clients.',
-      photo_url: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/images/team/pierre.jpg',
-      expertise: ['Data Analysis', 'SQL', 'Business Intelligence'],
-      achievements: ['3+ ans experience', 'Data expert'],
-      display_order: 5
     }
   ],
   testimonials: [

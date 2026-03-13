@@ -212,8 +212,9 @@ app.use(express.urlencoded({ extended: true }));
 // ====== MOCK DATA ======
 const mockData = {
   team: [
-    { id: 1, name: 'Emmanuel Fokas', role: 'Founder', email: 'emmanuel@tru.group', photo: null, description: 'CEO & Founder' },
-    { id: 2, name: 'John Doe', role: 'Manager', email: 'john@tru.group', photo: null, description: 'Operations Manager' }
+    { id: 1, name: 'Emmanuel Foka Ziegoube', role: 'Fondateur & PDG', email: 'emmanuel@trugroup.cm', photo: null, description: 'Ingénieur en génie logiciel | Lauréat CASAM-INOV, PNUD, ECAM. Expert en transformation digitale et innovation sociale.' },
+    { id: 2, name: 'Tatinou Hervé', role: 'Senior UI/UX Designer', email: 'herve@trugroup.cm', photo: null, description: 'Conçoit des expériences digitales centrées utilisateur, alliant esthétique, ergonomie et performance produit.' },
+    { id: 3, name: 'Halimatou Sadia Ahmadou', role: 'Lead Project Manager', email: 'halimatou@trugroup.cm', photo: null, description: 'Experte en gestion de projets, coordination stratégique et pilotage opérationnel.' }
   ],
   services: [
     {
