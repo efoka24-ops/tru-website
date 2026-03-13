@@ -217,35 +217,7 @@ export const commitments = [
   }
 ];
 
-export const team = [
-  {
-    id: 1,
-    name: 'Emmanuel Foka Ziegoube',
-    title: 'Fondateur & PDG',
-    bio: 'Ingénieur en génie logiciel | Lauréat CASAM-INOV, PNUD, ECAM Expert en transformation digitale et innovation sociale.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
-    is_founder: true,
-    specialties: ['Stratégie', 'Innovation', 'Leadership']
-  },
-  {
-    id: 2,
-    name: 'Tatinou Hervé',
-    title: 'Senior UI/UX Designer',
-    bio: 'Senior UI/UX Designer, Tatinou Hervé conçoit des expériences digitales centrées utilisateur, alliant esthétique, ergonomie et performance produit. Il excelle dans la création d\'interfaces intuitives et évolutives pour des produits à fort impact.',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
-    is_founder: false,
-    specialties: ['UI/UX Design', 'Product Design', 'Recherche utilisateur', 'Wireframing & prototypage', 'Design systems', 'Mobile-first']
-  },
-  {
-    id: 3,
-    name: 'Halimatou Sadia Ahmadou',
-    title: 'Lead Project Manager',
-    bio: 'Experte en gestion de projets | Coordination stratégique | Pilotage opérationnel. Pilote des projets complexes avec une approche structurée, orientée performance et collaboration. Elle excelle dans la coordination d\'équipes, le suivi des livrables et l\'alignement des projets avec les objectifs stratégiques.',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop',
-    is_founder: false,
-    specialties: ['Gestion de projets', 'Planification stratégique', 'Coordination d\'équipes', 'Suivi-évaluation', 'Agile et classique']
-  }
-];
+export const team = [];
 
 // Projects - Projets réalisés pour les clients
 export const projects = [
