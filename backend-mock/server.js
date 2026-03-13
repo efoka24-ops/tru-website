@@ -8,6 +8,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,6 +16,193 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+function parseSqlString(value) {
+  if (value === 'NULL') {
+    return null;
+  }
+
+  if (value.startsWith("'") && value.endsWith("'")) {
+    return value.slice(1, -1).replace(/''/g, "'");
+  }
+
+  const numberValue = Number(value);
+  return Number.isNaN(numberValue) ? value : numberValue;
+}
+
+function splitSqlTuple(tupleContent) {
+  const values = [];
+  let current = '';
+  let inQuote = false;
+
+  for (let index = 0; index < tupleContent.length; index += 1) {
+    const char = tupleContent[index];
+    const next = tupleContent[index + 1];
+
+    if (char === "'") {
+      current += char;
+      if (inQuote && next === "'") {
+        current += next;
+        index += 1;
+      } else {
+        inQuote = !inQuote;
+      }
+      continue;
+    }
+
+    if (char === ',' && !inQuote) {
+      values.push(current.trim());
+      current = '';
+      continue;
+    }
+
+    current += char;
+  }
+
+  if (current.trim()) {
+    values.push(current.trim());
+  }
+
+  return values;
+}
+
+function extractSqlTuples(valuesBlock) {
+  const tuples = [];
+  let current = '';
+  let depth = 0;
+  let inQuote = false;
+
+  for (let index = 0; index < valuesBlock.length; index += 1) {
+    const char = valuesBlock[index];
+    const next = valuesBlock[index + 1];
+
+    if (char === "'") {
+      current += char;
+      if (inQuote && next === "'") {
+        current += next;
+        index += 1;
+      } else {
+        inQuote = !inQuote;
+      }
+      continue;
+    }
+
+    if (!inQuote && char === '(') {
+      if (depth > 0) {
+        current += char;
+      }
+      depth += 1;
+      continue;
+    }
+
+    if (!inQuote && char === ')') {
+      depth -= 1;
+      if (depth === 0) {
+        tuples.push(current);
+        current = '';
+      } else {
+        current += char;
+      }
+      continue;
+    }
+
+    if (depth > 0) {
+      current += char;
+    }
+  }
+
+  return tuples;
+}
+
+function parseFormationsInsert(statement, categorie, startId) {
+  const columnsMatch = statement.match(/INSERT INTO formations \(([^)]+)\) VALUES/i);
+  if (!columnsMatch) {
+    return [];
+  }
+
+  const columns = columnsMatch[1].split(',').map((column) => column.trim());
+  const valuesIndex = statement.indexOf('VALUES');
+  const valuesBlock = statement.slice(valuesIndex + 'VALUES'.length).trim().replace(/;\s*$/, '');
+  const tuples = extractSqlTuples(valuesBlock);
+
+  return tuples.map((tuple, offset) => {
+    const values = splitSqlTuple(tuple);
+    const formation = { id: startId + offset, categorie };
+
+    columns.forEach((column, index) => {
+      const parsedValue = parseSqlString(values[index]);
+
+      if (column === 'modules' && typeof parsedValue === 'string') {
+        try {
+          formation[column] = JSON.parse(parsedValue);
+        } catch {
+          formation[column] = [parsedValue];
+        }
+        return;
+      }
+
+      formation[column] = parsedValue;
+    });
+
+    return formation;
+  });
+}
+
+function loadCatalogueFormations() {
+  const fallbackFormations = [
+    {
+      id: 1,
+      titre: 'Formation 1',
+      description: 'First training',
+      statut: 'active',
+      prix: 99.99,
+      format: 'hybride',
+      date_debut: '2025-04-01',
+      categorie: 'Catalogue indisponible'
+    }
+  ];
+
+  try {
+    const cataloguePath = path.resolve(__dirname, '../backend/formations-catalogue.sql');
+    const sqlContent = fs.readFileSync(cataloguePath, 'utf8');
+    const lines = sqlContent.split(/\r?\n/);
+
+    let currentCategory = 'Catalogue TRU Group';
+    let currentStatement = '';
+    let collectingInsert = false;
+    let nextId = 1;
+    const formations = [];
+
+    for (const line of lines) {
+      const categoryMatch = line.match(/^--\s*CAT[ÉE]GORIE\s+\d+\s*:\s*(.+?)\s*\(/i);
+      if (categoryMatch) {
+        currentCategory = categoryMatch[1].trim();
+      }
+
+      if (!collectingInsert && /INSERT INTO formations/i.test(line)) {
+        collectingInsert = true;
+        currentStatement = `${line}\n`;
+        continue;
+      }
+
+      if (collectingInsert) {
+        currentStatement += `${line}\n`;
+        if (line.includes(';')) {
+          const parsedFormations = parseFormationsInsert(currentStatement, currentCategory, nextId);
+          formations.push(...parsedFormations);
+          nextId += parsedFormations.length;
+          collectingInsert = false;
+          currentStatement = '';
+        }
+      }
+    }
+
+    return formations.length > 0 ? formations : fallbackFormations;
+  } catch (error) {
+    console.warn('Failed to load SQL catalogue for mock backend:', error.message);
+    return fallbackFormations;
+  }
+}
 
 // Middleware
 app.use(cors());
@@ -28,8 +216,126 @@ const mockData = {
     { id: 2, name: 'John Doe', role: 'Manager', email: 'john@tru.group', photo: null, description: 'Operations Manager' }
   ],
   services: [
-    { id: 1, title: 'Consulting', description: 'Strategic consulting services' },
-    { id: 2, title: 'Training', description: 'Professional training programs' }
+    {
+      id: 1,
+      title: 'Conseil en organisation et performance',
+      name: 'Conseil en organisation et performance',
+      category: 'Conseil',
+      description: 'Nous analysons vos processus, clarifions les rôles et mettons en place une gouvernance efficace pour améliorer durablement la performance.',
+      objective: 'Optimiser les opérations et renforcer la qualité de service.',
+      features: ['Audit organisationnel', 'Optimisation des processus', 'Gouvernance et pilotage', 'Conduite du changement'],
+      icon: 'Building2',
+      color: 'from-blue-500 to-indigo-600',
+      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
+      image_url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
+      status: 'active',
+      order_index: 1
+    },
+    {
+      id: 2,
+      title: 'Transformation digitale',
+      name: 'Transformation digitale',
+      category: 'Digital',
+      description: 'Nous concevons et déployons votre feuille de route digitale: dématérialisation, automatisation et modernisation des parcours métier.',
+      objective: 'Accélérer la transformation et réduire les frictions internes.',
+      features: ['Feuille de route digitale', 'Dématérialisation', 'Automatisation des workflows', 'Modernisation des parcours'],
+      icon: 'Monitor',
+      color: 'from-amber-500 to-orange-600',
+      image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop',
+      image_url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop',
+      status: 'active',
+      order_index: 2
+    },
+    {
+      id: 3,
+      title: 'Développement d\'applications web et mobile',
+      name: 'Développement d\'applications web et mobile',
+      category: 'Développement',
+      description: 'Nous réalisons des plateformes web et mobiles sur mesure, sécurisées et évolutives, adaptées à vos besoins métier.',
+      objective: 'Digitaliser vos services avec des outils fiables et performants.',
+      features: ['Applications web', 'Applications mobiles', 'Portails métier', 'Maintenance évolutive'],
+      icon: 'Code2',
+      color: 'from-emerald-500 to-teal-600',
+      image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=600&fit=crop',
+      image_url: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=600&fit=crop',
+      status: 'active',
+      order_index: 3
+    },
+    {
+      id: 4,
+      title: 'Data, BI et tableaux de bord',
+      name: 'Data, BI et tableaux de bord',
+      category: 'Data',
+      description: 'Nous structurons vos données et mettons en place des tableaux de bord décisionnels pour piloter vos activités en temps réel.',
+      objective: 'Décider plus vite et mieux grâce à la donnée.',
+      features: ['Collecte et qualité des données', 'Modélisation', 'Dashboards KPI', 'Reporting décisionnel'],
+      icon: 'BarChart3',
+      color: 'from-cyan-500 to-blue-600',
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
+      image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
+      status: 'active',
+      order_index: 4
+    },
+    {
+      id: 5,
+      title: 'Cybersécurité et conformité',
+      name: 'Cybersécurité et conformité',
+      category: 'Sécurité',
+      description: 'Nous renforçons la sécurité de vos systèmes avec audits, politiques, sensibilisation et plan de gestion des risques.',
+      objective: 'Protéger vos actifs numériques et garantir la continuité d\'activité.',
+      features: ['Audit sécurité', 'Gestion des risques', 'Conformité', 'Sensibilisation des équipes'],
+      icon: 'ShieldCheck',
+      color: 'from-rose-500 to-red-600',
+      image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=600&fit=crop',
+      image_url: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=600&fit=crop',
+      status: 'active',
+      order_index: 5
+    },
+    {
+      id: 6,
+      title: 'Cloud, DevOps et infrastructure',
+      name: 'Cloud, DevOps et infrastructure',
+      category: 'Infrastructure',
+      description: 'Nous accompagnons vos migrations cloud, l\'industrialisation CI/CD et l\'optimisation de l\'infrastructure.',
+      objective: 'Gagner en disponibilité, scalabilité et rapidité de livraison.',
+      features: ['Migration cloud', 'CI/CD', 'Supervision', 'Optimisation des coûts'],
+      icon: 'CloudCog',
+      color: 'from-sky-500 to-indigo-600',
+      image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop',
+      image_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop',
+      status: 'active',
+      order_index: 6
+    },
+    {
+      id: 7,
+      title: 'Formation et renforcement des capacités',
+      name: 'Formation et renforcement des capacités',
+      category: 'Formation',
+      description: 'Nous proposons des formations pratiques et certifiantes pour équipes techniques, métiers et management.',
+      objective: 'Monter en compétences de façon mesurable et durable.',
+      features: ['Formations certifiantes', 'Ateliers pratiques', 'Coaching d\'équipe', 'Évaluation des acquis'],
+      icon: 'GraduationCap',
+      color: 'from-fuchsia-500 to-pink-600',
+      image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&h=600&fit=crop',
+      image_url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&h=600&fit=crop',
+      status: 'active',
+      order_index: 7
+    },
+    {
+      id: 8,
+      title: 'Assistance technique et gestion de projet',
+      name: 'Assistance technique et gestion de projet',
+      category: 'Pilotage',
+      description: 'Nous mettons à disposition des experts pour piloter vos projets (PMO, Agile, qualité, coordination).',
+      objective: 'Assurer la réussite opérationnelle de vos projets stratégiques.',
+      features: ['PMO', 'Pilotage Agile', 'Suivi qualité', 'Coordination multi-acteurs'],
+      icon: 'Briefcase',
+      color: 'from-violet-500 to-purple-600',
+      image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop',
+      image_url: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop',
+      status: 'active',
+      order_index: 8
+    }
   ],
   news: [
     { id: 1, title: 'Welcome to TRU', content: 'Welcome to TRU Group!', createdAt: new Date().toISOString() }
@@ -45,12 +351,13 @@ const mockData = {
   ],
   settings: {
     siteName: 'TRU Group',
+    company_name: 'TRU GROUP',
+    slogan: 'Au coeur de l\'innovation',
+    description: 'Cabinet de conseil et d\'ingenierie digitale.',
     maxImageSize: 5242880,
     theme: 'light'
   },
-  formations: [
-    { id: 1, titre: 'Formation 1', description: 'First training', statut: 'active', prix: 99.99, date_debut: '2025-04-01' }
-  ],
+  formations: loadCatalogueFormations(),
   inscriptions: [
     { id: 1, numero_inscription: 'FRM001', formation_id: 1, email: 'student@example.com', statut: 'actif' }
   ],
@@ -289,7 +596,16 @@ app.get('/api/inscriptions-formations', requireAdmin, (req, res) => {
 });
 
 app.post('/api/inscriptions-formations', (req, res) => {
-  const newInscription = { id: mockData.inscriptions.length + 1, statut: 'actif', ...req.body };
+  const newId = mockData.inscriptions.length + 1;
+  const sequence = String(newId).padStart(4, '0');
+  const numero_inscription = `TRU-FRM-${new Date().getFullYear()}-${sequence}`;
+  const newInscription = {
+    id: newId,
+    numero_inscription,
+    statut: 'en_attente',
+    createdAt: new Date().toISOString(),
+    ...req.body
+  };
   mockData.inscriptions.push(newInscription);
   res.status(201).json(newInscription);
 });

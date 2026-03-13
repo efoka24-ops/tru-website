@@ -36,7 +36,12 @@ export const apiClient = {
   async getServices() {
     const response = await fetch(`${BACKEND_URL}/api/services`);
     if (!response.ok) throw new Error('Failed to fetch services');
-    return response.json();
+    const data = await response.json();
+    return Array.isArray(data) ? data.map(s => ({
+      ...s,
+      name: s.name || s.title,
+      image: s.image || s.image_url,
+    })) : data;
   },
 
   // Solutions

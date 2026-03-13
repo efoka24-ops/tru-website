@@ -69,7 +69,12 @@ export const apiClient = {
     try {
       const response = await fetch(`${BACKEND_URL}/services`);
       if (!response.ok) throw new Error('Erreur récupération services');
-      return await response.json();
+      const data = await response.json();
+      return Array.isArray(data) ? data.map(s => ({
+        ...s,
+        name: s.name || s.title,
+        image: s.image || s.image_url,
+      })) : data;
     } catch (error) {
       console.error('❌ Erreur getServices:', error);
       return [];

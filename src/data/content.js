@@ -1,4 +1,4 @@
-import logoUrl from '../assets/trugroup-logo.png';
+import logoUrl from '../assets/trugroup-logo.jpg';
 
 // Exported logo for use throughout the app
 export { logoUrl };
@@ -29,15 +29,17 @@ export const services = [
   {
     id: 1,
     icon: 'Building2',
-    title: 'Conseil & Organisation',
-    description: 'Nous accompagnons les institutions dans leur modernisation organisationnelle.',
+    title: 'Conseil en organisation et performance',
+    name: 'Conseil en organisation et performance',
+    category: 'Conseil',
+    description: 'Nous analysons vos processus, clarifions les rôles et mettons en place une gouvernance efficace pour améliorer durablement la performance.',
     features: [
       'Audit organisationnel',
-      'Cartographie et optimisation des processus',
-      'Rédaction de manuels et procédures',
+      'Optimisation des processus',
+      'Gouvernance et pilotage',
       'Conduite du changement'
     ],
-    objective: 'Rendre les organisations plus efficientes, modernes et transparentes.',
+    objective: 'Optimiser les opérations et renforcer la qualité de service.',
     color: 'from-blue-500 to-indigo-600',
     image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop'
   },
@@ -45,61 +47,120 @@ export const services = [
     id: 2,
     icon: 'Monitor',
     title: 'Transformation digitale',
-    description: 'Nous concevons et déployons des solutions numériques adaptées à vos besoins.',
+    name: 'Transformation digitale',
+    category: 'Digital',
+    description: 'Nous concevons et déployons votre feuille de route digitale: dématérialisation, automatisation et modernisation des parcours métier.',
     features: [
-      'Digitalisation des services publics',
-      'E-administration',
-      'Outils de gestion',
-      'Tableaux de bord décisionnels'
+      'Feuille de route digitale',
+      'Dématérialisation',
+      'Automatisation des workflows',
+      'Modernisation des parcours'
     ],
-    objective: 'Rendre la technologie accessible et durable.',
+    objective: 'Accélérer la transformation et réduire les frictions internes.',
     color: 'from-amber-500 to-orange-600',
     image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop'
   },
   {
     id: 3,
-    icon: 'Smartphone',
-    title: 'Développement d\'applications',
-    description: 'Nous créons des plateformes et applications sur mesure.',
+    icon: 'Code2',
+    title: 'Développement d\'applications web et mobile',
+    name: 'Développement d\'applications web et mobile',
+    category: 'Développement',
+    description: 'Nous réalisons des plateformes web et mobiles sur mesure, sécurisées et évolutives, adaptées à vos besoins métier.',
     features: [
+      'Applications web',
       'Applications mobiles',
-      'Plateformes web',
-      'Systèmes d\'information sectoriels',
-      'Outils SaaS'
+      'Portails métier',
+      'Maintenance évolutive'
     ],
-    objective: 'Concevoir des solutions sur mesure, scalables et sécurisées.',
+    objective: 'Digitaliser vos services avec des outils fiables et performants.',
     color: 'from-emerald-500 to-teal-600',
     image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=600&fit=crop'
   },
   {
     id: 4,
-    icon: 'ClipboardCheck',
-    title: 'Gestion de projet & assistance technique',
-    description: 'Nous mettons à disposition des experts pour garantir le succès de vos projets.',
+    icon: 'BarChart3',
+    title: 'Data, BI et tableaux de bord',
+    name: 'Data, BI et tableaux de bord',
+    category: 'Data',
+    description: 'Nous structurons vos données et mettons en place des tableaux de bord décisionnels pour piloter vos activités en temps réel.',
     features: [
-      'Gestion de projet',
-      'Pilotage stratégique',
-      'Suivi-évaluation',
-      'Coordination multisectorielle'
+      'Collecte et qualité des données',
+      'Modélisation',
+      'Dashboards KPI',
+      'Reporting décisionnel'
     ],
-    objective: 'Garantir la réussite de chaque projet.',
-    color: 'from-purple-500 to-violet-600',
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop'
+    objective: 'Décider plus vite et mieux grâce à la donnée.',
+    color: 'from-cyan-500 to-blue-600',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop'
   },
   {
     id: 5,
-    icon: 'GraduationCap',
-    title: 'Formation & renforcement des capacités',
-    description: 'Nous proposons des formations professionnelles adaptées.',
+    icon: 'ShieldCheck',
+    title: 'Cybersécurité et conformité',
+    name: 'Cybersécurité et conformité',
+    category: 'Sécurité',
+    description: 'Nous renforçons la sécurité de vos systèmes avec audits, politiques, sensibilisation et plan de gestion des risques.',
     features: [
-      'Gestion de projet (classique & agile)',
-      'Outils numériques',
-      'Data & intelligence décisionnelle',
-      'Leadership et innovation'
+      'Audit sécurité',
+      'Gestion des risques',
+      'Conformité',
+      'Sensibilisation des équipes'
     ],
-    objective: 'Renforcer l\'employabilité des jeunes et cadres locaux.',
-    color: 'from-pink-500 to-rose-600',
-    image: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&h=600&fit=crop'
+    objective: 'Protéger vos actifs numériques et garantir la continuité d\'activité.',
+    color: 'from-rose-500 to-red-600',
+    image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=600&fit=crop'
+  },
+  {
+    id: 6,
+    icon: 'CloudCog',
+    title: 'Cloud, DevOps et infrastructure',
+    name: 'Cloud, DevOps et infrastructure',
+    category: 'Infrastructure',
+    description: 'Nous accompagnons vos migrations cloud, l\'industrialisation CI/CD et l\'optimisation de l\'infrastructure.',
+    features: [
+      'Migration cloud',
+      'CI/CD',
+      'Supervision',
+      'Optimisation des coûts'
+    ],
+    objective: 'Gagner en disponibilité, scalabilité et rapidité de livraison.',
+    color: 'from-sky-500 to-indigo-600',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop'
+  },
+  {
+    id: 7,
+    icon: 'GraduationCap',
+    title: 'Formation et renforcement des capacités',
+    name: 'Formation et renforcement des capacités',
+    category: 'Formation',
+    description: 'Nous proposons des formations pratiques et certifiantes pour équipes techniques, métiers et management.',
+    features: [
+      'Formations certifiantes',
+      'Ateliers pratiques',
+      'Coaching d\'équipe',
+      'Évaluation des acquis'
+    ],
+    objective: 'Monter en compétences de façon mesurable et durable.',
+    color: 'from-fuchsia-500 to-pink-600',
+    image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&h=600&fit=crop'
+  },
+  {
+    id: 8,
+    icon: 'Briefcase',
+    title: 'Assistance technique et gestion de projet',
+    name: 'Assistance technique et gestion de projet',
+    category: 'Pilotage',
+    description: 'Nous mettons à disposition des experts pour piloter vos projets (PMO, Agile, qualité, coordination).',
+    features: [
+      'PMO',
+      'Pilotage Agile',
+      'Suivi qualité',
+      'Coordination multi-acteurs'
+    ],
+    objective: 'Assurer la réussite opérationnelle de vos projets stratégiques.',
+    color: 'from-violet-500 to-purple-600',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop'
   }
 ];
 

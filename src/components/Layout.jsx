@@ -13,8 +13,10 @@ export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const { settings } = useAppSettings();
   
-  // Utiliser les settings du backend, ou les defaults
-  const displaySettings = settings || defaultSettings;
+  const displaySettings = { ...defaultSettings, ...(settings || {}) };
+  const displayLogo = displaySettings.logo_url || logoUrl;
+  const isHomePage = currentPageName === 'home';
+  const showLightNavbar = isScrolled || !isHomePage;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,8 +29,6 @@ export default function Layout({ children, currentPageName }) {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
-
-  const isHomePage = currentPageName === 'home';
 
   return (
     <div className="min-h-screen bg-white">
@@ -51,18 +51,16 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to={createPageUrl('home')} className="flex items-center gap-3">
-              <div className={`w-16 h-16 rounded-full overflow-hidden flex items-center justify-center shadow-lg transition-colors duration-300 ${
-                isScrolled || !isHomePage
-                  ? 'bg-white' 
-                  : 'bg-slate-800 border border-slate-700'
-              }`}>
+              <div className="w-28 h-[67px] overflow-hidden flex items-center justify-center transition-all duration-300 rounded-xl">
                 <img 
-                  src={logoUrl} 
+                  src={displayLogo} 
                   alt={displaySettings.company_name} 
+                  width={1024}
+                  height={420}
                   className="w-full h-full object-contain"
                 />
               </div>
-              <div className="hidden sm:block">
+              {/* <div className="hidden sm:block">
                 <span className={`font-bold text-lg block leading-tight transition-colors duration-300 ${
                   isScrolled || !isHomePage ? 'text-slate-900' : 'text-white'
                 }`}>
@@ -73,7 +71,7 @@ export default function Layout({ children, currentPageName }) {
                 }`}>
                   {displaySettings.slogan}
                 </span>
-              </div>
+              </div> */}
             </Link>
 
             {/* Desktop Navigation */}
@@ -157,17 +155,19 @@ export default function Layout({ children, currentPageName }) {
             {/* Brand */}
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center shadow-lg border border-slate-700">
+                <div className="w-36 h-[88px] overflow-hidden flex items-center justify-center rounded-xl">
                   <img 
-                    src={logoUrl} 
+                    src={displayLogo} 
                     alt={displaySettings.company_name} 
+                    width={1024}
+                    height={420}
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <div>
+                {/* <div>
                   <h3 className="font-bold text-lg">{displaySettings.company_name}</h3>
                   <p className="text-green-400 text-sm">{displaySettings.slogan}</p>
-                </div>
+                </div> */}
               </div>
               <p className="text-slate-400 text-sm leading-relaxed">
                 {settings?.description || "Cabinet de conseil et d'ingénierie digitale."}

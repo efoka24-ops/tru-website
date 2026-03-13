@@ -31,7 +31,12 @@ export const apiService = {
       }
       const data = await response.json();
       console.log('✅ Services loaded:', data);
-      return data;
+      // Normalize field names (backend returns title/image_url, frontend expects name/image)
+      return Array.isArray(data) ? data.map(s => ({
+        ...s,
+        name: s.name || s.title,
+        image: s.image || s.image_url,
+      })) : data;
     } catch (error) {
       console.error('Erreur récupération services:', error);
       return [];
