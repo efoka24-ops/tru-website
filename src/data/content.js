@@ -1,4 +1,4 @@
-import logoUrl from '../assets/trugroup-logo.jpg';
+import logoUrl from '../assets/trugroup-logo.png';
 
 // Exported logo for use throughout the app
 export { logoUrl };
