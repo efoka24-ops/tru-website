@@ -3,7 +3,7 @@ const baseURL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL
   : (import.meta.env.DEV 
     ? 'http://localhost:5000' 
-    : 'https://tru-backend-o1zc.onrender.com');
+    : 'https://back.trugroup.cm');
 
 // Normalize URL - remove trailing slash and /api if present
 const cleanURL = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
@@ -14,9 +14,6 @@ const API_BASE_URL = `${baseWithoutAPI}/api`;
 // Log the API URL for debugging
 console.log('🔗 API_BASE_URL:', API_BASE_URL);
 console.log('📝 VITE_API_URL env var:', import.meta.env.VITE_API_URL);
-
-// Configuration for team sync with backoffice
-const BACKOFFICE_API_URL = 'http://localhost:3001/api';
 
 // Service pour les appels API
 export const apiService = {

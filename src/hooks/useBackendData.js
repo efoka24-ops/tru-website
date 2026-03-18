@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://tru-backend-o1zc.onrender.com';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://back.trugroup.cm';
 
 export const useBackendData = () => {
   const [data, setData] = useState({

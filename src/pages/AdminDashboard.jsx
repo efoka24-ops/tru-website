@@ -16,7 +16,7 @@ const parseArray = (value) => {
   return [];
 };
 
-const API_BASE = 'https://tru-backend-o1zc.onrender.com/api';
+const API_BASE = `${import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || 'https://back.trugroup.cm'}`.replace(/\/$/, '') + '/api';
 
 export default function AdminTeam() {
   // ==================== STATE ====================
