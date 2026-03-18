@@ -1,7 +1,7 @@
 // src/hooks/useMemberProfile.js
 import { useState, useCallback } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://tru-backend-o1zc.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || 'https://back.trugroup.cm';
 
 export function useMemberProfile(memberId, token) {
   const [profile, setProfile] = useState(null);

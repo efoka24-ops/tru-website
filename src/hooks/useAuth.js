@@ -1,7 +1,7 @@
 // src/hooks/useAuth.js
 import { useState, useCallback, useEffect } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://tru-backend-o1zc.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || 'https://back.trugroup.cm';
 
 export function useAuth() {
   const [user, setUser] = useState(null);

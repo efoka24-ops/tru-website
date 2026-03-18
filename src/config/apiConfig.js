@@ -25,7 +25,7 @@ export const API_CONFIG = {
     backofficeApi: 'https://tru-website.vercel.app/api',
     frontendAdminApi: 'https://tru-website.vercel.app/api',
     truSiteApi: 'https://tru-website.vercel.app/api',
-    backendApi: 'https://tru-backend-o1zc.onrender.com/api',
+    backendApi: 'https://back.trugroup.cm/api',
   },
 
   // Environnement de staging

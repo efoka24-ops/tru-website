@@ -1,6 +1,6 @@
 import { siteSettings as defaultSettings, navItems, services, solutions, team, commitments } from './content';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://tru-backend-o1zc.onrender.com';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://back.trugroup.cm';
 
 // Cache pour les données
 let cachedData = {
