@@ -1,7 +1,5 @@
-import logoUrl from '../assets/trugroup-logo.png';
-
 // Exported logo for use throughout the app
-export { logoUrl };
+export const logoUrl = '/logo.jpg';
 
 export const siteSettings = {
   company_name: 'TRU GROUP',

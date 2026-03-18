@@ -147,7 +147,7 @@ export default function Layout({ children, currentPageName }) {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center shadow-lg border border-slate-700">
                   <img 
-                    src={logoUrl} 
+                    src={displayLogo} 
                     alt={displaySettings.company_name} 
                     className="w-full h-full object-contain"
                   />
