@@ -14,7 +14,11 @@ export default function Layout({ children, currentPageName }) {
   const { settings } = useAppSettings();
   
   // Utiliser les settings du backend, ou les defaults
-  const displaySettings = settings || defaultSettings;
+  const displaySettings = { ...defaultSettings, ...(settings || {}) };
+  const displayLogo = displaySettings.logo_url || logoUrl;
+
+  const isHomePage = currentPageName === 'home';
+  const showLightNavbar = isScrolled || !isHomePage;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,8 +31,6 @@ export default function Layout({ children, currentPageName }) {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
-
-  const isHomePage = currentPageName === 'home';
 
   return (
     <div className="min-h-screen bg-white">
@@ -51,28 +53,14 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to={createPageUrl('home')} className="flex items-center gap-3">
-              <div className={`w-16 h-16 rounded-full overflow-hidden flex items-center justify-center shadow-lg transition-colors duration-300 ${
-                isScrolled || !isHomePage
-                  ? 'bg-white' 
-                  : 'bg-slate-800 border border-slate-700'
-              }`}>
+              <div className="w-28 h-[67px] overflow-hidden flex items-center justify-center transition-all duration-300 rounded-xl">
                 <img 
-                  src={logoUrl} 
+                  src={displayLogo} 
                   alt={displaySettings.company_name} 
+                  width={1024}
+                  height={420}
                   className="w-full h-full object-contain"
                 />
-              </div>
-              <div className="hidden sm:block">
-                <span className={`font-bold text-lg block leading-tight transition-colors duration-300 ${
-                  isScrolled || !isHomePage ? 'text-slate-900' : 'text-white'
-                }`}>
-                  {displaySettings.company_name}
-                </span>
-                <span className={`text-xs transition-colors duration-300 ${
-                  isScrolled || !isHomePage ? 'text-green-600' : 'text-green-400'
-                }`}>
-                  {displaySettings.slogan}
-                </span>
               </div>
             </Link>
 
@@ -182,6 +170,8 @@ export default function Layout({ children, currentPageName }) {
                 <li><Link to={createPageUrl('services')} className="hover:text-green-400 transition-colors">Transformation digitale</Link></li>
                 <li><Link to={createPageUrl('services')} className="hover:text-green-400 transition-colors">Développement d'apps</Link></li>
                 <li><Link to={createPageUrl('services')} className="hover:text-green-400 transition-colors">Formation</Link></li>
+                <li><Link to="/formations" className="hover:text-green-400 transition-colors">Nos formations</Link></li>
+                <li><Link to="/confirmer-inscription" className="hover:text-green-400 transition-colors">Confirmer inscription</Link></li>
               </ul>
             </div>
 
