@@ -125,7 +125,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 mb-1">Email</h3>
-                    <p className="text-slate-600">{settings?.email || 'contact@trugroup.com'}</p>
+                    <p className="text-slate-600">infos@trugroup.com</p>
                     <p className="text-sm text-slate-500">Réponse sous 24h</p>
                   </div>
                 </div>
@@ -137,10 +137,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 mb-1">Téléphone</h3>
-                    <p className="text-slate-600">{settings?.phone || '+237 6 XX XX XX XX'}</p>
-                    <p className="text-sm text-slate-500">
-                      {settings?.businessHours?.monday || 'Lun-Ven 09:00-18:00'}
-                    </p>
+                    <p className="text-slate-600">+237 6 78 75 89 76</p>
+                    <p className="text-sm text-slate-500">Lun-Ven 09:00-18:00</p>
                   </div>
                 </div>
 
@@ -151,7 +149,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 mb-1">Localisation</h3>
-                    <p className="text-slate-600">{settings?.address || 'Cameroun, Douala'}</p>
+                    <p className="text-slate-600">Cameroun, Garoua</p>
                     <p className="text-sm text-slate-500">Bureau principal</p>
                   </div>
                 </div>

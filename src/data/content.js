@@ -1,5 +1,5 @@
 // Exported logo for use throughout the app
-export const logoUrl = '/logo.jpg';
+export const logoUrl = '/logo-845x295.png';
 
 export const siteSettings = {
   company_name: 'TRU GROUP',
