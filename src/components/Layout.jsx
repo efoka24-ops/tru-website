@@ -53,12 +53,12 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to={createPageUrl('home')} className="flex items-center gap-3">
-              <div className="w-28 h-[67px] overflow-hidden flex items-center justify-center transition-all duration-300 rounded-xl">
+              <div className="w-[211px] h-[74px] overflow-hidden flex items-center justify-center transition-all duration-300 rounded-xl">
                 <img 
                   src={displayLogo} 
                   alt={displaySettings.company_name} 
-                  width={1024}
-                  height={420}
+                  width={845}
+                  height={295}
                   className="w-full h-full object-contain"
                 />
               </div>
@@ -145,16 +145,18 @@ export default function Layout({ children, currentPageName }) {
             {/* Brand */}
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center shadow-lg border border-slate-700">
+                <div className="w-[211px] h-[74px] rounded-xl overflow-hidden flex items-center justify-center shadow-lg">
                   <img 
                     src={displayLogo} 
                     alt={displaySettings.company_name} 
+                    width={845}
+                    height={295}
                     className="w-full h-full object-contain"
                   />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">{displaySettings.company_name}</h3>
-                  <p className="text-green-400 text-sm">{displaySettings.slogan}</p>
+                  {/* <h3 className="font-bold text-lg">{displaySettings.company_name}</h3> */}
+                  {/* <p className="text-green-400 text-sm">{displaySettings.slogan}</p> */}
                 </div>
               </div>
               <p className="text-slate-400 text-sm leading-relaxed">
@@ -201,28 +203,21 @@ export default function Layout({ children, currentPageName }) {
             <div>
               <h4 className="font-bold text-lg mb-4">Contact</h4>
               <div className="space-y-3 text-sm text-slate-400">
-                {settings?.phone && (
-                  <div>
-                    <p className="text-white font-semibold mb-1">Téléphone</p>
-                    <a href={`tel:${settings.phone}`} className="hover:text-green-400 transition-colors">
-                      {settings.phone}
-                    </a>
-                  </div>
-                )}
-                {settings?.email && (
-                  <div>
-                    <p className="text-white font-semibold mb-1">Email</p>
-                    <a href={`mailto:${settings.email}`} className="hover:text-green-400 transition-colors">
-                      {settings.email}
-                    </a>
-                  </div>
-                )}
-                {settings?.address && (
-                  <div>
-                    <p className="text-white font-semibold mb-1">Adresse</p>
-                    <p>{settings.address}</p>
-                  </div>
-                )}
+                <div>
+                  <p className="text-white font-semibold mb-1">Email</p>
+                  <a href="mailto:infos@trugroup.com" className="hover:text-green-400 transition-colors">infos@trugroup.com</a>
+                  <div className="text-xs text-slate-500">Réponse sous 24h</div>
+                </div>
+                <div>
+                  <p className="text-white font-semibold mb-1">Téléphone</p>
+                  <a href="tel:+237678758976" className="hover:text-green-400 transition-colors">+237 6 78 75 89 76</a>
+                  <div className="text-xs text-slate-500">Lun-Ven 09:00-18:00</div>
+                </div>
+                <div>
+                  <p className="text-white font-semibold mb-1">Localisation</p>
+                  <p>Cameroun, Garoua</p>
+                  <div className="text-xs text-slate-500">Bureau principal</div>
+                </div>
               </div>
             </div>
           </div>
@@ -230,7 +225,7 @@ export default function Layout({ children, currentPageName }) {
           {/* Divider */}
           <div className="border-t border-slate-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center text-sm text-slate-400">
-              <p>© 2025 {settings?.company_name || displaySettings.company_name}. Tous droits réservés.</p>
+              <p>© 2026 {settings?.company_name || displaySettings.company_name}. Tous droits réservés.</p>
               <div className="flex gap-6 mt-4 md:mt-0">
                 {settings?.socialMedia?.facebook && (
                   <a href={settings.socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors">Facebook</a>
