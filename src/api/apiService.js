@@ -114,10 +114,17 @@ export const apiService = {
 
   async sendContact(formData) {
     try {
+      const payload = {
+        name: formData?.fullName?.trim(),
+        email: formData?.email?.trim(),
+        phone: formData?.phone?.trim() || null,
+        subject: formData?.subject?.trim() || null,
+        message: formData?.message?.trim(),
+      };
       const response = await fetch(`${API_BASE_URL}/contacts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
       if (!response.ok) throw new Error('Erreur envoi contact');
       return await response.json();
