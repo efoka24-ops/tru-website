@@ -134,11 +134,12 @@ export const apiService = {
     }
   },
 
-  async sendApplication(formData) {
+  async sendApplication(application) {
     try {
       const response = await fetch(`${API_BASE_URL}/applications`, {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(application)
       });
       if (!response.ok) throw new Error('Erreur envoi candidature');
       return await response.json();
