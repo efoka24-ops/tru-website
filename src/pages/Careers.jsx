@@ -69,20 +69,24 @@ export default function Careers() {
     setSubmitting(true);
 
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('jobId', applyingJob.id);
-      formDataToSend.append('jobTitle', applyingJob.title);
-      formDataToSend.append('fullName', formData.fullName);
-      formDataToSend.append('email', formData.email);
-      formDataToSend.append('phone', formData.phone);
-      formDataToSend.append('linkedin', formData.linkedin || '');
-      formDataToSend.append('coverLetter', formData.coverLetter);
-      
-      if (formData.resume) {
-        formDataToSend.append('resume', formData.resume);
-      }
+      const nameParts = String(formData.fullName || '')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+      const firstName = nameParts.slice(0, 1).join(' ');
+      const lastName = nameParts.slice(1).join(' ');
 
-      await apiService.sendApplication(formDataToSend);
+      const payload = {
+        job_id: applyingJob?.id ?? null,
+        first_name: firstName || null,
+        last_name: lastName || null,
+        email: formData.email?.trim(),
+        phone: formData.phone?.trim() || null,
+        resume_url: formData.linkedin?.trim() || null,
+        cover_letter: formData.coverLetter?.trim() || null
+      };
+
+      await apiService.sendApplication(payload);
 
       showNotification('✅ Candidature envoyée avec succès!', 'success');
       setApplyingJob(null);
