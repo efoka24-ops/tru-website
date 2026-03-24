@@ -74,12 +74,12 @@ export default function Careers() {
         .split(/\s+/)
         .filter(Boolean);
       const firstName = nameParts.slice(0, 1).join(' ');
-      const lastName = nameParts.slice(1).join(' ');
+      const lastName = nameParts.slice(1).join(' ') || firstName;
 
       const payload = {
         job_id: applyingJob?.id ?? null,
-        first_name: firstName || null,
-        last_name: lastName || null,
+        first_name: firstName,
+        last_name: lastName,
         email: formData.email?.trim(),
         phone: formData.phone?.trim() || null,
         resume_url: formData.linkedin?.trim() || null,
