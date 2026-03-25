@@ -17,12 +17,22 @@ export default function TestimonialsCarousel() {
         const data = await apiService.getTestimonials();
         console.log('📡 Testimonials fetched:', data);
         if (Array.isArray(data)) {
-          // Filter out any testimonials with deleted status
-          const validTestimonials = data.filter(t => t && t.id);
-          setTestimonials(validTestimonials);
-          console.log('✅ Testimonials loaded:', validTestimonials.length, 'items');
-          setIsLoading(false);
+          const normalized = data
+            .filter((t) => t && t.id)
+            .map((t) => ({
+              id: t.id,
+              name: t.name,
+              title: t.title ?? null,
+              company: t.company ?? null,
+              rating: t.rating ?? 5,
+              image: t.image ?? t.image_url ?? null,
+              testimonial: t.testimonial ?? t.message ?? '',
+            }));
+
+          setTestimonials(normalized);
+          console.log('✅ Testimonials loaded:', normalized.length, 'items');
         }
+        setIsLoading(false);
       } catch (error) {
         console.error('❌ Erreur lors du chargement des témoignages:', error);
         setIsLoading(false);
@@ -30,10 +40,6 @@ export default function TestimonialsCarousel() {
     };
 
     fetchTestimonials();
-
-    // Polling every 10 seconds for updates (faster refresh)
-    const pollInterval = setInterval(fetchTestimonials, 10000);
-    return () => clearInterval(pollInterval);
   }, []);
 
   // Auto-scroll logic
