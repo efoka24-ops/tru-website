@@ -4,6 +4,15 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/config.php';
 
+function decode_json_list(?string $json): array
+{
+    if ($json === null || $json === '') {
+        return [];
+    }
+    $decoded = json_decode($json, true);
+    return is_array($decoded) ? $decoded : [];
+}
+
 /**
  * Seed initial (une seule fois) : si une table est vide, on y insere
  * le contenu de demarrage ci-dessous pour que le site ne soit jamais vide.

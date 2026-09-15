@@ -7,15 +7,6 @@ require_once __DIR__ . '/content.php';
 
 content_seed_if_empty();
 
-function decode_json_list(?string $json): array
-{
-    if ($json === null || $json === '') {
-        return [];
-    }
-    $decoded = json_decode($json, true);
-    return is_array($decoded) ? $decoded : [];
-}
-
 $services = array_map(static function (array $row): array {
     return [
         'id' => (int)$row['id'],
