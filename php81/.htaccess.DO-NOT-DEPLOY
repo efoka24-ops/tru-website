@@ -1,0 +1,22 @@
+# IMPORTANT : ne pas renommer ce fichier en ".htaccess" et l'uploader tel quel.
+#
+# L'hebergement trugroup.cm (ftp-12.camoo.net) a "AllowOverride None" sur ce
+# vhost : la presence d'un fichier .htaccess, quel que soit son contenu,
+# provoque une erreur HTTP 500 sur TOUT le site (verifie le 2026-09-15).
+#
+# L'application n'a de toute facon pas besoin de mod_rewrite : le routage se
+# fait par ?page=... (voir index.php). HTTPS est deja force au niveau de la
+# plateforme (les requetes HTTP sont redirigees automatiquement).
+#
+# Si vous changez d'hebergeur et que celui-ci autorise .htaccess, vous pouvez
+# reprendre ce contenu :
+#
+# DirectoryIndex index.php index.html
+# <IfModule mod_rewrite.c>
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule ^ index.php [L,QSA]
+# </IfModule>

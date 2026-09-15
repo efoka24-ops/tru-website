@@ -38,15 +38,20 @@ continue de fonctionner normalement).
 - User: trugro9159
 
 ## Sécurité
-- `includes/` est bloqué par `.htaccess` (accès direct refusé).
-- Le site force HTTPS via `.htaccess` (nécessaire pour protéger le login admin).
+- **Ne déployez pas de fichier `.htaccess`** sur cet hébergement : le vhost de
+  trugroup.cm a `AllowOverride None`, donc la présence d'un `.htaccess` (quel
+  que soit son contenu) provoque une erreur 500 sur tout le site (vérifié le
+  2026-09-15). Ce n'est de toute façon pas nécessaire : le routage se fait par
+  `?page=...` et HTTPS est déjà forcé au niveau de la plateforme. Voir
+  `.htaccess.DO-NOT-DEPLOY` pour les détails et une version de secours si vous
+  changez un jour d'hébergeur.
 - Le dossier `gestion-647a0f15/` n'est jamais lié depuis le site public — ne le
   partagez qu'aux personnes autorisées à gérer le contenu. Vous pouvez le
   renommer (modifier `ADMIN_PATH_SLUG` dans `config.php` et renommer le dossier)
   si vous souhaitez changer l'URL.
 - Pensez à restreindre les permissions serveur de `includes/config.php` (600/640).
-- `uploads/cv/` stocke les CV envoyés par les candidats ; l'exécution de scripts
-  y est désactivée par `.htaccess`.
+- `uploads/cv/` stocke les CV envoyés par les candidats (PDF uniquement, type
+  MIME vérifié côté serveur, nom de fichier aléatoire).
 
 ## Test rapide
 - Ouvrir `https://trugroup.cm`
