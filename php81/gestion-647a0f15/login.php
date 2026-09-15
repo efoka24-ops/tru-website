@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $error = 'Identifiants incorrects.';
 }
 
-admin_head('Connexion');
+admin_head('Connexion', true);
 ?>
 <div class="card" style="margin: 60px auto;">
     <h2>Connexion back-office</h2>

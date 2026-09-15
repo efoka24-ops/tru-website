@@ -2,7 +2,7 @@
 <section class="hero hero-small">
     <div class="container hero-content">
         <h1>Nos Solutions</h1>
-        <p>Des approches intégrées pour répondre à vos enjeux stratégiques.</p>
+        <p>Des approches globales et intégrées pour résoudre vos défis stratégiques.</p>
     </div>
 </section>
 

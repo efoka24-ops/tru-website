@@ -31,9 +31,13 @@ dist-ssr
 
 # PHP back-office: secrets and user uploads, never committed
 php81/includes/config.php
+php81/gestion-*/reseed_once.php
+php81/gestion-*/migrate_once.php
+php81/gestion-*/create_admin_once.php
 php81/uploads/*
 !php81/uploads/.htaccess
 !php81/uploads/cv/.gitkeep
+!php81/uploads/team/.gitkeep
 
 # Backend data (local changes, don't commit)
 # Users can modify this locally but it won't be tracked

@@ -13,13 +13,14 @@ function content_seed_if_empty(): void
     $pdo = db();
 
     if ((int)$pdo->query('SELECT COUNT(*) FROM services')->fetchColumn() === 0) {
-        $stmt = $pdo->prepare('INSERT INTO services (title, icon, description, objective, features_json, sort_order, created_at, updated_at) VALUES (:title, :icon, :description, :objective, :features_json, :sort_order, NOW(), NOW())');
+        $stmt = $pdo->prepare('INSERT INTO services (title, icon, description, objective, image_url, features_json, sort_order, created_at, updated_at) VALUES (:title, :icon, :description, :objective, :image_url, :features_json, :sort_order, NOW(), NOW())');
         foreach (content_services_seed() as $i => $row) {
             $stmt->execute([
                 ':title' => $row['title'],
                 ':icon' => $row['icon'],
                 ':description' => $row['description'],
                 ':objective' => $row['objective'] ?? '',
+                ':image_url' => $row['image'] ?? '',
                 ':features_json' => json_encode($row['features'], JSON_UNESCAPED_UNICODE),
                 ':sort_order' => $i,
             ]);
@@ -40,13 +41,14 @@ function content_seed_if_empty(): void
     }
 
     if ((int)$pdo->query('SELECT COUNT(*) FROM team_members')->fetchColumn() === 0) {
-        $stmt = $pdo->prepare('INSERT INTO team_members (name, title, bio, specialties_json, sort_order, created_at, updated_at) VALUES (:name, :title, :bio, :specialties_json, :sort_order, NOW(), NOW())');
+        $stmt = $pdo->prepare('INSERT INTO team_members (name, title, bio, image, specialties_json, sort_order, created_at, updated_at) VALUES (:name, :title, :bio, :image, :specialties_json, :sort_order, NOW(), NOW())');
         foreach (content_team_seed() as $i => $row) {
             $stmt->execute([
                 ':name' => $row['name'],
                 ':title' => $row['title'],
                 ':bio' => $row['bio'],
-                ':specialties_json' => json_encode([], JSON_UNESCAPED_UNICODE),
+                ':image' => $row['image'] ?? '',
+                ':specialties_json' => json_encode($row['specialties'] ?? [], JSON_UNESCAPED_UNICODE),
                 ':sort_order' => $i,
             ]);
         }
@@ -96,11 +98,11 @@ function content_seed_if_empty(): void
 function content_services_seed(): array
 {
     return [
-        ['title' => 'Conseil & Organisation', 'icon' => 'fa-building', 'description' => 'Accompagnement des institutions dans la modernisation organisationnelle.', 'objective' => '', 'features' => ['Audit organisationnel', 'Cartographie et optimisation des processus', 'Rédaction de manuels et procédures', 'Conduite du changement']],
-        ['title' => 'Transformation digitale', 'icon' => 'fa-display', 'description' => 'Conception et déploiement de solutions numériques adaptées.', 'objective' => '', 'features' => ['Digitalisation des services publics', 'E-administration', 'Outils de gestion', 'Tableaux de bord décisionnels']],
-        ['title' => 'Développement d\'applications', 'icon' => 'fa-mobile-screen-button', 'description' => 'Création de plateformes web et applications sur mesure.', 'objective' => '', 'features' => ['Applications mobiles', 'Plateformes web', 'Systèmes d\'information sectoriels', 'Outils SaaS']],
-        ['title' => 'Gestion de projet & Assistance technique', 'icon' => 'fa-clipboard-check', 'description' => 'Pilotage de projets complexes avec des experts métier dédiés.', 'objective' => '', 'features' => ['Gestion de projet', 'Pilotage stratégique', 'Suivi-évaluation', 'Coordination multisectorielle']],
-        ['title' => 'Formation & Renforcement des capacités', 'icon' => 'fa-graduation-cap', 'description' => 'Formations professionnelles pour jeunes, cadres et institutions.', 'objective' => '', 'features' => ['Gestion de projet classique et agile', 'Outils numériques', 'Data & intelligence décisionnelle', 'Leadership et innovation']],
+        ['title' => 'Conseil & Organisation', 'icon' => 'fa-building', 'description' => 'Nous accompagnons les institutions dans leur modernisation organisationnelle.', 'objective' => 'Rendre les organisations plus efficientes, modernes et transparentes.', 'image' => 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop', 'features' => ['Audit organisationnel', 'Cartographie et optimisation des processus', 'Rédaction de manuels et procédures', 'Conduite du changement']],
+        ['title' => 'Transformation digitale', 'icon' => 'fa-display', 'description' => 'Nous concevons et déployons des solutions numériques adaptées à vos besoins.', 'objective' => 'Rendre la technologie accessible et durable.', 'image' => 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop', 'features' => ['Digitalisation des services publics', 'E-administration', 'Outils de gestion', 'Tableaux de bord décisionnels']],
+        ['title' => 'Développement d\'applications', 'icon' => 'fa-mobile-screen-button', 'description' => 'Nous créons des plateformes et applications sur mesure.', 'objective' => 'Concevoir des solutions sur mesure, scalables et sécurisées.', 'image' => 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=600&fit=crop', 'features' => ['Applications mobiles', 'Plateformes web', 'Systèmes d\'information sectoriels', 'Outils SaaS']],
+        ['title' => 'Gestion de projet & assistance technique', 'icon' => 'fa-clipboard-check', 'description' => 'Nous mettons à disposition des experts pour garantir le succès de vos projets.', 'objective' => 'Garantir la réussite de chaque projet.', 'image' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop', 'features' => ['Gestion de projet', 'Pilotage stratégique', 'Suivi-évaluation', 'Coordination multisectorielle']],
+        ['title' => 'Formation & renforcement des capacités', 'icon' => 'fa-graduation-cap', 'description' => 'Nous proposons des formations professionnelles adaptées.', 'objective' => 'Renforcer l\'employabilité des jeunes et cadres locaux.', 'image' => 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&h=600&fit=crop', 'features' => ['Gestion de projet (classique & agile)', 'Outils numériques', 'Data & intelligence décisionnelle', 'Leadership et innovation']],
     ];
 }
 
@@ -116,9 +118,41 @@ function content_solutions_seed(): array
 function content_team_seed(): array
 {
     return [
-        ['name' => 'Emmanuel Foka Ziegoube', 'title' => 'Fondateur & PDG', 'bio' => 'Ingénieur en génie logiciel et expert en transformation digitale.'],
-        ['name' => 'Tatinou Hervé', 'title' => 'Senior UI/UX Designer', 'bio' => 'Conception d\'interfaces intuitives et d\'expériences produit performantes.'],
-        ['name' => 'Halimatou Sadia Ahmadou', 'title' => 'Lead Project Manager', 'bio' => 'Coordination stratégique et pilotage opérationnel de projets complexes.'],
+        [
+            'name' => 'Emmanuel Foka Ziegoube',
+            'title' => 'Fondateur & PDG',
+            'bio' => 'Ingénieur en génie logiciel | Lauréat CASAM-INOV, PNUD, ECAM Expert en transformation digitale et innovation sociale.',
+            'image' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
+            'specialties' => ['Stratégie', 'Innovation', 'Leadership'],
+        ],
+        [
+            'name' => 'Tatinou Hervé',
+            'title' => 'Senior UI/UX Designer',
+            'bio' => 'Senior UI/UX Designer, Tatinou Hervé conçoit des expériences digitales centrées utilisateur, alliant esthétique, ergonomie et performance produit. Il excelle dans la création d\'interfaces intuitives et évolutives pour des produits à fort impact.',
+            'image' => 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
+            'specialties' => ['UI/UX Design', 'Product Design', 'Recherche utilisateur', 'Wireframing & prototypage', 'Design systems', 'Mobile-first'],
+        ],
+        [
+            'name' => 'Halimatou Sadia Ahmadou',
+            'title' => 'Lead Project Manager',
+            'bio' => 'Experte en gestion de projets | Coordination stratégique | Pilotage opérationnel. Pilote des projets complexes avec une approche structurée, orientée performance et collaboration. Elle excelle dans la coordination d\'équipes, le suivi des livrables et l\'alignement des projets avec les objectifs stratégiques.',
+            'image' => 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop',
+            'specialties' => ['Gestion de projets', 'Planification stratégique', 'Coordination d\'équipes', 'Suivi-évaluation', 'Agile et classique'],
+        ],
+        [
+            'name' => 'Marie Tagne',
+            'title' => 'Lead Developer Mobile',
+            'bio' => 'Développeuse mobile spécialisée en React Native et Flutter avec passion pour l\'innovation.',
+            'image' => 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop',
+            'specialties' => ['Mobile', 'React Native', 'UX'],
+        ],
+        [
+            'name' => 'Pierre Bouvier',
+            'title' => 'Expert Data & Analytics',
+            'bio' => 'Data scientist avec spécialisation en intelligence décisionnelle et machine learning.',
+            'image' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
+            'specialties' => ['Data Science', 'BI', 'Machine Learning'],
+        ],
     ];
 }
 

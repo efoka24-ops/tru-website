@@ -169,6 +169,28 @@ a { color: inherit; text-decoration: none; }
   font-family: 'Space Grotesk', sans-serif;
 }
 
+.section-subtitle {
+  margin-top: -0.6rem;
+  margin-bottom: 1.8rem;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.section-dark .section-subtitle { color: #9fb0c8; }
+
+.section-cta {
+  background: linear-gradient(120deg, var(--primary), #2cc974);
+  text-align: center;
+}
+
+.section-cta h2 { color: #fff; }
+.section-cta p { color: rgba(255,255,255,0.92); margin-bottom: 1.6rem; }
+
+.btn-dark {
+  background: var(--dark);
+  color: #fff;
+}
+
 .cards {
   display: grid;
   gap: 1rem;
@@ -252,12 +274,23 @@ a { color: inherit; text-decoration: none; }
   flex-wrap: wrap;
 }
 
-.card ul {
+.card ul,
+.checklist {
   margin: 0.6rem 0 0;
   padding: 0;
   list-style: none;
   display: grid;
   gap: 0.4rem;
+}
+
+.checklist {
+  margin-top: 1.2rem;
+  color: var(--muted);
+}
+
+.checklist i {
+  color: var(--primary);
+  margin-right: 0.5rem;
 }
 
 .card ul li i {

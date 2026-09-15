@@ -7,8 +7,8 @@ $preselectJobId = (int)($_GET['job_id'] ?? 0);
 ?>
 <section class="hero hero-small">
     <div class="container hero-content">
-        <h1>Carrières</h1>
-        <p>Rejoignez notre équipe et contribuez à l'innovation digitale en Afrique.</p>
+        <h1>Rejoignez notre équipe</h1>
+        <p>Découvrez les opportunités de carrière chez TRU GROUP.</p>
     </div>
 </section>
 

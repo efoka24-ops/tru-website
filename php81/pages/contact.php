@@ -4,8 +4,8 @@ $error = $_GET['error'] ?? '';
 ?>
 <section class="hero hero-small">
     <div class="container hero-content">
-        <h1>Contact</h1>
-        <p>Parlons de vos besoins et de votre projet.</p>
+        <h1>Nous Contacter</h1>
+        <p>Vous avez une question ? Contactez-nous et nous vous répondrons rapidement.</p>
     </div>
 </section>
 

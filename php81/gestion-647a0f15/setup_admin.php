@@ -8,7 +8,7 @@ $pdo = db();
 $existing = (int)$pdo->query('SELECT COUNT(*) FROM admin_users')->fetchColumn();
 
 if ($existing > 0) {
-    admin_head('Configuration');
+    admin_head('Configuration', true);
     ?>
     <div class="card" style="margin: 60px auto;">
         <p class="alert error">Un compte administrateur existe déjà. Cette page de configuration initiale est désactivée.</p>
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare('INSERT INTO admin_users (username, password_hash, created_at) VALUES (:u, :h, NOW())');
         $stmt->execute([':u' => $username, ':h' => password_hash($password, PASSWORD_BCRYPT)]);
 
-        admin_head('Configuration');
+        admin_head('Configuration', true);
         ?>
         <div class="card" style="margin: 60px auto;">
             <p class="alert success">Compte administrateur créé avec succès.</p>
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-admin_head('Configuration initiale');
+admin_head('Configuration initiale', true);
 ?>
 <div class="card" style="margin: 60px auto;">
     <h2>Créer le compte administrateur</h2>

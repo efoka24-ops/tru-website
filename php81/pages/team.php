@@ -2,7 +2,7 @@
 <section class="hero hero-small">
     <div class="container hero-content">
         <h1>Notre Équipe</h1>
-        <p>Une équipe pluridisciplinaire passionnée par l'innovation et le développement.</p>
+        <p>Une équipe pluridisciplinaire d'experts passionnés par l'innovation et le développement de l'Afrique.</p>
     </div>
 </section>
 
