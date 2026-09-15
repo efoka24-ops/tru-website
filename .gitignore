@@ -29,6 +29,12 @@ dist-ssr
 .env.*.local
 .env.production.local
 
+# PHP back-office: secrets and user uploads, never committed
+php81/includes/config.php
+php81/uploads/*
+!php81/uploads/.htaccess
+!php81/uploads/cv/.gitkeep
+
 # Backend data (local changes, don't commit)
 # Users can modify this locally but it won't be tracked
 backend/data.json
