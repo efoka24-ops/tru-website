@@ -104,6 +104,61 @@ function content_seed_if_empty(): void
     }
 }
 
+/**
+ * Migrations de contenu (une seule fois chacune) : ajoutent du contenu a une
+ * base deja remplie. Une migration appliquee n'est jamais rejouee, meme si
+ * l'admin supprime ensuite l'element depuis le back-office.
+ */
+function content_run_migrations(): void
+{
+    $pdo = db();
+    $pdo->exec('CREATE TABLE IF NOT EXISTS content_migrations (name VARCHAR(190) NOT NULL, applied_at DATETIME NOT NULL, PRIMARY KEY (name)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+    $applied = $pdo->query('SELECT name FROM content_migrations')->fetchAll(PDO::FETCH_COLUMN);
+
+    $migrations = [
+        '2026_10_add_service_communication_digitale' => static fn() => content_ensure_service('Communication digitale'),
+    ];
+
+    foreach ($migrations as $name => $migration) {
+        if (in_array($name, $applied, true)) {
+            continue;
+        }
+        $migration();
+        $pdo->prepare('INSERT IGNORE INTO content_migrations (name, applied_at) VALUES (:name, NOW())')->execute([':name' => $name]);
+    }
+}
+
+/**
+ * Insere le service du seed portant ce titre s'il n'existe pas encore,
+ * a sa position du seed (les services suivants sont decales).
+ */
+function content_ensure_service(string $title): void
+{
+    $pdo = db();
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM services WHERE title = :title');
+    $stmt->execute([':title' => $title]);
+    if ((int)$stmt->fetchColumn() > 0) {
+        return;
+    }
+
+    foreach (content_services_seed() as $i => $row) {
+        if ($row['title'] !== $title) {
+            continue;
+        }
+        $pdo->prepare('UPDATE services SET sort_order = sort_order + 1 WHERE sort_order >= :pos')->execute([':pos' => $i]);
+        $pdo->prepare('INSERT INTO services (title, icon, description, objective, image_url, features_json, sort_order, created_at, updated_at) VALUES (:title, :icon, :description, :objective, :image_url, :features_json, :sort_order, NOW(), NOW())')->execute([
+            ':title' => $row['title'],
+            ':icon' => $row['icon'],
+            ':description' => $row['description'],
+            ':objective' => $row['objective'] ?? '',
+            ':image_url' => $row['image'] ?? '',
+            ':features_json' => json_encode($row['features'], JSON_UNESCAPED_UNICODE),
+            ':sort_order' => $i,
+        ]);
+        return;
+    }
+}
+
 function content_services_seed(): array
 {
     return [
@@ -111,6 +166,7 @@ function content_services_seed(): array
         ['title' => 'Transformation digitale', 'icon' => 'fa-display', 'description' => 'Nous concevons et déployons des solutions numériques adaptées à vos besoins.', 'objective' => 'Rendre la technologie accessible et durable.', 'image' => 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop', 'features' => ['Digitalisation des services publics', 'E-administration', 'Outils de gestion', 'Tableaux de bord décisionnels']],
         ['title' => 'Développement d\'applications', 'icon' => 'fa-mobile-screen-button', 'description' => 'Nous créons des plateformes et applications sur mesure.', 'objective' => 'Concevoir des solutions sur mesure, scalables et sécurisées.', 'image' => 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=600&fit=crop', 'features' => ['Applications mobiles', 'Plateformes web', 'Systèmes d\'information sectoriels', 'Outils SaaS']],
         ['title' => 'Gestion de projet & assistance technique', 'icon' => 'fa-clipboard-check', 'description' => 'Nous mettons à disposition des experts pour garantir le succès de vos projets.', 'objective' => 'Garantir la réussite de chaque projet.', 'image' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop', 'features' => ['Gestion de projet', 'Pilotage stratégique', 'Suivi-évaluation', 'Coordination multisectorielle']],
+        ['title' => 'Communication digitale', 'icon' => 'fa-bullhorn', 'description' => 'Nous accompagnons les entreprises dans la construction et l\'animation de leur présence en ligne.', 'objective' => 'Accroître la visibilité, la notoriété et l\'acquisition de clients de nos partenaires.', 'image' => 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&h=600&fit=crop', 'features' => ['Stratégie de communication digitale', 'Gestion des réseaux sociaux (community management)', 'Création de contenus (visuels, vidéos, rédaction)', 'Campagnes publicitaires en ligne (Meta, Google)', 'Création et refonte de sites web vitrines', 'Référencement (SEO) et e-réputation', 'Identité visuelle et branding', 'Reporting et analyse des performances']],
         ['title' => 'Formation & renforcement des capacités', 'icon' => 'fa-graduation-cap', 'description' => 'Nous proposons des formations professionnelles adaptées.', 'objective' => 'Renforcer l\'employabilité des jeunes et cadres locaux.', 'image' => 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&h=600&fit=crop', 'features' => ['Gestion de projet (classique & agile)', 'Outils numériques', 'Data & intelligence décisionnelle', 'Leadership et innovation']],
     ];
 }

@@ -6,6 +6,7 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/content.php';
 
 content_seed_if_empty();
+content_run_migrations();
 
 $services = array_map(static function (array $row): array {
     return [

@@ -23,6 +23,13 @@ de gestion de contenu et notifications WhatsApp.
    se désactive automatiquement dès qu'un compte existe.
 5. Se connecter sur `https://trugroup.cm/gestion-647a0f15/login.php`.
 
+## Migrations de contenu
+Pour ajouter du contenu à une base déjà en production (ex. un nouveau service),
+ajoutez une entrée dans `content_run_migrations()` (`includes/content.php`).
+Elle s'exécute automatiquement une seule fois au prochain chargement d'une page
+(suivi dans la table `content_migrations`, créée automatiquement) : aucun import
+SQL manuel n'est nécessaire.
+
 ## WhatsApp (wapi.mana.cm)
 Dans `includes/config.php`, renseigner :
 - `WAPI_API_KEY` : votre clé API si `API_KEY` est définie côté wapi

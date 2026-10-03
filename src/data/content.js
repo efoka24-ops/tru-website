@@ -85,6 +85,25 @@ export const services = [
     image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop'
   },
   {
+    id: 6,
+    icon: 'Megaphone',
+    title: 'Communication digitale',
+    description: 'Nous accompagnons les entreprises dans la construction et l\'animation de leur présence en ligne.',
+    features: [
+      'Stratégie de communication digitale',
+      'Gestion des réseaux sociaux (community management)',
+      'Création de contenus (visuels, vidéos, rédaction)',
+      'Campagnes publicitaires en ligne (Meta, Google)',
+      'Création et refonte de sites web vitrines',
+      'Référencement (SEO) et e-réputation',
+      'Identité visuelle et branding',
+      'Reporting et analyse des performances'
+    ],
+    objective: 'Accroître la visibilité, la notoriété et l\'acquisition de clients de nos partenaires.',
+    color: 'from-orange-500 to-amber-600',
+    image: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&h=600&fit=crop'
+  },
+  {
     id: 5,
     icon: 'GraduationCap',
     title: 'Formation & renforcement des capacités',
