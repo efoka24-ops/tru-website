@@ -6,7 +6,10 @@
     </div>
 </section>
 
+<?php require __DIR__ . '/../includes/partials_references.php'; ?>
+
 <section class="section container">
+    <h2>Nos solutions IoT</h2>
     <div class="cards three">
         <article class="card">
             <i class="fa-solid fa-cow"></i>

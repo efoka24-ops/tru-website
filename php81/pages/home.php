@@ -51,14 +51,14 @@
             <p>Applications sur mesure</p>
         </article>
         <article class="card">
-            <i class="fa-solid fa-sparkles"></i>
-            <h3>Télémédecine vétérinaire</h3>
-            <p>MokineVeto pour les éleveurs</p>
+            <i class="fa-solid fa-bullhorn"></i>
+            <h3>Communication digitale</h3>
+            <p>Réseaux sociaux, contenus, campagnes et visibilité en ligne</p>
         </article>
         <article class="card">
             <i class="fa-solid fa-globe"></i>
-            <h3>Traçabilité &amp; IoT</h3>
-            <p>Mokine et MokineKid</p>
+            <h3>AgriTech &amp; IoT</h3>
+            <p>MokineVeto, Mokine et MokineKid</p>
         </article>
         <article class="card">
             <i class="fa-solid fa-graduation-cap"></i>
@@ -67,6 +67,8 @@
         </article>
     </div>
 </section>
+
+<?php require __DIR__ . '/../includes/partials_references.php'; ?>
 
 <section class="section section-dark">
     <div class="container">

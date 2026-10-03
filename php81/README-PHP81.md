@@ -23,6 +23,13 @@ de gestion de contenu et notifications WhatsApp.
    se désactive automatiquement dès qu'un compte existe.
 5. Se connecter sur `https://trugroup.cm/gestion-647a0f15/login.php`.
 
+## Partenaires et produits
+Liste éditable dans `includes/references.php` (affichée sur l'accueil et la page
+Projets). Pour afficher un logo, déposez-le dans `assets/img/partners/` nommé
+d'après le slug du partenaire : `gazelle-fa-garoua`, `coton-sport-garoua`,
+`universite-garoua`, `weey-energies-eaux` (extension .png, .jpg, .webp ou .svg).
+Sans logo, un badge avec les initiales s'affiche.
+
 ## Migrations de contenu
 Pour ajouter du contenu à une base déjà en production (ex. un nouveau service),
 ajoutez une entrée dans `content_run_migrations()` (`includes/content.php`).
