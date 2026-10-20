@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Back-office recrutement - Orange RCA (démonstration)</title>
+<style>
+:root{--or:#FF7900;--ink:#000;--txt:#333;--mut:#666;--line:#ddd;--soft:#f4f4f4;--blue:#0C66C2;--ok:#1f8a1f;--err:#cd3c14}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;color:var(--txt);background:var(--soft)}
+a{color:var(--blue);cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}
+button{font:inherit;cursor:pointer}
+.demo{background:var(--or);color:#000;font-size:13px;font-weight:700;text-align:center;padding:6px 16px}
+header{background:#000;color:#fff}
+.hd{max-width:1280px;margin:auto;padding:0 16px;display:flex;align-items:center;gap:14px;min-height:64px;flex-wrap:wrap}
+.logo{width:42px;height:42px;background:var(--or);display:flex;align-items:flex-end;padding:4px;font-weight:700;font-size:11px}
+.hd b{font-size:17px}.hd .sp{flex:1}.hd .who{font-size:13px;color:#ccc}
+.hd button{background:none;border:1px solid #fff;color:#fff;padding:5px 10px}
+nav{background:#fff;border-bottom:1px solid var(--line)}
+nav div{max-width:1280px;margin:auto;padding:0 16px;display:flex;flex-wrap:wrap}
+nav a{padding:13px 16px;color:#000;font-weight:700;border-bottom:3px solid transparent}
+nav a.on{border-color:var(--or);color:var(--or);text-decoration:none}
+main{max-width:1280px;margin:auto;padding:20px 16px 40px}
+.card{background:#fff;border:1px solid var(--line);padding:18px;margin-bottom:16px}
+h2{font-size:19px;color:#000;margin:0 0 14px}h3{font-size:15px;color:#000;margin:16px 0 8px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-top:4px solid var(--or);padding:14px}
+.kpi .v{font-size:26px;font-weight:700;color:#000}.kpi .l{color:var(--mut);font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;background:#000;color:#fff;padding:8px 10px;font-weight:600;white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.click{cursor:pointer}tr.click:hover td{background:#fff8f1}
+.scroll{overflow-x:auto}
+.sub{color:var(--mut);font-size:12px}
+.pill{display:inline-block;padding:2px 8px;font-size:12px;font-weight:700;background:#eee;color:#333;white-space:nowrap}
+.p-recue{background:#e8f0fe;color:#1a4fa0}.p-examen{background:#fff3e6;color:#a35200}.p-preselection{background:#efe7fd;color:#5b2bb3}
+.p-entretien{background:#e0f2f1;color:#00695c}.p-retenue{background:#e6f6e6;color:var(--ok)}.p-non_retenue{background:#fdecea;color:var(--err)}
+.p-published{background:#e6f6e6;color:var(--ok)}.p-draft{background:#eee;color:#555}.p-closed{background:#fdecea;color:var(--err)}
+.btn{background:var(--or);border:0;padding:9px 16px;font-weight:700;color:#000}
+.btn.sec{background:#fff;border:2px solid #000;padding:7px 14px}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn.danger{border-color:var(--err);color:var(--err)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+label{display:block;font-weight:700;margin-bottom:4px;color:#000;font-size:13px}
+input,select,textarea{width:100%;padding:8px 9px;border:1px solid #bbb;font:inherit;background:#fff}
+.filters input,.filters select{width:auto;min-width:180px}
+textarea{min-height:90px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--or);outline-offset:-1px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:0 16px}
+.f{margin-bottom:12px}
+.split{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+dl{display:grid;grid-template-columns:170px 1fr;gap:6px 12px;margin:0}dt{font-weight:700;color:#000}dd{margin:0}
+.chk label{font-weight:400;display:flex;gap:6px;align-items:center}
+.chk input{width:auto}
+.hist{border-left:3px solid var(--or);padding-left:10px;margin:8px 0}
+.flash{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#000;color:#fff;padding:10px 16px;z-index:9;max-width:90vw;display:none}
+.flash.err{background:var(--err)}
+.empty{padding:20px;text-align:center;color:var(--mut)}
+.secret{background:#fff3e6;border:1px solid var(--or);padding:12px;margin-top:10px;word-break:break-all}
+#login{max-width:420px;margin:8vh auto}
+[hidden]{display:none!important}
+@media(max-width:900px){.split,.grid2,.grid3{grid-template-columns:1fr}dl{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="demo">Environnement de démonstration — back-office recrutement</div>
+<header><div class="hd"><div class="logo">orange</div><b>Carrières RCA · Recrutement</b><span class="sp"></span><span class="who" id="who"></span><button id="logout" hidden>Déconnexion</button></div></header>
+<nav id="nav" hidden><div>
+ <a data-t="dashboard">Tableau de bord</a><a data-t="jobs">Offres</a><a data-t="apps">Candidatures</a><a data-t="candidates">Candidats</a>
+ <a data-t="coopt">Cooptations</a><a data-t="messages">Messages</a><a data-t="team" id="navTeam">Recruteurs</a><a data-t="account">Mon compte</a>
+</div></nav>
+
+<main>
+ <form class="card" id="login" hidden>
+  <h2>Connexion recruteur</h2>
+  <div class="f"><label for="le">Adresse électronique</label><input id="le" type="email" required autocomplete="username"></div>
+  <div class="f"><label for="lp">Mot de passe</label><input id="lp" type="password" required autocomplete="current-password"></div>
+  <button class="btn" type="submit">Se connecter</button>
+  <p class="sub"><a href="./">← Retour au site candidat</a></p>
+ </form>
+ <div id="view"></div>
+</main>
+<div class="flash" id="flash"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dt = v => v ? new Date(v.length === 10 ? v + "T12:00:00Z" : v).toLocaleString("fr-FR", {day: "2-digit", month: "short", year: "numeric", ...(v.length > 10 ? {hour: "2-digit", minute: "2-digit"} : {})}) : "—";
+const REVIEW = {recue: "Reçue", examen: "En cours d'examen", preselection: "Présélectionnée", entretien: "Entretien planifié", retenue: "Retenue", non_retenue: "Non retenue"};
+const JOBST = {draft: "Brouillon", published: "Publiée", closed: "Clôturée"};
+const EDU = ["Aucun", "BAC", "BAC+1, BP, BT", "BAC+2, BTS, DUT", "Programme non sanctionné par un diplôme", "BAC+3, Licence", "BAC+4/BAC+5, Master", "BAC+8, Doctorat", "BAC+9 et +", "Autre"];
+let ME = null, tab = "dashboard", ctx = {};
+
+function flash(m, err) { const f = $("#flash"); f.textContent = m; f.className = "flash" + (err ? " err" : ""); f.style.display = "block"; clearTimeout(flash.t); flash.t = setTimeout(() => f.style.display = "none", 4500); }
+async function api(path, body) {
+  const init = {method: body === undefined ? "GET" : "POST", headers: {"X-Requested-With": "fetch", "Accept": "application/json"}, credentials: "same-origin"};
+  if (body !== undefined) { init.headers["Content-Type"] = "application/json"; init.body = JSON.stringify(body); }
+  const res = await fetch("api/admin/" + path, init);
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401 && ME) { ME = null; show(); }
+  if (!res.ok) throw new Error(data.error ? data.error.message : "Erreur " + res.status);
+  return data;
+}
+const guard = fn => async (...a) => { try { await fn(...a); } catch (e) { flash(e.message, true); } };
+const pill = s => `<span class="pill p-${esc(s)}">${esc(REVIEW[s] || JOBST[s] || s)}</span>`;
+
+// ─── Vues ───────────────────────────────────────────────────────────────
+const V = {
+  async dashboard() {
+    const d = await api("dashboard");
+    const k = (v, l) => `<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`;
+    return `<div class="kpis">${k(d.jobsPublished, "Offres publiées")}${k(d.submitted, "Candidatures reçues")}${k(d.submitted7d, "Reçues sur 7 jours")}${k(d.candidates, "Comptes candidats")}${k(d.drafts, "Brouillons en cours")}${k(d.mailFailures7d, "Courriels en échec (7 j)")}</div>
+    <div class="card"><h2>Pipeline</h2><div class="kpis" style="margin:0">${Object.entries(d.byStatus).map(([s, n]) => `<div class="kpi" style="border-top-color:#000"><div class="v">${n}</div><div class="l">${pill(s)}</div></div>`).join("")}</div></div>
+    <div class="card"><h2>Dernières candidatures</h2>${d.latest.length ? `<div class="scroll"><table><tr><th>Candidat</th><th>Poste</th><th>Statut</th><th>Reçue</th></tr>
+      ${d.latest.map(a => `<tr class="click" data-app="${esc(a.id)}"><td><b>${esc(a.name)}</b></td><td>${esc(a.job)} <span class="sub">${esc(a.ref)}</span></td><td>${pill(a.reviewStatus)}</td><td>${dt(a.submittedAt)}</td></tr>`).join("")}</table></div>` : '<p class="empty">Aucune candidature pour l\'instant.</p>'}</div>`;
+  },
+
+  async jobs() {
+    if (ctx.editJob !== undefined) return jobForm(ctx.editJob);
+    const d = await api("jobs"); ctx.jobs = d.items;
+    return `<div class="card"><div class="bar" style="margin:0 0 12px;justify-content:space-between"><h2 style="margin:0">Offres</h2><button class="btn" data-act="newJob">+ Nouvelle offre</button></div>
+    <div class="scroll"><table><tr><th>Réf.</th><th>Intitulé</th><th>Lieu</th><th>Contrat</th><th>Statut</th><th>Publication</th><th>Candidatures</th><th></th></tr>
+    ${d.items.map(j => `<tr><td class="sub">${esc(j.ref)}</td><td><b>${esc(j.title)}</b>${j.urgent ? ' <span class="pill p-non_retenue">urgent</span>' : ""}<div class="sub">${esc(j.org)}</div></td>
+      <td>${esc(j.location)}</td><td>${esc(j.contract)}</td><td>${pill(j.status)}${j.status === "published" && !j.visible ? '<div class="sub">hors période</div>' : ""}</td>
+      <td class="sub">${dt(j.publishedAt)}<br>→ ${dt(j.unpublishAt)}</td>
+      <td>${j.applications ? `<a data-filterjob="${esc(j.id)}">${j.applications} reçue(s)</a>` : "0"}${j.drafts ? `<div class="sub">${j.drafts} brouillon(s)</div>` : ""}</td>
+      <td><div class="bar" style="margin:0"><button class="btn sec sm" data-edit="${esc(j.id)}">Modifier</button>
+        ${j.status !== "published" ? `<button class="btn sm" data-status="published" data-id="${esc(j.id)}">Publier</button>` : `<button class="btn sec sm danger" data-status="closed" data-id="${esc(j.id)}">Clôturer</button>`}</div></td></tr>`).join("")}
+    </table></div></div>`;
+  },
+
+  async apps() {
+    if (ctx.app) return appDetail(ctx.app);
+    const q = new URLSearchParams(Object.fromEntries(Object.entries(ctx.af || {}).filter(([, v]) => v)));
+    const [d, jobs] = await Promise.all([api("applications?" + q), ctx.jobs ? {items: ctx.jobs} : api("jobs")]);
+    ctx.jobs = jobs.items; const f = ctx.af || {};
+    return `<div class="card"><h2>Candidatures</h2>
+    <div class="filters"><select data-af="job"><option value="">Toutes les offres</option>${jobs.items.map(j => `<option value="${esc(j.id)}" ${f.job === j.id ? "selected" : ""}>${esc(j.ref)} — ${esc(j.title)}</option>`).join("")}</select>
+      <select data-af="status"><option value="">Tous les statuts</option>${Object.entries(REVIEW).map(([k, v]) => `<option value="${k}" ${f.status === k ? "selected" : ""}>${v}</option>`).join("")}</select>
+      <input data-af="q" placeholder="Nom, e-mail…" value="${esc(f.q || "")}"><button class="btn sec sm" data-act="refresh">Filtrer</button></div>
+    ${d.items.length ? `<div class="scroll"><table><tr><th>Candidat</th><th>Poste</th><th>Ville</th><th>Expérience</th><th>CV</th><th>Statut</th><th>Reçue</th></tr>
+    ${d.items.map(a => `<tr class="click" data-app="${esc(a.id)}"><td><b>${esc(a.name)}</b><div class="sub">${esc(a.email)} · ${esc(a.phone)}</div></td><td>${esc(a.job)}<div class="sub">${esc(a.ref)}</div></td>
+      <td>${esc(a.city)}</td><td>${esc(a.experience)}</td><td>${a.cv ? "✓" : "—"}</td><td>${pill(a.reviewStatus)}</td><td>${dt(a.submittedAt)}</td></tr>`).join("")}</table></div>` : '<p class="empty">Aucune candidature ne correspond.</p>'}</div>`;
+  },
+
+  async candidates() {
+    const d = await api("candidates");
+    return `<div class="card"><h2>Comptes candidats (${d.items.length})</h2><div class="scroll"><table><tr><th>Utilisateur</th><th>E-mail</th><th>Téléphone</th><th>Candidatures</th><th>Inscrit</th><th>Dernière connexion</th></tr>
+    ${d.items.map(u => `<tr><td><b>${esc(u.username)}</b></td><td>${esc(u.email)}</td><td>${esc(u.phone || "—")}${u.phoneVerified ? ' <span class="pill p-retenue">vérifié</span>' : ""}</td>
+      <td>${u.submitted} soumise(s)${u.drafts ? `<div class="sub">${u.drafts} brouillon(s)</div>` : ""}</td><td>${dt(u.createdAt)}</td><td>${dt(u.lastLoginAt)}</td></tr>`).join("") || '<tr><td colspan="6" class="empty">Aucun candidat.</td></tr>'}</table></div></div>`;
+  },
+
+  async coopt() {
+    const d = await api("cooptations");
+    return `<div class="card"><h2>Cooptations</h2><div class="scroll"><table><tr><th>Recommandé</th><th>Par</th><th>Poste</th><th>Courriel</th><th>Date</th></tr>
+    ${d.items.map(c => `<tr><td><b>${esc(c.name)}</b><div class="sub">${esc(c.email)}</div></td><td>${esc(c.by)}</td><td>${esc(c.job)} <span class="sub">${esc(c.ref)}</span></td><td>${c.mailed ? "envoyé" : '<span style="color:var(--err)">échec</span>'}</td><td>${dt(c.createdAt)}</td></tr>`).join("") || '<tr><td colspan="5" class="empty">Aucune cooptation.</td></tr>'}</table></div></div>`;
+  },
+
+  async messages() {
+    const d = await api("messages");
+    return `<div class="card"><h2>Courriels envoyés</h2>
+    <p class="sub">Envoi par ${d.smtp ? "<b>SMTP authentifié</b>" : "<b>mail() de l'hébergeur</b> (souvent classé en spam : configurez SMTP_HOST pour fiabiliser)"} · SMS ${d.sms ? "via teeeotp (mobiles camerounais)" : "non configurés"}.</p>
+    <div class="scroll"><table><tr><th>Date</th><th>Destinataire</th><th>Objet</th><th>Type</th><th>Résultat</th></tr>
+    ${d.items.map(m => `<tr><td>${dt(m.at)}</td><td>${esc(m.to)}</td><td>${esc(m.subject)}</td><td class="sub">${esc(m.kind)}</td><td>${m.ok ? `<span class="pill p-retenue">accepté (${esc(m.via)})</span>` : `<span class="pill p-non_retenue">échec</span><div class="sub">${esc(m.error || "")}</div>`}</td></tr>`).join("") || '<tr><td colspan="5" class="empty">Aucun courriel.</td></tr>'}</table></div></div>`;
+  },
+
+  async team() {
+    const d = await api("recruiters");
+    return `<div class="card"><h2>Recruteurs</h2><div class="scroll"><table><tr><th>Nom</th><th>E-mail</th><th>Rôle</th><th>Dernière connexion</th><th></th></tr>
+    ${d.items.map(r => `<tr><td><b>${esc(r.name)}</b></td><td>${esc(r.email)}</td><td>${r.role === "admin" ? "Administrateur" : "Recruteur"}</td><td>${dt(r.lastLoginAt)}</td>
+      <td>${r.email === ME.email ? "" : `<button class="btn sec sm ${r.active ? "danger" : ""}" data-rec="${esc(r.id)}" data-active="${r.active ? 0 : 1}">${r.active ? "Désactiver" : "Réactiver"}</button>`}</td></tr>`).join("")}</table></div>
+    <h3>Ajouter un recruteur</h3><form id="fRec" class="grid3"><div class="f"><label>Nom</label><input name="name" required></div><div class="f"><label>E-mail</label><input name="email" type="email" required></div>
+    <div class="f"><label>Rôle</label><select name="role"><option value="recruiter">Recruteur</option><option value="admin">Administrateur</option></select></div><div><button class="btn" type="submit">Créer le compte</button></div></form><div id="recOut"></div></div>`;
+  },
+
+  async account() {
+    return `<div class="card" style="max-width:520px"><h2>Mon compte</h2><dl><dt>Nom</dt><dd>${esc(ME.name)}</dd><dt>E-mail</dt><dd>${esc(ME.email)}</dd><dt>Rôle</dt><dd>${ME.role === "admin" ? "Administrateur" : "Recruteur"}</dd></dl>
+    <h3>Changer le mot de passe</h3><form id="fPw"><div class="f"><label>Mot de passe actuel</label><input name="current" type="password" required autocomplete="current-password"></div>
+    <div class="f"><label>Nouveau mot de passe</label><input name="password" type="password" required autocomplete="new-password"><div class="sub">8 caractères minimum, une majuscule, un chiffre, un caractère spécial.</div></div><button class="btn" type="submit">Enregistrer</button></form></div>`;
+  },
+};
+
+function jobForm(id) {
+  const j = id ? ctx.jobs.find(x => x.id === id) : {contract: "CDI", education: "BAC+3, Licence", schedule: "Temps plein", location: "Bangui", missionsText: "", requirementsText: "", offer: "Un environnement stimulant au sein du groupe Orange, des parcours de formation et une rémunération attractive."};
+  const i = (n, l, v, t = "text", extra = "") => `<div class="f"><label>${l}</label><input name="${n}" type="${t}" value="${esc(v)}" ${extra}></div>`;
+  return `<div class="card"><h2>${id ? "Modifier l'offre " + esc(j.ref) : "Nouvelle offre"}</h2><form id="fJob">
+  <div class="grid2">${i("title", "Intitulé *", j.title, "text", "required maxlength=160")}${i("org", "Organisation *", j.org, "text", "required maxlength=120")}</div>
+  <div class="grid3">${i("location", "Lieu *", j.location, "text", "required maxlength=80")}${i("domain", "Domaine d'activité *", j.domain, "text", "required maxlength=80")}
+   <div class="f"><label>Type de contrat</label><select name="contract">${["CDI", "CDD", "Stage"].map(c => `<option ${j.contract === c ? "selected" : ""}>${c}</option>`).join("")}</select></div></div>
+  <div class="grid3"><div class="f"><label>Niveau d'études</label><select name="education">${EDU.map(c => `<option ${j.education === c ? "selected" : ""}>${c}</option>`).join("")}</select></div>
+   ${i("publishedAt", "Date de publication", j.publishedAt || "", "date")}${i("unpublishAt", "Date de dépublication", j.unpublishAt || "", "date")}</div>
+  <div class="grid2">${i("schedule", "Horaire", j.schedule, "text", "maxlength=40")}<div class="f chk"><label style="margin-top:22px"><input type="checkbox" name="urgent" ${j.urgent ? "checked" : ""}> Poste à pourvoir d'urgence</label></div></div>
+  <div class="f"><label>Résumé du poste *</label><textarea name="summary" required maxlength="500">${esc(j.summary)}</textarea></div>
+  <div class="grid2"><div class="f"><label>Missions principales (une par ligne)</label><textarea name="missions">${esc(j.missionsText)}</textarea></div>
+   <div class="f"><label>Profil recherché (un critère par ligne)</label><textarea name="requirements">${esc(j.requirementsText)}</textarea></div></div>
+  <div class="f"><label>Ce que nous offrons</label><textarea name="offer" maxlength="3000">${esc(j.offer)}</textarea></div>
+  <div class="bar"><button class="btn" type="submit">${id ? "Enregistrer" : "Créer en brouillon"}</button><button class="btn sec" type="button" data-act="cancelJob">Annuler</button></div></form></div>`;
+}
+
+async function appDetail(id) {
+  const a = await api("applications/" + id); const d = a.data || {}, p = d.profile || {}, q = d.answers || {};
+  const KIND = {cv: "CV", letter: "Lettre de motivation", other: "Document"};
+  return `<p><button class="btn sec sm" data-act="back">← Retour aux candidatures</button></p>
+  <div class="split"><div>
+   <div class="card"><h2>${esc(p.fn)} ${esc(p.ln)}</h2><p class="sub" style="margin-top:-8px">${esc(a.job.title)} · ${esc(a.job.ref)} · reçue le ${dt(a.submittedAt)} ${a.status === "withdrawn" ? '· <b style="color:var(--err)">retirée par le candidat</b>' : ""}</p>
+    <dl><dt>E-mail</dt><dd>${esc(p.em)}</dd><dt>Téléphone</dt><dd>${esc(p.ph)}${a.account.phoneVerified ? ' <span class="pill p-retenue">compte vérifié</span>' : ""}</dd>
+     <dt>Adresse</dt><dd>${esc([p.ad, p.ci, p.co].filter(Boolean).join(", "))}</dd><dt>Date de naissance</dt><dd>${esc(p.bd || "—")}</dd>
+     <dt>Source</dt><dd>${esc(p.src || "—")}</dd><dt>Compte</dt><dd>${esc(a.account.username)} (${esc(a.account.email)})</dd></dl>
+    <h3>Formation</h3>${(d.edu || []).filter(e => e.s || e.g).map(e => `<p style="margin:4px 0"><b>${esc(e.g)}</b> ${esc(e.p)} — ${esc(e.s)} ${e.y ? "(" + esc(e.y) + ")" : ""}</p>`).join("") || '<p class="sub">—</p>'}
+    <h3>Expérience</h3>${(d.exp || []).filter(e => e.c || e.t).map(e => `<div style="margin:6px 0"><b>${esc(e.t)}</b> — ${esc(e.c)} <span class="sub">${esc(e.a)} → ${esc(e.z || "aujourd'hui")}</span>${e.r ? `<div class="sub" style="white-space:pre-wrap">${esc(e.r)}</div>` : ""}</div>`).join("") || '<p class="sub">—</p>'}
+    <h3>Questionnaire</h3><dl><dt>Expérience</dt><dd>${esc(q.q1)}</dd><dt>Disponibilité</dt><dd>${esc(q.q2)}</dd><dt>Mobilité en province</dt><dd>${esc(q.q3)}</dd><dt>Langues</dt><dd>${esc((q.langs || []).join(", "))}</dd></dl>
+    <h3>Pièces jointes</h3>${a.attachments.map(f => `<p style="margin:4px 0"><b>${KIND[f.kind]}</b> : <a href="files/${esc(f.id)}">${esc(f.name)}</a> <span class="sub">(${Math.ceil(f.size / 1024)} Ko)</span></p>`).join("") || '<p class="sub">Aucune.</p>'}
+    <p class="sub">Signée électroniquement par : <b>${esc(a.signedName)}</b></p>
+   </div></div>
+   <div><div class="card"><h2>Statut : ${pill(a.reviewStatus)}</h2>
+    ${a.status === "submitted" ? `<form id="fStatus"><div class="f"><label>Nouveau statut</label><select name="status">${Object.entries(REVIEW).map(([k, v]) => `<option value="${k}" ${a.reviewStatus === k ? "selected" : ""}>${v}</option>`).join("")}</select></div>
+     <div class="f"><label>Note interne (non envoyée)</label><textarea name="note" maxlength="1000"></textarea></div>
+     <div class="f chk"><label><input type="checkbox" name="notifyEmail" checked> Prévenir le candidat par courriel</label>
+      <label><input type="checkbox" name="notifySms" ${a.account.smsEligible ? "" : "disabled"}> Prévenir par SMS ${a.account.smsEligible ? "" : '<span class="sub">(téléphone non vérifié ou non camerounais)</span>'}</label></div>
+     <div class="f"><label>Message au candidat (facultatif, ajouté au courriel)</label><textarea name="message" maxlength="1000"></textarea></div>
+     <button class="btn" type="submit">Mettre à jour</button></form>` : '<p class="sub">Candidature retirée : statut figé.</p>'}
+    <h3>Historique</h3>${a.history.map(h => `<div class="hist"><b>${esc(h.label)}</b> <span class="sub">${dt(h.at)}${h.by ? " · " + esc(h.by) : ""}${h.notified ? " · prévenu par " + esc(h.notified) : ""}</span>${h.note ? `<div>${esc(h.note)}</div>` : ""}</div>`).join("")}
+   </div></div></div>`;
+}
+
+// ─── Navigation et actions ──────────────────────────────────────────────
+async function render() {
+  $$("#nav a").forEach(a => a.classList.toggle("on", a.dataset.t === tab));
+  $("#view").innerHTML = '<p class="empty">Chargement…</p>';
+  try { $("#view").innerHTML = await V[tab](); } catch (e) { $("#view").innerHTML = `<div class="card" style="color:var(--err)">${esc(e.message)}</div>`; }
+}
+function show() {
+  $("#login").hidden = !!ME; $("#nav").hidden = !ME; $("#logout").hidden = !ME; $("#view").hidden = !ME;
+  $("#who").textContent = ME ? `${ME.name} · ${ME.role === "admin" ? "administrateur" : "recruteur"}` : "";
+  $("#navTeam").hidden = !ME || ME.role !== "admin";
+  if (ME) render();
+}
+$("#nav").addEventListener("click", e => { const a = e.target.closest("a[data-t]"); if (!a) return; tab = a.dataset.t; ctx = {jobs: ctx.jobs}; render(); });
+$("#login").onsubmit = guard(async e => { e.preventDefault(); ME = (await api("login", {email: $("#le").value.trim(), password: $("#lp").value})).recruiter; $("#lp").value = ""; show(); });
+$("#logout").onclick = guard(async () => { await api("logout", {}); ME = null; show(); });
+
+$("#view").addEventListener("click", guard(async e => {
+  const t = e.target.closest("[data-app],[data-act],[data-edit],[data-status],[data-filterjob],[data-rec]"); if (!t) return;
+  const d = t.dataset;
+  if (d.app) { tab = "apps"; ctx.app = d.app; $$("#nav a").forEach(a => a.classList.toggle("on", a.dataset.t === "apps")); return render(); }
+  if (d.filterjob) { tab = "apps"; ctx.af = {job: d.filterjob}; return render(); }
+  if (d.edit) { ctx.editJob = d.edit; return render(); }
+  if (d.rec) { await api("recruiters/" + d.rec, {active: d.active === "1"}); return render(); }
+  if (d.status) {
+    if (d.status === "closed" && !confirm("Clôturer cette offre ? Elle ne sera plus visible des candidats.")) return;
+    const r = await api(`jobs/${d.id}/status`, {status: d.status});
+    flash(d.status === "published" ? `Offre publiée${r.alertsSent ? ` · ${r.alertsSent} alerte(s) envoyée(s)` : ""}.` : "Offre clôturée."); return render();
+  }
+  if (d.act === "newJob") { ctx.editJob = null; return render(); }
+  if (d.act === "cancelJob") { delete ctx.editJob; return render(); }
+  if (d.act === "back") { delete ctx.app; return render(); }
+  if (d.act === "refresh") { ctx.af = Object.fromEntries($$("[data-af]").map(i => [i.dataset.af, i.value.trim()])); return render(); }
+}));
+$("#view").addEventListener("change", e => { if (e.target.matches("select[data-af]")) { ctx.af = Object.fromEntries($$("[data-af]").map(i => [i.dataset.af, i.value.trim()])); render(); } });
+$("#view").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches("input[data-af]")) { e.preventDefault(); ctx.af = Object.fromEntries($$("[data-af]").map(i => [i.dataset.af, i.value.trim()])); render(); } });
+
+$("#view").addEventListener("submit", guard(async e => {
+  e.preventDefault(); const f = e.target, data = Object.fromEntries(new FormData(f));
+  if (f.id === "fJob") {
+    data.urgent = f.urgent.checked;
+    if (ctx.editJob) { await api("jobs/" + ctx.editJob, data); flash("Offre enregistrée."); }
+    else { const r = await api("jobs", data); flash(`Offre ${r.ref} créée en brouillon. Publiez-la depuis la liste.`); }
+    delete ctx.editJob; delete ctx.jobs; return render();
+  }
+  if (f.id === "fStatus") {
+    const r = await api(`applications/${ctx.app}/status`, {status: data.status, note: data.note, message: data.message, notifyEmail: f.notifyEmail.checked, notifySms: f.notifySms.checked});
+    flash("Statut mis à jour" + (r.notified.length ? ` · candidat prévenu par ${r.notified.join(" et ")}` : "") + "."); return render();
+  }
+  if (f.id === "fRec") {
+    const r = await api("recruiters", data);
+    $("#recOut").innerHTML = `<div class="secret"><b>Compte créé pour ${esc(r.email)}</b><br>Mot de passe provisoire : <code>${esc(r.temporaryPassword)}</code><br><span class="sub">Transmettez-le par un canal privé ; il ne sera plus affiché. À changer dans « Mon compte ».</span></div>`;
+    f.reset(); return;
+  }
+  if (f.id === "fPw") { const r = await api("password", data); f.reset(); flash(r.message); }
+}));
+
+(async () => { try { ME = (await api("session")).recruiter; } catch (e) { flash(e.message, true); } show(); })();
+})();
+</script>
+</body>
+</html>

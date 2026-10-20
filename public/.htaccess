@@ -1,0 +1,15 @@
+# Carrieres RCA (demonstration) — tout passe par index.php, qui applique la
+# barriere de demonstration. Limite a mod_rewrite et mod_alias : l'hebergement
+# Camoo refuse `Options` et `Require`.
+
+RewriteEngine On
+RewriteBase /carrieres-rca/
+
+# Code interne, configuration de repli et schema : jamais servis.
+RedirectMatch 404 (?i)/carrieres-rca/(lib|routes|views)/
+RedirectMatch 404 (?i)/carrieres-rca/\.env
+RedirectMatch 404 (?i)/carrieres-rca/.*\.(sql|log|bak|ini|md)$
+
+# install.php est un fichier reel, protege par son jeton et supprime apres usage.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php?__path=$1 [QSA,L]

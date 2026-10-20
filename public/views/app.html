@@ -1,0 +1,929 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Recherche d'emplois - Orange RCA (démonstration)</title>
+<style>
+:root{--or:#FF7900;--or-dk:#F16E00;--ink:#000;--txt:#333;--mut:#666;--line:#ddd;--soft:#f4f4f4;--blue:#0C66C2;--ok:#32c832;--err:#cd3c14}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;color:var(--txt);background:var(--soft)}
+a{color:var(--blue);text-decoration:none;cursor:pointer}a:hover{text-decoration:underline}
+button{font:inherit;cursor:pointer}
+button:disabled{cursor:default;opacity:.5}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#fff;padding:6px;z-index:99}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+.demo{background:var(--or);color:#000;font-size:13px;font-weight:700;text-align:center;padding:6px 16px}
+header{background:var(--ink);color:#fff}
+.hd{display:flex;align-items:center;justify-content:space-between;min-height:76px;gap:16px}
+.brand{display:flex;align-items:center;gap:14px;color:#fff}.brand:hover{text-decoration:none}
+.logo{width:50px;height:50px;background:var(--or);display:flex;align-items:flex-end;padding:5px;font-weight:700;font-size:13px;color:#fff;flex:none}
+.brand span{font-size:20px;font-weight:700}
+.user{text-align:right;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.user h1{font-size:14px;font-weight:400;margin:0}
+.ulinks{display:flex;gap:14px;align-items:center}
+.ulinks a{color:var(--or);font-weight:700}
+.cartic{position:relative;color:#fff!important}
+.cartic b{position:absolute;top:-8px;right:-10px;background:var(--or);color:#000;font-size:10px;padding:0 4px}
+nav{background:#fff;border-bottom:1px solid var(--line)}
+nav .top{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap}
+nav .top>li{position:relative}
+nav .top>li>a{display:block;padding:14px 18px;color:var(--ink);font-weight:700;border-bottom:3px solid transparent}
+nav .top>li>a.on{border-color:var(--or);color:var(--or)}
+nav a:hover{text-decoration:none;color:var(--or)}
+.subnav{display:none;position:absolute;left:0;top:100%;background:#fff;border:1px solid var(--line);list-style:none;margin:0;padding:6px 0;min-width:260px;z-index:5;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+nav li:hover .subnav,nav li:focus-within .subnav{display:block}
+.subnav a{display:block;padding:8px 16px;color:var(--ink)}
+.notice{display:none;background:#fff3e6;border-left:4px solid var(--or);padding:10px 14px;margin:16px 0;align-items:center;justify-content:space-between;gap:12px}
+.notice.show{display:flex}
+.flash{background:#e9f9e9;border-left:4px solid var(--ok);padding:10px 14px;margin:16px 0}
+.flash.err{background:#fdecea;border-color:var(--err)}
+main{padding:20px 0 40px}
+.grid{display:grid;grid-template-columns:1fr 280px;gap:20px}
+.card{background:#fff;border:1px solid var(--line);padding:18px}
+.narrow{max-width:560px;margin:0 auto}
+h2{font-size:20px;color:var(--ink);margin:0 0 14px}
+h3{font-size:15px;color:var(--ink);margin:16px 0 6px}
+.crumb{font-size:12px;color:var(--mut);margin-bottom:10px}
+.search{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.field{flex:1;min-width:200px;margin-bottom:12px}
+label{display:block;font-weight:700;margin-bottom:4px;color:var(--ink)}
+.req::after{content:" *";color:var(--err)}
+input[type=text],input[type=password],input[type=email],input[type=date],input[type=tel],select,textarea{width:100%;padding:9px 10px;border:1px solid #bbb;font:inherit;background:#fff}
+textarea{min-height:90px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--or);outline-offset:-1px}
+.btn{background:var(--or);color:#000;border:0;padding:10px 18px;font-weight:700}
+.btn:hover{background:var(--or-dk)}
+.btn.sec{background:#fff;border:2px solid #000;padding:8px 16px}
+.btn.sec:hover{background:#000;color:#fff}
+.btn.sm{padding:5px 10px;font-size:12px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.links{margin-top:10px;display:flex;gap:18px;flex-wrap:wrap}
+.help{background:var(--soft);padding:10px 12px;color:var(--txt);line-height:1.45;margin-bottom:14px}
+.res{margin-top:20px}
+.tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:2px solid #000}
+.tools .sort{display:flex;gap:8px;align-items:center}
+.tools select{width:auto;padding:6px}
+.count{color:var(--mut);margin-bottom:6px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;background:#000;color:#fff;padding:9px 10px;font-size:13px}
+td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:hover td{background:#fff8f1}
+td.t a{font-weight:700;font-size:15px}
+.sub{color:var(--mut);font-size:12px;margin-top:3px}
+.ic{white-space:nowrap}
+.badge{display:inline-block;min-width:18px;height:18px;line-height:18px;text-align:center;font-size:11px;font-weight:700;color:#fff;background:var(--err);margin-right:3px;padding:0 3px}
+.b-cart{background:#000}.b-draft{background:#999}.b-done{background:var(--ok)}
+.act{display:flex;gap:6px;flex-wrap:wrap}
+.act button{border:1px solid #000;background:#fff;padding:5px 9px;font-size:12px;font-weight:700}
+.act button.apply{background:var(--or);border-color:var(--or)}
+.act button.in{background:#000;color:#fff}
+.empty{padding:22px;text-align:center;color:var(--mut)}
+.pager{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.pager button{background:#fff;border:1px solid #000;padding:6px 12px}
+.pager button:disabled{opacity:.35;cursor:default}
+aside p{margin:4px 0 10px;line-height:1.45}
+aside ul{padding:0;margin:0}aside .leg li{margin:6px 0;list-style:none}
+dl.meta{display:grid;grid-template-columns:200px 1fr;gap:8px 14px;margin:0 0 16px}
+dl.meta dt{font-weight:700;color:var(--ink)}dl.meta dd{margin:0}
+.jd p,.jd li{line-height:1.55}
+.tabs{display:flex;gap:0;border-bottom:2px solid #000;margin-bottom:16px;flex-wrap:wrap}
+.tabs a{padding:10px 14px;color:var(--ink);font-weight:700}
+.tabs a.on{background:#000;color:#fff;text-decoration:none}
+.steps{display:flex;list-style:none;padding:0;margin:0 0 18px;flex-wrap:wrap;gap:4px}
+.steps li{flex:1;min-width:110px;padding:8px;background:#eee;font-size:12px;font-weight:700;text-align:center;color:var(--mut)}
+.steps li.on{background:var(--or);color:#000}.steps li.done{background:#000;color:#fff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.blk{border:1px solid var(--line);padding:12px;margin-bottom:12px;position:relative}
+.blk .rm{position:absolute;top:8px;right:8px}
+.chk label{font-weight:400;display:flex;gap:6px;margin:4px 0;align-items:flex-start}
+.status{font-weight:700}.st-draft{color:var(--mut)}.st-done{color:#1f8a1f}
+.files{list-style:none;padding:0;margin:6px 0 0}
+.files li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:6px 8px;background:var(--soft);margin-bottom:4px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.ov.show{display:flex}
+.modal{background:#fff;max-width:640px;width:100%;max-height:90vh;overflow:auto;border-top:6px solid var(--or)}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+.mh h2{margin:0}
+.x{background:none;border:0;font-size:22px;line-height:1}
+.mb{padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mb .full{grid-column:1/-1}.mb .field{margin:0}
+.mf{display:flex;gap:8px;justify-content:flex-end;padding:14px 18px;border-top:1px solid var(--line);flex-wrap:wrap}
+.legal{max-height:240px;overflow:auto;border:1px solid var(--line);padding:12px;background:#fafafa;line-height:1.5;font-size:13px}
+.inline{border:1px solid var(--line);padding:12px;margin:8px 0}
+footer{background:#000;color:#ccc;padding:22px 0;font-size:12px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+footer a{color:#fff}
+[hidden]{display:none!important}
+@media(max-width:860px){.grid,.two,.mb{grid-template-columns:1fr}dl.meta{grid-template-columns:1fr}
+ table.rsp thead{display:none}table.rsp,table.rsp tbody,table.rsp tr,table.rsp td{display:block;width:100%}
+ table.rsp tr{border-bottom:1px solid var(--line);padding:6px 0}table.rsp td{border:0;padding:4px 0}
+ .user h1{font-size:12px}.brand span{font-size:16px}.subnav{position:static;box-shadow:none}}
+@media print{.demo,header,nav,footer,.bar,.notice{display:none!important}body{background:#fff}.card{border:0}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Allez à la section du contenu principal.</a>
+<div class="demo" role="note">Environnement de démonstration — ce n'est pas le site carrières officiel d'Orange Centrafrique.</div>
+<header>
+ <div class="wrap hd">
+  <a class="brand" href="#/recherche" aria-label="Accueil Carrières RCA">
+   <div class="logo">orange</div>
+   <span>Carrières RCA</span>
+  </a>
+  <div class="user">
+   <h1 id="greet">Bienvenue. Vous n'êtes pas connecté.</h1>
+   <div class="ulinks">
+    <a href="#/options" id="lnkOpt" title="Accéder à la page de configuration du compte" hidden>Mes options de compte</a>
+    <a href="#/activites/panier" class="cartic" title="Accéder au panier">🛒<b id="cartN">0</b></a>
+    <a href="#/connexion" id="lnkLogin" title="Ouvrir une session">Connexion</a>
+    <a id="lnkLogout" title="Fermer la session" hidden>Déconnexion</a>
+   </div>
+  </div>
+ </div>
+</header>
+<nav><div class="wrap"><ul class="top">
+ <li><a href="#/recherche" data-nav="recherche">Recherche d'emplois</a></li>
+ <li><a href="#/activites/candidatures" data-nav="activites">Mes activités</a>
+  <ul class="subnav">
+   <li><a href="#/recherche">Recherche de base</a></li>
+   <li><a href="#/activites/profil">Emplois correspondant à mon profil</a></li>
+   <li><a href="#/activites/candidatures">Mes candidatures</a></li>
+   <li><a href="#/activites/panier">Mon panier</a></li>
+   <li><a href="#/activites/recherches">Mes recherches sauvegardées</a></li>
+   <li><a href="#/activites/cooptations">Mes cooptations</a></li>
+  </ul></li>
+</ul></div></nav>
+
+<main id="main"><div class="wrap">
+ <div class="notice" id="timeout">
+  <span>Vous serez automatiquement déconnecté après 60 minutes d'inactivité sur ce service.</span>
+  <button class="btn" id="okTimer" title="Cliquez sur OK pour masquer ce message.">OK</button>
+ </div>
+ <div class="flash" id="flash" hidden role="status"></div>
+
+ <!-- ===== RECHERCHE D'EMPLOIS ===== -->
+ <section data-view="recherche">
+  <div class="grid">
+   <div class="card">
+    <h2>Recherche d'emplois</h2>
+    <form class="search" id="sf">
+     <div class="field" style="margin:0"><label for="kw">Mot-clé</label><input type="text" id="kw" placeholder="Intitulé, compétence, référence…"></div>
+     <button class="btn" type="submit">Rechercher</button>
+    </form>
+    <div class="links"><a id="all">Afficher tous les emplois</a><a id="adv">Recherche avancée</a></div>
+    <div class="res">
+     <h2>Appels à candidature</h2>
+     <div class="tools">
+      <div class="sort"><label style="margin:0;font-weight:400"><input type="checkbox" id="multi"> Lignes multiples</label>
+       <a title="Accéder à l'aide en ligne" id="helpIc">?</a></div>
+      <div class="sort">
+       <label for="sortBy" style="margin:0">Trier par</label>
+       <select id="sortBy"><option value="publishedAt">Date de publication</option><option value="title">Intitulé de l'emploi</option><option value="contract">Type de contrat</option><option value="unpublishAt">Date de dépublication</option><option value="location">Lieu</option></select>
+       <select id="order"><option value="desc">Décroissant</option><option value="asc">Croissant</option></select>
+      </div>
+     </div>
+     <div class="count" id="count"></div>
+     <table id="tbl" class="rsp"><thead><tr><th>Icônes</th><th>Titre de la demande de recrutement</th><th>Lieu</th><th>Date de publication</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table>
+     <div class="empty" id="empty" hidden>Aucun emploi ne correspond aux critères spécifiés.<br>Supprimez des critères pour élargir la recherche ou <a id="all2">affichez tous les appels à candidature</a>.</div>
+     <div class="pager"><button id="prev">Précédent</button><span id="pg"></span><button id="next">Suivant</button></div>
+    </div>
+   </div>
+   <aside class="card" id="helpPanel">
+    <h2>Aide</h2>
+    <h3>Conseils de recherche</h3><p>Saisissez un mot-clé ou cliquez sur « Afficher tous les emplois ». Utilisez la recherche avancée pour filtrer par lieu, domaine ou type de contrat.</p>
+    <h3>Sauvegarde des recherches</h3><p>Sauvegardez vos critères et activez l'alerte : vous recevrez un courriel à la publication d'une offre correspondante.</p>
+    <h3>Profil du candidat</h3><p><a href="#/activites/profil">Emplois correspondant à mon profil</a></p>
+    <h3>Légende des icônes</h3>
+    <ul class="leg">
+     <li><span class="badge">!</span> Poste à pourvoir d'urgence</li>
+     <li><span class="badge b-cart">P</span> Emploi ajouté au panier</li>
+     <li><span class="badge b-draft">B</span> Candidature ayant le statut Brouillon</li>
+     <li><span class="badge b-done">✓</span> Candidature terminée</li>
+    </ul>
+   </aside>
+  </div>
+ </section>
+
+ <!-- ===== DÉTAIL DE L'OFFRE ===== -->
+ <section data-view="offre" hidden>
+  <div class="card">
+   <div class="crumb"><a href="#/recherche">Recherche d'emplois</a> › Description de l'emploi</div>
+   <div class="bar" style="margin:0 0 14px"><a class="btn sec sm" href="#/recherche">« Retour à la liste des emplois</a><button class="btn sec sm" id="jPrev">Précédent</button><button class="btn sec sm" id="jNext">Suivant</button></div>
+   <h2 id="jTitle"></h2>
+   <div class="bar" style="margin:0 0 16px"><button class="btn" id="jApply">Postuler en ligne</button><button class="btn sec" id="jCart"></button><button class="btn sec" id="jFriend">Envoyer à un ami</button><button class="btn sec" id="jPrint">Imprimer</button></div>
+   <dl class="meta" id="jMeta"></dl>
+   <div class="jd" id="jBody"></div>
+   <div class="bar"><button class="btn" id="jApply2">Postuler en ligne</button><a class="btn sec" href="#/recherche">Retour à la liste des emplois</a></div>
+  </div>
+ </section>
+
+ <!-- ===== CONNEXION ===== -->
+ <section data-view="connexion" hidden>
+  <div class="card narrow">
+   <h2>Connexion</h2>
+   <p class="help">Pour accéder à votre compte, identifiez-vous en fournissant les informations demandées dans les champs ci-dessous, puis cliquez sur « Connexion ». Si vous n'êtes pas encore inscrit, cliquez sur « Nouvel utilisateur ». Les champs obligatoires sont identifiés par un astérisque.</p>
+   <form id="fLogin">
+    <div class="field"><label class="req" for="lu">Nom d'utilisateur ou adresse électronique</label><input type="text" id="lu" required autocomplete="username"></div>
+    <div class="field"><label class="req" for="lp">Mot de passe</label><input type="password" id="lp" required autocomplete="current-password"></div>
+    <div class="links" style="margin:0 0 14px;flex-direction:column;gap:6px"><a href="#/oubli-utilisateur">Vous avez oublié votre nom d'utilisateur ?</a><a href="#/oubli-mdp">Vous avez oublié votre mot de passe ?</a></div>
+    <div class="bar"><button class="btn" type="submit">Connexion</button><a class="btn sec" href="#/inscription">Nouvel utilisateur</a></div>
+   </form>
+  </div>
+ </section>
+
+ <!-- ===== NOUVEL UTILISATEUR ===== -->
+ <section data-view="inscription" hidden>
+  <div class="card narrow">
+   <h2>Nouvel utilisateur</h2>
+   <p class="help">Créez votre compte candidat. Les champs obligatoires sont identifiés par un astérisque.</p>
+   <div class="legal"><b>Accord de confidentialité</b><br>Orange Centrafrique collecte et traite les données personnelles transmises dans le cadre du recrutement, uniquement pour l'étude de votre candidature. Vous disposez d'un droit d'accès, de rectification et de suppression de vos données. (Texte juridique à fournir par la Direction Juridique Orange RCA.)</div>
+   <div class="chk"><label><input type="checkbox" id="rAgree"> J'ai lu et j'accepte l'accord de confidentialité.</label></div>
+   <form id="fReg">
+    <div class="field"><label class="req" for="ru">Nom d'utilisateur</label><input type="text" id="ru" required autocomplete="username" pattern="[A-Za-z0-9._\-]{3,40}" title="3 à 40 caractères : lettres, chiffres, point, tiret, souligné"></div>
+    <div class="two">
+     <div class="field"><label class="req" for="rp">Mot de passe</label><input type="password" id="rp" required minlength="8" autocomplete="new-password"></div>
+     <div class="field"><label class="req" for="rp2">Saisissez de nouveau le mot de passe</label><input type="password" id="rp2" required autocomplete="new-password"></div>
+    </div>
+    <p class="sub" style="margin-top:-6px">Au moins 8 caractères, dont une majuscule, un chiffre et un caractère spécial.</p>
+    <div class="field"><label class="req" for="re">Adresse électronique</label><input type="email" id="re" required autocomplete="email"></div>
+    <div class="field"><label for="rph">Téléphone mobile</label><input type="tel" id="rph" placeholder="+236 … ou 6XX XX XX XX" autocomplete="tel">
+     <p class="sub">Pendant la démonstration, les codes et alertes par SMS ne sont envoyés qu'aux mobiles camerounais.</p></div>
+    <div class="bar"><button class="btn" type="submit">S'inscrire</button><a class="btn sec" href="#/connexion">Annuler</a></div>
+   </form>
+  </div>
+ </section>
+
+ <!-- ===== OUBLIS ===== -->
+ <section data-view="oubli-utilisateur" hidden>
+  <div class="card narrow"><h2>Nom d'utilisateur oublié</h2>
+   <p class="help">Saisissez l'adresse électronique associée à votre compte. Votre nom d'utilisateur vous sera envoyé par courriel.</p>
+   <form id="fForgotUser"><div class="field"><label class="req" for="fuEmail">Adresse électronique</label><input type="email" id="fuEmail" required></div>
+   <div class="bar"><button class="btn" type="submit">Envoyer</button><a class="btn sec" href="#/connexion">Annuler</a></div></form></div>
+ </section>
+ <section data-view="oubli-mdp" hidden>
+  <div class="card narrow"><h2>Mot de passe oublié</h2>
+   <form id="fForgotPw">
+    <p class="help">Saisissez votre nom d'utilisateur. Un code temporaire sera envoyé par SMS si votre téléphone est vérifié, sinon par courriel.</p>
+    <div class="field"><label class="req" for="fpUser">Nom d'utilisateur ou adresse électronique</label><input type="text" id="fpUser" required></div>
+    <div class="bar"><button class="btn" type="submit">Envoyer le code</button><a class="btn sec" href="#/connexion">Annuler</a></div>
+   </form>
+   <form id="fResetPw" hidden>
+    <p class="help" id="resetHelp"></p>
+    <div class="field"><label class="req" for="rsCode">Code reçu</label><input type="text" id="rsCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required></div>
+    <div class="two">
+     <div class="field"><label class="req" for="rsPw">Nouveau mot de passe</label><input type="password" id="rsPw" required autocomplete="new-password"></div>
+     <div class="field"><label class="req" for="rsPw2">Confirmation</label><input type="password" id="rsPw2" required autocomplete="new-password"></div>
+    </div>
+    <div class="bar"><button class="btn" type="submit">Changer le mot de passe</button><button class="btn sec" type="button" id="rsAgain">Renvoyer un code</button></div>
+   </form>
+  </div>
+ </section>
+
+ <!-- ===== MES ACTIVITÉS ===== -->
+ <section data-view="activites" hidden>
+  <div class="card">
+   <h2>Mes activités</h2>
+   <div class="tabs" id="actTabs">
+    <a data-t="profil">Emplois correspondant à mon profil</a><a data-t="candidatures">Mes candidatures</a><a data-t="panier">Mon panier</a><a data-t="recherches">Mes recherches sauvegardées</a><a data-t="cooptations">Mes cooptations</a>
+   </div>
+   <div data-tab="profil">
+    <p class="help" id="profilHelp"></p>
+    <table class="rsp"><thead><tr><th>Titre</th><th>Lieu</th><th>Date de publication</th><th>Actions</th></tr></thead><tbody id="tProfil"></tbody></table>
+   </div>
+   <div data-tab="candidatures">
+    <table class="rsp"><thead><tr><th>Titre de la demande de recrutement</th><th>Statut de la candidature</th><th>Statut de la demande</th><th>Date de mise à jour</th><th>Actions</th></tr></thead><tbody id="tApps"></tbody></table>
+   </div>
+   <div data-tab="panier">
+    <table class="rsp"><thead><tr><th>Titre</th><th>Lieu</th><th>Date de publication</th><th>Actions</th></tr></thead><tbody id="tCart"></tbody></table>
+   </div>
+   <div data-tab="recherches">
+    <table class="rsp"><thead><tr><th>Nom de la recherche</th><th>Critères</th><th>Alerte par courriel</th><th>Actions</th></tr></thead><tbody id="tSaved"></tbody></table>
+   </div>
+   <div data-tab="cooptations">
+    <p class="help">Recommandez une personne de votre entourage pour une offre publiée. Elle recevra un courriel l'invitant à postuler.</p>
+    <table class="rsp"><thead><tr><th>Candidat recommandé</th><th>Emploi</th><th>Date</th><th>Statut</th></tr></thead><tbody id="tCoopt"></tbody></table>
+    <h3>Nouvelle cooptation</h3>
+    <form id="fCoopt" class="two">
+     <div class="field"><label class="req" for="cFn">Prénom</label><input type="text" id="cFn" required></div>
+     <div class="field"><label class="req" for="cLn">Nom</label><input type="text" id="cLn" required></div>
+     <div class="field"><label class="req" for="cEm">Adresse électronique</label><input type="email" id="cEm" required></div>
+     <div class="field"><label class="req" for="cJob">Emploi</label><select id="cJob"></select></div>
+     <div><button class="btn" type="submit">Envoyer la cooptation</button></div>
+    </form>
+   </div>
+  </div>
+ </section>
+
+ <!-- ===== MES OPTIONS DE COMPTE ===== -->
+ <section data-view="options" hidden>
+  <div class="card narrow">
+   <h2>Mes options de compte</h2>
+   <h3>Informations de connexion</h3>
+   <dl class="meta"><dt>Nom d'utilisateur</dt><dd id="oUser"></dd><dt>Adresse électronique</dt><dd id="oMail"></dd><dt>Téléphone mobile</dt><dd id="oPhone"></dd></dl>
+   <div class="bar" style="margin-top:0"><button class="btn sec sm" data-open="opPw">Modifier le mot de passe</button><button class="btn sec sm" data-open="opMail">Modifier l'adresse électronique</button><button class="btn sec sm" data-open="opPhone">Vérifier / modifier le téléphone</button></div>
+
+   <form class="inline" id="opPw" hidden>
+    <div class="field"><label class="req">Mot de passe actuel</label><input type="password" name="current" required autocomplete="current-password"></div>
+    <div class="field"><label class="req">Nouveau mot de passe</label><input type="password" name="password" required autocomplete="new-password"></div>
+    <button class="btn sm" type="submit">Enregistrer</button>
+   </form>
+   <form class="inline" id="opMail" hidden>
+    <div class="field"><label class="req">Nouvelle adresse électronique</label><input type="email" name="email" required></div>
+    <div class="field"><label class="req">Mot de passe</label><input type="password" name="password" required autocomplete="current-password"></div>
+    <button class="btn sm" type="submit">Enregistrer</button>
+   </form>
+   <div class="inline" id="opPhone" hidden>
+    <p class="sub" style="margin-top:0">Un numéro vérifié permet de recevoir le code de réinitialisation et les étapes de vos candidatures par SMS (mobiles camerounais pendant la démonstration).</p>
+    <form id="phSend"><div class="field"><label>Numéro de mobile</label><input type="tel" name="phone" placeholder="6XX XX XX XX"></div><button class="btn sm" type="submit">Recevoir un code par SMS</button></form>
+    <form id="phCheck" hidden style="margin-top:10px"><div class="field"><label class="req">Code reçu</label><input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required></div><button class="btn sm" type="submit">Vérifier</button></form>
+   </div>
+
+   <h3>Préférences</h3>
+   <form id="fPrefs">
+    <div class="field"><label for="pLang">Langue préférée</label><select id="pLang"><option value="fr">Français</option><option value="en">English</option><option value="sg">Sängö</option></select></div>
+    <div class="chk"><label><input type="checkbox" id="pAlerts"> Recevoir les alertes emploi par courriel</label><label><input type="checkbox" id="pMkt"> Recevoir les communications de recrutement d'Orange RCA</label></div>
+    <button class="btn sec sm" type="submit">Enregistrer les préférences</button>
+   </form>
+   <h3>Confidentialité</h3>
+   <p class="sub" id="oPrivacy"></p>
+   <div class="bar" style="margin-top:0"><button class="btn sec sm" id="delAcc">Supprimer mon compte</button></div>
+  </div>
+ </section>
+
+ <!-- ===== PARCOURS DE CANDIDATURE ===== -->
+ <section data-view="postuler" hidden>
+  <div class="card">
+   <div class="crumb">Candidature : <b id="aJob"></b></div>
+   <ol class="steps" id="steps"></ol>
+
+   <div data-step="confidentialite">
+    <h2>Énoncé de confidentialité</h2>
+    <div class="legal">Les informations que vous transmettez sont utilisées par Orange Centrafrique exclusivement pour le traitement de votre candidature et la gestion de votre dossier candidat. Elles sont conservées pendant la durée nécessaire au processus de recrutement. Vous pouvez à tout moment demander l'accès, la modification ou la suppression de vos données. (Texte définitif à fournir par la Direction Juridique Orange RCA.)</div>
+    <div class="chk"><label><input type="checkbox" id="pAgree"> J'ai lu et compris l'énoncé de confidentialité.</label></div>
+   </div>
+
+   <div data-step="profil">
+    <h2>Profil général</h2>
+    <div class="two">
+     <div class="field"><label class="req">Prénom</label><input type="text" data-k="fn" required maxlength="80"></div>
+     <div class="field"><label class="req">Nom</label><input type="text" data-k="ln" required maxlength="80"></div>
+     <div class="field"><label class="req">Adresse électronique</label><input type="email" data-k="em" required></div>
+     <div class="field"><label class="req">Téléphone mobile</label><input type="tel" data-k="ph" placeholder="+236 …" required></div>
+     <div class="field"><label>Adresse</label><input type="text" data-k="ad" maxlength="200"></div>
+     <div class="field"><label class="req">Ville</label><select data-k="ci" required><option value="">Sélectionner</option><option>Bangui</option><option>Berbérati</option><option>Bambari</option><option>Bouar</option><option>Bossangoa</option><option>Carnot</option><option>Autre</option></select></div>
+     <div class="field"><label class="req">Pays de résidence</label><select data-k="co" required><option>République centrafricaine</option><option>Cameroun</option><option>Tchad</option><option>Congo</option><option>Autre</option></select></div>
+     <div class="field"><label>Date de naissance</label><input type="date" data-k="bd"></div>
+    </div>
+    <div class="two">
+     <div class="field"><label>Domaine d'activité souhaité</label><select data-k="dom" id="pDom"><option value="">Tous les domaines</option></select></div>
+     <div class="field"><label>Comment avez-vous connu cette offre ?</label><select data-k="src"><option>Site carrières Orange RCA</option><option>LinkedIn</option><option>Facebook</option><option>Cooptation</option><option>Presse</option><option>Autre</option></select></div>
+    </div>
+   </div>
+
+   <div data-step="formation">
+    <h2>Formation</h2>
+    <div id="eduList"></div>
+    <button class="btn sec sm" id="addEdu">+ Ajouter une formation</button>
+   </div>
+
+   <div data-step="experience">
+    <h2>Expérience professionnelle</h2>
+    <div id="expList"></div>
+    <button class="btn sec sm" id="addExp">+ Ajouter une expérience</button>
+   </div>
+
+   <div data-step="questionnaire">
+    <h2>Questionnaire</h2>
+    <div class="field"><label class="req">Combien d'années d'expérience avez-vous dans ce domaine ?</label><select data-q="q1"><option>Moins de 2 ans</option><option>2 à 5 ans</option><option>5 à 10 ans</option><option>Plus de 10 ans</option></select></div>
+    <div class="field"><label class="req">Êtes-vous disponible immédiatement ?</label><select data-q="q2"><option>Oui</option><option>Non, préavis de 1 mois</option><option>Non, préavis de 3 mois</option></select></div>
+    <div class="field"><label class="req">Acceptez-vous une mobilité en province ?</label><select data-q="q3"><option>Oui</option><option>Non</option></select></div>
+    <div class="field"><label>Langues parlées</label><div class="chk"><label><input type="checkbox" data-lang="Francais"> Français</label><label><input type="checkbox" data-lang="Sango"> Sängö</label><label><input type="checkbox" data-lang="Anglais"> Anglais</label><label><input type="checkbox" data-lang="Arabe"> Arabe</label></div></div>
+   </div>
+
+   <div data-step="pieces">
+    <h2>Pièces jointes</h2>
+    <p class="help">Joignez votre CV et votre lettre de motivation (PDF, DOC ou DOCX, 5 Mo max par fichier). Chaque fichier est envoyé dès sa sélection.</p>
+    <div class="field"><label class="req" for="fCv">CV</label><input type="file" id="fCv" data-kind="cv" accept=".pdf,.doc,.docx"></div>
+    <div class="field"><label for="fLm">Lettre de motivation</label><input type="file" id="fLm" data-kind="letter" accept=".pdf,.doc,.docx"></div>
+    <div class="field"><label for="fOt">Autres documents (diplômes, attestations)</label><input type="file" id="fOt" data-kind="other" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"></div>
+    <ul class="files" id="fileList"></ul>
+   </div>
+
+   <div data-step="examen">
+    <h2>Examen et soumission</h2>
+    <p class="help">Vérifiez vos informations avant de soumettre. Vous pouvez revenir à une étape pour la modifier.</p>
+    <div id="review"></div>
+    <h3>Signature électronique</h3>
+    <div class="chk"><label><input type="checkbox" id="sign"> Je certifie que les informations fournies sont exactes et complètes.</label></div>
+    <div class="field" style="max-width:320px"><label class="req" for="signName">Nom complet (signature)</label><input type="text" id="signName" maxlength="160"></div>
+   </div>
+
+   <div data-step="fin">
+    <h2 id="finTitle">Merci pour votre candidature</h2>
+    <p id="finText"></p>
+    <div id="finReview"></div>
+   </div>
+
+   <div class="bar" id="wizBar">
+    <button class="btn sec" id="wPrev">Précédent</button>
+    <button class="btn sec" id="wSave">Sauvegarder et continuer plus tard</button>
+    <button class="btn" id="wNext">Sauvegarder et continuer</button>
+   </div>
+  </div>
+ </section>
+</div></main>
+
+<!-- MODALE : RECHERCHE AVANCÉE -->
+<div class="ov" id="ovAdv" role="dialog" aria-modal="true" aria-labelledby="mt">
+ <div class="modal">
+  <div class="mh"><h2 id="mt">Recherche d'emplois avancée</h2><button class="x" data-close aria-label="Fermer">×</button></div>
+  <div class="mb">
+   <div class="field"><label for="fOrg">Organisation</label><select id="fOrg"><option value="">Toutes les organisations</option></select></div>
+   <div class="field"><label for="fLoc">Lieu</label><select id="fLoc"><option value="">Tous les lieux</option></select></div>
+   <div class="field full"><label for="fDom">Domaine d'activité</label><select id="fDom"><option value="">Tous les domaines</option></select></div>
+   <div class="chk"><label style="font-weight:700">Postes à pourvoir d'urgence</label><label><input type="checkbox" id="fUrg"> Postes à pourvoir d'urgence uniquement</label></div>
+   <div class="chk"><label style="font-weight:700">Type de contrat</label><label><input type="checkbox" class="fCt" value="CDI"> CDI</label><label><input type="checkbox" class="fCt" value="CDD"> CDD</label><label><input type="checkbox" class="fCt" value="Stage"> Stage</label></div>
+   <div class="field full"><label for="fEdu">Niveau d'études</label><select id="fEdu"><option value="">Tous</option><option>Aucun</option><option>BAC</option><option>BAC+1, BP, BT</option><option>BAC+2, BTS, DUT</option><option>Programme non sanctionné par un diplôme</option><option>BAC+3, Licence</option><option>BAC+4/BAC+5, Master</option><option>BAC+8, Doctorat</option><option>BAC+9 et +</option><option>Autre</option></select></div>
+   <div class="field full" id="saveBox" hidden><label for="sName">Nom de la recherche</label><input type="text" id="sName" maxlength="80"><div class="chk"><label><input type="checkbox" id="sAlert" checked> M'avertir par courriel des nouvelles offres</label></div></div>
+  </div>
+  <div class="mf"><button class="btn sec" id="clr">Effacer</button><button class="btn sec" id="saveS">Sauvegarder cette recherche</button><button class="btn sec" data-close>Annuler</button><button class="btn" id="apply">Rechercher</button></div>
+ </div>
+</div>
+
+<!-- MODALE : ENVOYER À UN AMI -->
+<div class="ov" id="ovFriend" role="dialog" aria-modal="true">
+ <div class="modal">
+  <div class="mh"><h2>Envoyer à un ami</h2><button class="x" data-close aria-label="Fermer">×</button></div>
+  <form id="fFriend"><div class="mb">
+   <div class="field"><label class="req">Votre nom</label><input type="text" name="fromName" required maxlength="80"></div>
+   <div class="field"><label class="req">Votre adresse électronique</label><input type="email" name="fromEmail" required></div>
+   <div class="field full"><label class="req">Adresse(s) électronique(s) du destinataire</label><input type="text" name="to" required placeholder="Séparez les adresses par des virgules (5 maximum)"></div>
+   <div class="field full"><label>Message</label><textarea name="message" maxlength="1000">Cette offre d'Orange RCA pourrait t'intéresser.</textarea></div>
+  </div>
+  <div class="mf"><button type="button" class="btn sec" data-close>Annuler</button><button class="btn" type="submit">Envoyer</button></div></form>
+ </div>
+</div>
+
+<!-- MODALE : SESSION -->
+<div class="ov" id="ovSess" role="alertdialog" aria-modal="true">
+ <div class="modal" style="max-width:420px">
+  <div class="mh"><h2>Session</h2></div>
+  <div style="padding:18px">Votre session se terminera dans 5 minutes. Cliquez sur OK pour réinitialiser le minuteur à 60 minutes.</div>
+  <div class="mf"><button class="btn" id="sessOk">OK</button></div>
+ </div>
+</div>
+
+<footer><div class="wrap">
+ <span>Démonstration réalisée par TRU GROUP — maquette d'après le site carrières Orange RCA</span>
+ <span><a href="admin">Espace recruteur</a></span>
+</div></footer>
+
+<script>
+(() => {
+'use strict';
+const PER = 10;
+const STEPS = [["confidentialite","Énoncé de confidentialité"],["profil","Profil général"],["formation","Formation"],["experience","Expérience"],["questionnaire","Questionnaire"],["pieces","Pièces jointes"],["examen","Examen et soumission"]];
+const S = {user:null, jobs:[], cart:new Set(), apps:{}, saved:[], coopt:[], filters:{}, page:1, lastList:[], cur:null, step:0, app:null, after:null, resetId:null, profile:{}};
+
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = d => d ? new Date(d.length === 10 ? d + "T12:00:00Z" : d).toLocaleDateString("fr-FR", {day:"2-digit", month:"short", year:"numeric"}) : "—";
+const J = ref => S.jobs.find(j => j.ref === ref);
+const go = h => { location.hash = h; };
+
+function flash(m, err) {
+  const f = $("#flash"); f.textContent = m; f.className = "flash" + (err ? " err" : ""); f.hidden = false;
+  clearTimeout(flash.t); flash.t = setTimeout(() => f.hidden = true, 6000);
+  f.scrollIntoView({block: "nearest"});
+}
+
+// ─── API ────────────────────────────────────────────────────────────────
+async function api(path, opts = {}) {
+  const init = {method: opts.method || (opts.body !== undefined || opts.form ? "POST" : "GET"), headers: {"X-Requested-With": "fetch", "Accept": "application/json"}, credentials: "same-origin"};
+  if (opts.form) init.body = opts.form;
+  else if (opts.body !== undefined) { init.headers["Content-Type"] = "application/json"; init.body = JSON.stringify(opts.body); }
+  let res;
+  try { res = await fetch("api/" + path, init); }
+  catch (e) { throw new Error("Connexion impossible. Vérifiez votre réseau."); }
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401 && S.user && !opts.quiet) { S.user = null; header(); S.after = location.hash; go("#/connexion"); }
+  if (res.status === 403 && data.error && data.error.code === "DEMO_LOCKED") { location.reload(); }
+  if (!res.ok) { const e = new Error(data.error ? data.error.message : "Erreur " + res.status); e.status = res.status; e.data = data.error; throw e; }
+  return data;
+}
+const guard = fn => async (...a) => { try { await fn(...a); } catch (e) { flash(e.message, true); } };
+
+// ─── Chargement ─────────────────────────────────────────────────────────
+async function loadSession() {
+  const s = await api("session", {quiet: true});
+  S.user = s.user;
+  if (S.user) {
+    const [cart, apps] = await Promise.all([api("cart"), api("applications")]);
+    S.cart = new Set(cart.items);
+    S.apps = Object.fromEntries(apps.items.map(a => [a.ref, a]));
+  } else { S.cart = new Set(); S.apps = {}; }
+  header();
+  if (s.expired) flash("Votre session a expiré après 60 minutes d'inactivité. Reconnectez-vous.", true);
+}
+async function loadJobs() {
+  S.jobs = (await api("jobs")).items;
+  const uniq = k => [...new Set(S.jobs.map(j => j[k]))].sort((a, b) => a.localeCompare(b, "fr"));
+  [["#fOrg", "org"], ["#fLoc", "location"], ["#fDom", "domain"], ["#pDom", "domain"]].forEach(([s, k]) => {
+    const sel = $(s), first = sel.options[0]; sel.innerHTML = ""; sel.add(first);
+    uniq(k).forEach(v => sel.add(new Option(v, v)));
+  });
+  $("#cJob").innerHTML = S.jobs.map(j => `<option value="${esc(j.ref)}">${esc(j.title)}</option>`).join("");
+}
+
+// ─── Routeur ────────────────────────────────────────────────────────────
+function needLogin(h) {
+  if (S.user) return false;
+  S.after = h; go("#/connexion"); flash("Veuillez vous connecter pour accéder à cette page."); return true;
+}
+async function route() {
+  const [, v = "recherche", a] = location.hash.split("/");
+  if (["activites", "options", "postuler"].includes(v) && needLogin(location.hash)) return;
+  if (["connexion", "inscription"].includes(v) && S.user) { go("#/activites/candidatures"); return; }
+  $$("[data-view]").forEach(s => s.hidden = s.dataset.view !== v);
+  $$("[data-nav]").forEach(n => n.classList.toggle("on", n.dataset.nav === v || (v === "offre" && n.dataset.nav === "recherche")));
+  const r = {recherche: renderSearch, offre: () => renderJob(a), activites: () => renderAct(a || "candidatures"), options: renderOpt, postuler: () => startApp(a), "oubli-mdp": resetForgot}[v];
+  if (r) await guard(r)();
+  window.scrollTo(0, 0);
+}
+addEventListener("hashchange", route);
+
+function header() {
+  $("#greet").textContent = S.user ? `Bienvenue, ${S.user.username}.` : "Bienvenue. Vous n'êtes pas connecté.";
+  $("#lnkLogin").hidden = !!S.user; $("#lnkLogout").hidden = !S.user; $("#lnkOpt").hidden = !S.user;
+  $("#cartN").textContent = S.cart.size;
+  $("#timeout").classList.toggle("show", !!S.user && !sessionStorage.getItem("rca.notice"));
+}
+$("#lnkLogout").onclick = guard(async () => { await api("auth/logout", {body: {}}); S.user = null; S.cart = new Set(); S.apps = {}; header(); go("#/recherche"); flash("Vous êtes déconnecté."); });
+
+// ─── Recherche ──────────────────────────────────────────────────────────
+function list() {
+  const f = S.filters, kw = (f.kw || "").toLowerCase();
+  const r = S.jobs.filter(j => (!kw || (j.title + " " + j.ref + " " + j.domain + " " + j.summary).toLowerCase().includes(kw))
+    && (!f.org || j.org === f.org) && (!f.loc || j.location === f.loc) && (!f.dom || j.domain === f.dom)
+    && (!f.urg || j.urgent) && (!f.ct || !f.ct.length || f.ct.includes(j.contract)) && (!f.edu || j.education === f.edu));
+  const k = $("#sortBy").value, o = $("#order").value === "asc" ? 1 : -1;
+  return r.sort((a, b) => String(a[k] ?? "").localeCompare(String(b[k] ?? ""), "fr") * o);
+}
+function icons(j) {
+  const a = S.apps[j.ref];
+  return (j.urgent ? '<span class="badge" title="Poste à pourvoir d\'urgence">!</span>' : "")
+    + (S.cart.has(j.ref) ? '<span class="badge b-cart" title="Emploi ajouté au panier">P</span>' : "")
+    + (a ? (a.status === "submitted" ? '<span class="badge b-done" title="Candidature terminée">✓</span>' : '<span class="badge b-draft" title="Candidature ayant le statut Brouillon">B</span>') : "");
+}
+const applyLabel = ref => { const a = S.apps[ref]; return a ? (a.status === "submitted" ? "Consulter la candidature" : "Poursuivre la candidature") : "Postuler"; };
+function actBtns(j) {
+  return `<div class="act"><button class="apply" data-apply="${esc(j.ref)}">${applyLabel(j.ref)}</button><button class="${S.cart.has(j.ref) ? "in" : ""}" data-cart="${esc(j.ref)}">${S.cart.has(j.ref) ? "Retirer du panier" : "Ajouter au panier"}</button></div>`;
+}
+function renderSearch() {
+  const r = list(), pages = Math.max(1, Math.ceil(r.length / PER)); S.page = Math.min(S.page, pages);
+  const sl = r.slice((S.page - 1) * PER, S.page * PER), m = $("#multi").checked; S.lastList = r.map(j => j.ref);
+  $("#rows").innerHTML = sl.map(j => `<tr><td class="ic">${icons(j)}</td><td class="t"><a href="#/offre/${esc(j.ref)}">${esc(j.title)}</a><div class="sub">${esc(j.ref)} · ${esc(j.contract)} · ${esc(j.org)}</div>${m ? `<div class="sub">${esc(j.summary)}</div>` : ""}</td><td>${esc(j.location)}</td><td>${fmt(j.publishedAt)}</td><td>${actBtns(j)}</td></tr>`).join("");
+  $("#empty").hidden = r.length > 0; $("#tbl").hidden = !r.length;
+  $("#count").textContent = r.length ? `Appels à candidature ${(S.page - 1) * PER + 1} à ${(S.page - 1) * PER + sl.length} sur ${r.length}` : "";
+  $("#pg").textContent = `Page ${S.page} / ${pages}`; $("#prev").disabled = S.page <= 1; $("#next").disabled = S.page >= pages;
+}
+const showAll = () => { S.filters = {}; $("#kw").value = ""; S.page = 1; renderSearch(); };
+$("#sf").onsubmit = e => { e.preventDefault(); S.filters.kw = $("#kw").value.trim(); S.page = 1; renderSearch(); };
+$("#all").onclick = showAll; $("#all2").onclick = showAll;
+$("#sortBy").onchange = $("#order").onchange = $("#multi").onchange = renderSearch;
+$("#prev").onclick = () => { S.page--; renderSearch(); }; $("#next").onclick = () => { S.page++; renderSearch(); };
+$("#helpIc").onclick = () => $("#helpPanel").scrollIntoView({behavior: "smooth"});
+
+async function toggleCart(ref) {
+  if (needLogin(location.hash)) return;
+  const inCart = !S.cart.has(ref);
+  await api("cart/" + encodeURIComponent(ref), {body: {in: inCart}});
+  inCart ? S.cart.add(ref) : S.cart.delete(ref);
+  header();
+}
+document.addEventListener("click", guard(async e => {
+  const d = e.target.dataset; if (!d) return;
+  if (d.cart) { await toggleCart(d.cart); await route(); }
+  if (d.apply) go("#/postuler/" + d.apply);
+  if (d.close !== undefined) { e.target.closest(".ov").classList.remove("show"); $("#saveBox").hidden = true; }
+  if (d.open) { const el = $("#" + d.open); el.hidden = !el.hidden; }
+}));
+
+// ─── Recherche avancée ──────────────────────────────────────────────────
+$("#adv").onclick = () => $("#ovAdv").classList.add("show");
+$$(".ov").forEach(o => o.addEventListener("click", e => { if (e.target === o && o.id !== "ovSess") o.classList.remove("show"); }));
+document.addEventListener("keydown", e => { if (e.key === "Escape") $$(".ov:not(#ovSess)").forEach(o => o.classList.remove("show")); });
+$("#clr").onclick = () => { ["#fOrg", "#fLoc", "#fDom", "#fEdu"].forEach(s => $(s).value = ""); $("#fUrg").checked = false; $$(".fCt").forEach(c => c.checked = false); };
+const readF = () => ({kw: $("#kw").value.trim(), org: $("#fOrg").value, loc: $("#fLoc").value, dom: $("#fDom").value, urg: $("#fUrg").checked, ct: $$(".fCt").filter(c => c.checked).map(c => c.value), edu: $("#fEdu").value});
+const critTxt = f => [f.kw && `Mot-clé : ${f.kw}`, f.org, f.loc, f.dom, f.urg && "Urgent uniquement", f.ct && f.ct.join("/"), f.edu].filter(Boolean).join(" · ") || "Tous les emplois";
+$("#apply").onclick = () => { S.filters = readF(); S.page = 1; $("#ovAdv").classList.remove("show"); go("#/recherche"); renderSearch(); };
+$("#saveS").onclick = guard(async () => {
+  if (needLogin("#/recherche")) { $("#ovAdv").classList.remove("show"); return; }
+  const b = $("#saveBox"); if (b.hidden) { b.hidden = false; $("#sName").focus(); return; }
+  const n = $("#sName").value.trim(); if (!n) { $("#sName").focus(); return; }
+  await api("saved-searches", {body: {name: n, criteria: readF(), alert: $("#sAlert").checked}});
+  $("#sName").value = ""; b.hidden = true; $("#ovAdv").classList.remove("show");
+  flash("Recherche sauvegardée. Accédez-y depuis Mes recherches sauvegardées.");
+});
+
+// ─── Détail de l'offre ──────────────────────────────────────────────────
+async function renderJob(ref) {
+  let j;
+  try { j = await api("jobs/" + encodeURIComponent(ref)); } catch (e) { flash(e.message, true); go("#/recherche"); return; }
+  S.cur = ref;
+  $("#jTitle").innerHTML = `${icons(j)} ${esc(j.title)}`;
+  $("#jMeta").innerHTML = [["Identifiant de l'emploi", j.ref], ["Lieu principal", `République centrafricaine - ${j.location}`], ["Organisation", j.org], ["Domaine d'activité", j.domain], ["Horaire", j.schedule], ["Type de contrat", j.contract], ["Niveau d'études", j.education], ["Date de publication", fmt(j.publishedAt)], ["Date de dépublication", fmt(j.unpublishAt)]].map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join("");
+  const ul = items => items.length ? `<ul>${items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : "";
+  $("#jBody").innerHTML = `<h3>Description du poste</h3><p>Rattaché(e) à la ${esc(j.org)}, vous contribuez à la stratégie d'Orange Centrafrique. ${esc(j.summary)}</p>`
+    + (j.missions.length ? `<h3>Missions principales</h3>${ul(j.missions)}` : "")
+    + (j.requirements.length ? `<h3>Profil recherché</h3>${ul(j.requirements)}` : "")
+    + (j.offer ? `<h3>Ce que nous offrons</h3><p>${esc(j.offer)}</p>` : "");
+  $("#jCart").textContent = S.cart.has(ref) ? "Retirer du panier" : "Ajouter au panier";
+  $("#jApply").textContent = $("#jApply2").textContent = S.apps[ref] ? applyLabel(ref) : "Postuler en ligne";
+  const L = S.lastList.length ? S.lastList : S.jobs.map(x => x.ref), i = L.indexOf(ref);
+  $("#jPrev").disabled = i <= 0; $("#jNext").disabled = i < 0 || i >= L.length - 1;
+  $("#jPrev").onclick = () => go("#/offre/" + L[i - 1]); $("#jNext").onclick = () => go("#/offre/" + L[i + 1]);
+}
+$("#jApply").onclick = $("#jApply2").onclick = () => go("#/postuler/" + S.cur);
+$("#jCart").onclick = guard(async () => { await toggleCart(S.cur); await renderJob(S.cur); });
+$("#jFriend").onclick = () => { if (S.user) $("#fFriend").fromEmail.value = S.user.email; $("#ovFriend").classList.add("show"); };
+$("#jPrint").onclick = () => print();
+$("#fFriend").onsubmit = guard(async e => {
+  e.preventDefault();
+  const r = await api(`jobs/${encodeURIComponent(S.cur)}/share`, {body: Object.fromEntries(new FormData(e.target))});
+  $("#ovFriend").classList.remove("show");
+  flash(r.sent === r.total ? "L'offre a été envoyée." : `Envoi partiel : ${r.sent} sur ${r.total} courriel(s) accepté(s).`, r.sent !== r.total);
+});
+
+// ─── Connexion, inscription, oublis ─────────────────────────────────────
+async function afterLogin(msg) {
+  await loadSession();
+  const t = S.after || "#/activites/candidatures"; S.after = null;
+  go(t); if (msg) flash(msg);
+}
+$("#fLogin").onsubmit = guard(async e => {
+  e.preventDefault();
+  await api("auth/login", {body: {username: $("#lu").value.trim(), password: $("#lp").value}});
+  $("#lp").value = ""; await afterLogin();
+});
+$("#fReg").onsubmit = guard(async e => {
+  e.preventDefault();
+  if (!$("#rAgree").checked) return flash("Vous devez accepter l'accord de confidentialité.", true);
+  if ($("#rp").value !== $("#rp2").value) return flash("Les mots de passe ne correspondent pas.", true);
+  if (!/(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}/.test($("#rp").value)) return flash("Le mot de passe ne respecte pas les règles de sécurité.", true);
+  const r = await api("auth/register", {body: {username: $("#ru").value.trim(), password: $("#rp").value, email: $("#re").value.trim(), phone: $("#rph").value.trim(), privacyAccepted: true}});
+  e.target.reset(); $("#rAgree").checked = false;
+  if (r.user.smsEligible) { S.after = "#/options"; await afterLogin("Votre compte a été créé. Vérifiez votre téléphone pour recevoir vos codes et alertes par SMS."); $("#opPhone").hidden = false; }
+  else await afterLogin("Votre compte a été créé.");
+});
+$("#fForgotUser").onsubmit = guard(async e => {
+  e.preventDefault();
+  const r = await api("auth/forgot-username", {body: {email: $("#fuEmail").value.trim()}});
+  e.target.reset(); go("#/connexion"); flash(r.message);
+});
+function resetForgot() { $("#fForgotPw").hidden = false; $("#fResetPw").hidden = true; S.resetId = null; }
+async function sendReset() {
+  const r = await api("auth/forgot-password", {body: {username: $("#fpUser").value.trim()}});
+  S.resetId = r.resetId;
+  $("#resetHelp").textContent = r.channel === "sms"
+    ? "Un code vient d'être envoyé par SMS au numéro vérifié de votre compte. Saisissez-le ci-dessous avec votre nouveau mot de passe."
+    : "Si ce compte existe, un code vient d'être envoyé à son adresse électronique. Saisissez-le ci-dessous avec votre nouveau mot de passe.";
+  $("#fForgotPw").hidden = true; $("#fResetPw").hidden = false; $("#rsCode").focus();
+}
+$("#fForgotPw").onsubmit = guard(async e => { e.preventDefault(); await sendReset(); });
+$("#rsAgain").onclick = guard(async () => { await sendReset(); flash("Un nouveau code a été envoyé."); });
+$("#fResetPw").onsubmit = guard(async e => {
+  e.preventDefault();
+  if ($("#rsPw").value !== $("#rsPw2").value) return flash("Les mots de passe ne correspondent pas.", true);
+  const r = await api("auth/reset-password", {body: {resetId: S.resetId, code: $("#rsCode").value.trim(), password: $("#rsPw").value}});
+  e.target.reset(); resetForgot(); go("#/connexion"); flash(r.message);
+});
+
+// ─── Mes activités ──────────────────────────────────────────────────────
+async function renderAct(t) {
+  $$("#actTabs a").forEach(a => { a.classList.toggle("on", a.dataset.t === t); a.href = "#/activites/" + a.dataset.t; });
+  $$("[data-tab]").forEach(d => d.hidden = d.dataset.tab !== t);
+  const row = j => `<tr><td><a href="#/offre/${esc(j.ref)}">${esc(j.title)}</a><div class="sub">${esc(j.ref)}</div></td><td>${esc(j.location)}</td><td>${fmt(j.publishedAt)}</td><td>${actBtns(j)}</td></tr>`;
+  const none = (n, m) => `<tr><td colspan="${n}" class="empty">${m}</td></tr>`;
+
+  if (t === "profil") {
+    const p = await api("account/profile"); S.profile = p;
+    const match = S.jobs.filter(j => !p.dom || j.domain === p.dom);
+    $("#profilHelp").innerHTML = p.dom ? `Offres du domaine <b>${esc(p.dom)}</b>, déclaré dans votre profil général.` : "Renseignez votre domaine d'activité souhaité dans le profil général d'une candidature pour affiner cette liste.";
+    $("#tProfil").innerHTML = match.slice(0, 10).map(row).join("") || none(4, "Aucun emploi ne correspond à votre profil.");
+  }
+  if (t === "candidatures") {
+    const apps = (await api("applications")).items; S.apps = Object.fromEntries(apps.map(a => [a.ref, a]));
+    $("#tApps").innerHTML = apps.map(a => `<tr><td><a href="#/offre/${esc(a.ref)}">${esc(a.title)}</a><div class="sub">${esc(a.ref)}</div></td>
+      <td class="status ${a.status === "submitted" ? "st-done" : "st-draft"}">${a.status === "submitted" ? esc(a.reviewLabel || "Candidature terminée") : `Brouillon (étape ${a.step + 1}/${STEPS.length})`}</td>
+      <td>${a.jobOpen ? "Publiée" : "Fermée"}</td><td>${fmt(a.updatedAt)}</td>
+      <td><div class="act">${a.jobOpen || a.status === "submitted" ? `<button class="apply" data-apply="${esc(a.ref)}">${a.status === "submitted" ? "Consulter" : "Poursuivre"}</button>` : ""}<button data-withdraw="${esc(a.ref)}" data-draft="${a.status === "draft" ? 1 : 0}">${a.status === "draft" ? "Supprimer le brouillon" : "Retirer la candidature"}</button></div></td></tr>`).join("")
+      || none(5, "Vous n'avez encore soumis aucune candidature.");
+  }
+  if (t === "panier") {
+    const items = (await api("cart")).items; S.cart = new Set(items); header();
+    $("#tCart").innerHTML = items.map(J).filter(Boolean).map(row).join("") || none(4, "Votre panier est vide.");
+  }
+  if (t === "recherches") {
+    S.saved = (await api("saved-searches")).items;
+    $("#tSaved").innerHTML = S.saved.map((s, i) => `<tr><td><b>${esc(s.name)}</b></td><td>${esc(critTxt(s.criteria))}</td><td>${s.alert ? "Activée" : "Désactivée"}</td><td><div class="act"><button data-run="${i}">Exécuter</button><button data-alert="${i}">${s.alert ? "Désactiver l'alerte" : "Activer l'alerte"}</button><button data-delsaved="${i}">Supprimer</button></div></td></tr>`).join("") || none(4, "Aucune recherche sauvegardée.");
+  }
+  if (t === "cooptations") {
+    S.coopt = (await api("cooptations")).items;
+    $("#tCoopt").innerHTML = S.coopt.map(c => `<tr><td>${esc(c.name)}<div class="sub">${esc(c.email)}</div></td><td>${esc(c.job)}</td><td>${fmt(c.createdAt)}</td><td>${c.mailed ? "Invitation envoyée" : "Courriel non parti"}</td></tr>`).join("") || none(4, "Aucune cooptation.");
+  }
+}
+document.addEventListener("click", guard(async e => {
+  const d = e.target.dataset;
+  if (d.withdraw && confirm(d.draft === "1" ? "Supprimer ce brouillon et ses pièces jointes ?" : "Retirer cette candidature ? Le recruteur ne la verra plus.")) {
+    const r = await api(`applications/${encodeURIComponent(d.withdraw)}/withdraw`, {body: {}}); delete S.apps[d.withdraw]; flash(r.message); await route();
+  }
+  if (d.run) { S.filters = {...S.saved[d.run].criteria}; $("#kw").value = S.filters.kw || ""; S.page = 1; go("#/recherche"); }
+  if (d.alert) { const s = S.saved[d.alert]; await api("saved-searches/" + s.id, {body: {alert: !s.alert}}); await route(); }
+  if (d.delsaved && confirm("Supprimer cette recherche ?")) { await api("saved-searches/" + S.saved[d.delsaved].id, {body: {delete: true}}); await route(); }
+}));
+$("#fCoopt").onsubmit = guard(async e => {
+  e.preventDefault();
+  const r = await api("cooptations", {body: {firstName: $("#cFn").value.trim(), lastName: $("#cLn").value.trim(), email: $("#cEm").value.trim(), ref: $("#cJob").value}});
+  e.target.reset(); await route(); flash(r.mailed ? "Cooptation envoyée." : "Cooptation enregistrée, mais le courriel n'a pas pu partir.", !r.mailed);
+});
+
+// ─── Options du compte ──────────────────────────────────────────────────
+async function renderOpt() {
+  await loadSession(); const u = S.user; if (!u) return;
+  $("#oUser").textContent = u.username; $("#oMail").textContent = u.email;
+  $("#oPhone").innerHTML = u.phone ? `${esc(u.phone)} ${u.phoneVerified ? '<span class="st-done">· vérifié</span>' : '<span class="st-draft">· non vérifié</span>'}` : "—";
+  $("#phSend").phone.value = u.phone || "";
+  $("#pLang").value = u.lang; $("#pAlerts").checked = u.alerts; $("#pMkt").checked = u.marketing;
+  $("#oPrivacy").textContent = u.privacyAcceptedAt ? `Accord de confidentialité accepté le ${fmt(u.privacyAcceptedAt)}.` : "";
+}
+const formBody = f => Object.fromEntries(new FormData(f));
+$("#opPw").onsubmit = guard(async e => { e.preventDefault(); const r = await api("account/password", {body: formBody(e.target)}); e.target.reset(); e.target.hidden = true; flash(r.message); });
+$("#opMail").onsubmit = guard(async e => { e.preventDefault(); const r = await api("account/email", {body: formBody(e.target)}); e.target.reset(); e.target.hidden = true; await renderOpt(); flash(r.message); });
+$("#phSend").onsubmit = guard(async e => { e.preventDefault(); const r = await api("account/phone/send", {body: formBody(e.target)}); $("#phCheck").hidden = false; $("#phCheck").code.focus(); flash(r.message); await renderOpt(); });
+$("#phCheck").onsubmit = guard(async e => { e.preventDefault(); const r = await api("account/phone/verify", {body: formBody(e.target)}); e.target.reset(); e.target.hidden = true; $("#opPhone").hidden = true; await renderOpt(); flash(r.message); });
+$("#fPrefs").onsubmit = guard(async e => { e.preventDefault(); const r = await api("account/prefs", {body: {lang: $("#pLang").value, alerts: $("#pAlerts").checked, marketing: $("#pMkt").checked}}); flash(r.message); });
+$("#delAcc").onclick = guard(async () => {
+  if (!confirm("Supprimer définitivement votre compte candidat, vos candidatures et vos pièces jointes ?")) return;
+  const password = prompt("Confirmez avec votre mot de passe :"); if (!password) return;
+  const r = await api("account/delete", {body: {password}});
+  S.user = null; S.cart = new Set(); S.apps = {}; header(); go("#/recherche"); flash(r.message);
+});
+
+// ─── Parcours de candidature ────────────────────────────────────────────
+const emptyData = () => ({privacy: false, profile: {}, edu: [{}], exp: [{}], answers: {langs: ["Francais"]}});
+async function startApp(ref) {
+  const r = await api("applications/" + encodeURIComponent(ref));
+  S.cur = ref;
+  S.app = r.exists ? r : {exists: false, status: "draft", step: 0, data: emptyData(), attachments: []};
+  S.app.job = r.job;
+  const d = S.app.data;
+  d.profile = Object.assign({co: "République centrafricaine"}, r.profile, d.profile || {});
+  if (!d.edu || !d.edu.length) d.edu = [{}];
+  if (!d.exp || !d.exp.length) d.exp = [{}];
+  d.answers = d.answers || {langs: []};
+  S.step = S.app.status === "submitted" ? STEPS.length : S.app.step;
+
+  $("#aJob").textContent = `${r.job.title} (${r.job.ref})`;
+  $("#pAgree").checked = !!d.privacy;
+  $$("[data-k]").forEach(i => { i.value = d.profile[i.dataset.k] ?? (i.tagName === "SELECT" ? i.options[0].value : ""); });
+  $$("[data-q]").forEach(i => { if (d.answers[i.dataset.q]) i.value = d.answers[i.dataset.q]; });
+  $$("[data-lang]").forEach(c => c.checked = (d.answers.langs || []).includes(c.dataset.lang));
+  $("#sign").checked = false; $("#signName").value = S.app.signedName || "";
+  renderBlocks(); renderFiles(); showStep();
+}
+function collect() {
+  const d = S.app.data;
+  d.privacy = $("#pAgree").checked;
+  $$("[data-k]").forEach(i => d.profile[i.dataset.k] = i.value.trim());
+  $$("[data-q]").forEach(i => d.answers[i.dataset.q] = i.value);
+  d.answers.langs = $$("[data-lang]").filter(c => c.checked).map(c => c.dataset.lang);
+  return d;
+}
+const EDU = ["BAC", "BAC+2, BTS, DUT", "BAC+3, Licence", "BAC+4/BAC+5, Master", "BAC+8, Doctorat", "Autre"];
+function blk(type, o, i) {
+  return type === "edu" ? `<div class="blk"><button class="btn sec sm rm" data-rm="edu" data-i="${i}">Supprimer</button><div class="two">
+ <div class="field"><label class="req">Établissement</label><input type="text" data-b="edu" data-i="${i}" data-f="s" value="${esc(o.s)}" maxlength="160"></div>
+ <div class="field"><label class="req">Diplôme</label><select data-b="edu" data-i="${i}" data-f="g">${EDU.map(x => `<option ${o.g === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
+ <div class="field"><label>Spécialité</label><input type="text" data-b="edu" data-i="${i}" data-f="p" value="${esc(o.p)}" maxlength="120"></div>
+ <div class="field"><label>Année d'obtention</label><input type="text" data-b="edu" data-i="${i}" data-f="y" value="${esc(o.y)}" maxlength="4" inputmode="numeric"></div></div></div>`
+  : `<div class="blk"><button class="btn sec sm rm" data-rm="exp" data-i="${i}">Supprimer</button><div class="two">
+ <div class="field"><label class="req">Employeur</label><input type="text" data-b="exp" data-i="${i}" data-f="c" value="${esc(o.c)}" maxlength="160"></div>
+ <div class="field"><label class="req">Intitulé du poste</label><input type="text" data-b="exp" data-i="${i}" data-f="t" value="${esc(o.t)}" maxlength="160"></div>
+ <div class="field"><label>Date de début</label><input type="date" data-b="exp" data-i="${i}" data-f="a" value="${esc(o.a)}"></div>
+ <div class="field"><label>Date de fin</label><input type="date" data-b="exp" data-i="${i}" data-f="z" value="${esc(o.z)}"></div></div>
+ <div class="field"><label>Responsabilités</label><textarea data-b="exp" data-i="${i}" data-f="r" maxlength="2000">${esc(o.r)}</textarea></div></div>`;
+}
+function renderBlocks() {
+  $("#eduList").innerHTML = S.app.data.edu.map((o, i) => blk("edu", o, i)).join("") || '<p class="sub">Aucune formation saisie.</p>';
+  $("#expList").innerHTML = S.app.data.exp.map((o, i) => blk("exp", o, i)).join("") || '<p class="sub">Aucune expérience saisie.</p>';
+}
+const syncBlock = e => { const d = e.target.dataset; if (d.b && S.app) S.app.data[d.b][d.i][d.f] = e.target.value; };
+document.addEventListener("input", syncBlock); document.addEventListener("change", syncBlock);
+$("#addEdu").onclick = () => { S.app.data.edu.push({g: "BAC"}); renderBlocks(); };
+$("#addExp").onclick = () => { S.app.data.exp.push({}); renderBlocks(); };
+document.addEventListener("click", e => { const d = e.target.dataset; if (d.rm) { S.app.data[d.rm].splice(+d.i, 1); renderBlocks(); } });
+
+const KIND = {cv: "CV", letter: "Lettre de motivation", other: "Document"};
+function renderFiles() {
+  const locked = S.app.status === "submitted";
+  $("#fileList").innerHTML = (S.app.attachments || []).map(f => `<li><span><b>${KIND[f.kind]}</b> — <a href="files/${esc(f.id)}">${esc(f.name)}</a> <span class="sub">(${Math.ceil(f.size / 1024)} Ko)</span></span>${locked ? "" : `<button class="btn sec sm" data-delfile="${esc(f.id)}">Retirer</button>`}</li>`).join("");
+}
+$$("[data-kind]").forEach(inp => inp.addEventListener("change", guard(async () => {
+  const file = inp.files[0]; if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { inp.value = ""; return flash("Fichier trop volumineux (5 Mo maximum).", true); }
+  const fd = new FormData(); fd.append("kind", inp.dataset.kind); fd.append("file", file);
+  try {
+    const r = await api(`applications/${encodeURIComponent(S.cur)}/attachments`, {form: fd});
+    S.app.attachments = r.attachments; renderFiles(); flash(`${KIND[inp.dataset.kind]} ajouté.`);
+  } finally { inp.value = ""; }
+})));
+document.addEventListener("click", guard(async e => {
+  const id = e.target.dataset.delfile; if (!id) return;
+  const r = await api(`applications/${encodeURIComponent(S.cur)}/attachments/${id}/delete`, {body: {}});
+  S.app.attachments = r.attachments; renderFiles();
+}));
+
+function review(d) {
+  return `<dl class="meta">
+  <dt>Candidat</dt><dd>${esc(d.profile.fn)} ${esc(d.profile.ln)}</dd><dt>Contact</dt><dd>${esc(d.profile.em)} · ${esc(d.profile.ph)}</dd>
+  <dt>Ville</dt><dd>${esc(d.profile.ci)}, ${esc(d.profile.co)}</dd>
+  <dt>Formation</dt><dd>${d.edu.map(o => esc([o.g, o.p, o.s].filter(Boolean).join(" – "))).filter(Boolean).join("<br>") || "—"}</dd>
+  <dt>Expérience</dt><dd>${d.exp.map(o => esc([o.t, o.c].filter(Boolean).join(" – "))).filter(Boolean).join("<br>") || "—"}</dd>
+  <dt>Questionnaire</dt><dd>${esc(d.answers.q1)} d'expérience · disponible : ${esc(d.answers.q2)} · mobilité : ${esc(d.answers.q3)}</dd>
+  <dt>Pièces jointes</dt><dd>${(S.app.attachments || []).map(f => `${KIND[f.kind]} : ${esc(f.name)}`).join("<br>") || "Aucune"}</dd></dl>`;
+}
+function showStep() {
+  const done = S.step >= STEPS.length;
+  $("#steps").innerHTML = STEPS.map(([, l], i) => `<li class="${done || i < S.step ? "done" : i === S.step ? "on" : ""}">${i + 1}. ${l}</li>`).join("");
+  $$("[data-step]").forEach(d => d.hidden = d.dataset.step !== (done ? "fin" : STEPS[S.step][0]));
+  $("#wizBar").hidden = done; $("#wPrev").disabled = S.step === 0;
+  $("#wNext").textContent = S.step === STEPS.length - 1 ? "Soumettre" : "Sauvegarder et continuer";
+  if (!done && STEPS[S.step][0] === "examen") {
+    $("#review").innerHTML = review(collect())
+      + `<div class="bar" style="margin-top:0">${STEPS.slice(1, 6).map(([, l], i) => `<button class="btn sec sm" data-goto="${i + 1}">Modifier : ${l}</button>`).join("")}</div>`;
+  }
+  if (done) {
+    $("#finTitle").textContent = S.app.justSubmitted ? "Merci pour votre candidature" : "Votre candidature";
+    $("#finText").innerHTML = `Votre candidature à l'emploi <b>${esc(S.app.job.title)}</b> a été soumise${S.app.submittedAt ? " le " + fmt(S.app.submittedAt) : ""}. Statut actuel : <b>${esc(S.app.reviewLabel || "Candidature reçue")}</b>.
+      ${S.app.justSubmitted ? (S.app.mailed ? " Un courriel de confirmation vous a été envoyé." : " Le courriel de confirmation n'a pas pu partir, mais votre candidature est bien enregistrée.") : ""}
+      Suivez son avancement dans <a href="#/activites/candidatures">Mes candidatures</a>.`;
+    $("#finReview").innerHTML = review(S.app.data);
+  }
+}
+document.addEventListener("click", e => { if (e.target.dataset.goto) { collect(); S.step = +e.target.dataset.goto; showStep(); } });
+function valid() {
+  const k = STEPS[S.step][0], sec = $(`[data-step="${k}"]`);
+  if (k === "confidentialite" && !$("#pAgree").checked) { flash("Vous devez accepter l'énoncé de confidentialité pour continuer.", true); return false; }
+  if (k === "pieces" && !(S.app.attachments || []).some(f => f.kind === "cv")) { flash("Le CV est obligatoire.", true); return false; }
+  if (k === "examen" && (!$("#sign").checked || !$("#signName").value.trim())) { flash("Veuillez signer électroniquement votre candidature.", true); return false; }
+  for (const i of sec.querySelectorAll("[required], [data-b][data-f='s'], [data-b][data-f='c'], [data-b][data-f='t']")) {
+    if (!i.value.trim()) { i.focus(); flash("Veuillez renseigner les champs obligatoires.", true); return false; }
+  }
+  return true;
+}
+async function save(step) {
+  await api("applications/" + encodeURIComponent(S.cur), {body: {step, data: collect()}});
+  S.app.exists = true;
+}
+$("#wNext").onclick = guard(async () => {
+  if (!valid()) return;
+  if (S.step === STEPS.length - 1) {
+    await save(S.step);
+    const r = await api(`applications/${encodeURIComponent(S.cur)}/submit`, {body: {certify: $("#sign").checked, signedName: $("#signName").value.trim()}});
+    S.app = Object.assign(S.app, {status: "submitted", reviewLabel: "Candidature reçue", submittedAt: new Date().toISOString(), justSubmitted: true, mailed: r.mailed});
+    S.apps[S.cur] = {status: "submitted"};
+    S.step = STEPS.length; showStep(); scrollTo(0, 0);
+    flash("Candidature soumise.");
+    return;
+  }
+  await save(S.step + 1);
+  S.step++; showStep(); scrollTo(0, 0);
+});
+$("#wPrev").onclick = () => { collect(); S.step--; showStep(); };
+$("#wSave").onclick = guard(async () => { await save(S.step); go("#/activites/candidatures"); flash("Votre candidature a été sauvegardée au statut Brouillon."); });
+
+// ─── Session : avertissement à 55 minutes d'inactivité ──────────────────
+let idleT, warnT;
+function armSession() {
+  clearTimeout(idleT); clearTimeout(warnT);
+  if (!S.user) return;
+  warnT = setTimeout(() => $("#ovSess").classList.add("show"), 55 * 60 * 1000);
+  idleT = setTimeout(() => { S.user = null; header(); $("#ovSess").classList.remove("show"); go("#/connexion"); flash("Vous avez été déconnecté après 60 minutes d'inactivité.", true); }, 60 * 60 * 1000);
+}
+["click", "keydown"].forEach(ev => document.addEventListener(ev, () => { clearTimeout(armSession.t); armSession.t = setTimeout(armSession, 1000); }));
+$("#sessOk").onclick = guard(async () => { $("#ovSess").classList.remove("show"); await api("session"); armSession(); });
+$("#okTimer").onclick = () => { $("#timeout").classList.remove("show"); try { sessionStorage.setItem("rca.notice", "1"); } catch (e) {} };
+
+// ─── Démarrage ──────────────────────────────────────────────────────────
+(async () => {
+  try { await Promise.all([loadJobs(), loadSession()]); }
+  catch (e) { flash(e.message, true); }
+  armSession(); await route();
+})();
+})();
+</script>
+</body>
+</html>
